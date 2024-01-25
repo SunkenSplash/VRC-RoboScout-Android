@@ -39,7 +39,8 @@ fun Test() {
 
     Button(onClick = {
         coroutineScope.launch {
-            println(RoboScoutAPI.roboteventsRequest("/teams/125125"))
+            val res = RoboScoutAPI.roboteventsRequest("/teams/?number=229V")
+            println(res[0])
         }
     }) {
         Text("Test")
