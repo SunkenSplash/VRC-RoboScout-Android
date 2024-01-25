@@ -1,27 +1,30 @@
 package com.sunkensplashstudios.VRCRoboScout
 
-import io.github.cdimascio.dotenv.dotenv
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 
-val dotenv = dotenv {
-    directory = "/assets"
-    filename = "env"
-}
 val API = RoboScoutAPI()
+val jsonWorker = Json {
+    prettyPrint = true
+    isLenient = true
+    ignoreUnknownKeys = true
+}
+val client = HttpClient(CIO) {
+    install(ContentNegotiation) {
+        jsonWorker
+    }
+}
 
 class RoboScoutAPI {
 
@@ -46,16 +49,6 @@ class RoboScoutAPI {
             var cont = true
             var params = params.toMutableMap()
 
-            val client = HttpClient(CIO) {
-                install(ContentNegotiation) {
-                    json(Json {
-                        prettyPrint = true
-                        isLenient = true
-                        ignoreUnknownKeys = true
-                    })
-                }
-            }
-
             while (cont) {
 
                 params.put("page", page)
@@ -65,7 +58,7 @@ class RoboScoutAPI {
                 val response = client.get(request_url) {
                     header("Authorization", "Bearer ${RoboScoutAPI.roboteventsAccessKey()}")
                     url {
-                        if (params.get("per_page") == null) {
+                        if (params["per_page"] == null) {
                             parameters.append("per_page", "250")
                             parameters.append("page", page.toString())
                         }
@@ -91,4 +84,51 @@ class RoboScoutAPI {
 }
 
 @Serializable
-data class Team(val id: Int, val number: String)
+class Team {
+
+    var id: Int = 0
+    var team_name: String = ""
+    var number: String = ""
+    var organization: String = ""
+    var robot_name: String = ""
+    var city: String = ""
+    var region: String = ""
+    var country: String = ""
+    var grade: String = ""
+    var registered: Boolean = false
+
+    private fun update(team: Team) {
+        this.id = team.id
+        this.team_name = team.team_name
+        this.number = team.number
+        this.organization = team.organization
+        this.robot_name = team.robot_name
+        this.city = team.city
+        this.region = team.region
+        this.country = team.country
+        this.grade = team.grade
+        this.registered = team.registered
+    }
+
+    constructor(id: Int) {
+        if (id != 0) {
+            runBlocking {
+                val res = RoboScoutAPI.roboteventsRequest("/teams/$id")
+                if (res.isEmpty()) return@runBlocking
+                val team: Team = jsonWorker.decodeFromJsonElement(res[0])
+                update(team)
+            }
+        }
+    }
+
+    constructor(number: String) {
+        if (number.isNotEmpty()) {
+            runBlocking {
+                val res = RoboScoutAPI.roboteventsRequest("/teams/?number=$number")
+                if (res.isEmpty()) return@runBlocking
+                val team: Team = jsonWorker.decodeFromJsonElement(res[0])
+                update(team)
+            }
+        }
+    }
+}
