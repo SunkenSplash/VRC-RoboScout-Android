@@ -3,10 +3,8 @@ package com.sunkensplashstudios.VRCRoboScout
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -51,7 +49,10 @@ fun Search() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
         var number by remember { mutableStateOf("") }
-        var team by remember { mutableStateOf(Team("")) }
+        var sku by remember { mutableStateOf("") }
+        var team by remember { mutableStateOf(Team()) }
+        var event by remember { mutableStateOf(Event()) }
+        var events by remember { mutableStateOf(listOf(Event()))}
 
         Spacer(Modifier.height(20.dp))
         Text("Search")
@@ -61,18 +62,48 @@ fun Search() {
             onValueChange = { number = it },
             label = { Text("Team Number") }
         )
+        Spacer(Modifier.height(10.dp))
+        TextField(
+            value = sku,
+            onValueChange = { sku = it },
+            label = { Text("Event SKU") }
+        )
         Spacer(Modifier.height(20.dp))
         Button(onClick = {
             coroutineScope.launch {
                 team = Team(number)
+                event = Event(sku)
             }
         }) {
             Text("Search")
+        }
+        if (team.number.isNotEmpty()) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    team.fetchEvents()
+                    events = team.events
+                }
+            }) {
+                Text("Fetch Events")
+            }
         }
         Spacer(Modifier.height(40.dp))
         Text(
             text = team.team_name
         )
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = event.name
+        )
+        Spacer(Modifier.height(10.dp))
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            contentPadding = PaddingValues(10.dp, 20.dp)
+        ) {
+            items(events) { event ->
+                Text(event.name)
+            }
+        }
     }
 }
 
