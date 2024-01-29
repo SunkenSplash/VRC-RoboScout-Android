@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class RootActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
