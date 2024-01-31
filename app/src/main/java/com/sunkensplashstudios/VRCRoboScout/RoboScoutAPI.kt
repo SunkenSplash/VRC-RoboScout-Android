@@ -6,8 +6,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.URLProtocol
-import io.ktor.utils.io.printStack
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -127,7 +125,7 @@ class Event {
     constructor(id: Int = 0, fetch: Boolean = true) {
         this.id = id
         if (fetch) {
-
+            fetchInfo()
         }
     }
 
@@ -180,7 +178,6 @@ class Event {
 
 @Serializable
 class Location {
-
     var venue: String? = ""
     var address_1: String? = ""
     var address_2: String? = ""
@@ -188,7 +185,6 @@ class Location {
     var region: String? = ""
     var postcode: String? = ""
     var country: String? = ""
-
 }
 
 @Serializable

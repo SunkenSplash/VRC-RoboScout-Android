@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
@@ -28,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -59,10 +57,12 @@ fun Search() {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-        var number by rememberSaveable { mutableStateOf("229V") }
-        var team by rememberSaveable { mutableStateOf(Team()) }
-        var events by rememberSaveable { mutableStateOf(listOf(Event())) }
-        var fetched by rememberSaveable { mutableStateOf(false) }
+        // eventually rememberSaveable
+        var textColor by remember { mutableStateOf(Color.DarkGray) }
+        var number by remember { mutableStateOf("229V") }
+        var team by remember { mutableStateOf(Team()) }
+        var events by remember { mutableStateOf(listOf(Event())) }
+        var fetched by remember { mutableStateOf(false) }
 
         Spacer(Modifier.height(20.dp))
         TextField(
@@ -88,20 +88,20 @@ fun Search() {
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
+                unfocusedTextColor = textColor
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = {
                     keyboardController?.hide()
                     coroutineScope.launch {
-                        println("fetch")
                         team = Team(number)
                         fetched = true
+                        textColor = Color.Unspecified
                     }
                 })
         )
-        Spacer(Modifier.height(10.dp))
-        if (team.number.isNotEmpty()) {
+        /*if (team.number.isNotEmpty()) {
             Button(onClick = {
                 coroutineScope.launch {
                     team.fetchEvents()
@@ -110,7 +110,7 @@ fun Search() {
             }) {
                 Text("Fetch Events")
             }
-        }
+        }*/
         Spacer(Modifier.height(40.dp))
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
