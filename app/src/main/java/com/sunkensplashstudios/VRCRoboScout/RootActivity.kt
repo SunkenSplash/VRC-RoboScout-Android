@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +81,7 @@ class RootActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         topBar = {
-                            TopAppBar(
+                            CenterAlignedTopAppBar(
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                                     titleContentColor = MaterialTheme.colorScheme.primary,
@@ -117,77 +119,8 @@ class RootActivity : ComponentActivity() {
 }
 
 @Composable
-fun Search() {
-
-    val coroutineScope = rememberCoroutineScope()
-    //var text by remember { mutableStateOf("Hello") }
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-        var number by remember { mutableStateOf("") }
-        var sku by remember { mutableStateOf("") }
-        var team by remember { mutableStateOf(Team()) }
-        var event by remember { mutableStateOf(Event()) }
-        var events by remember { mutableStateOf(listOf(Event()))}
-
-        Spacer(Modifier.height(20.dp))
-        Text("Search")
-        Spacer(Modifier.height(20.dp))
-        TextField(
-            value = number,
-            onValueChange = { number = it },
-            label = { Text("Team Number") }
-        )
-        Spacer(Modifier.height(10.dp))
-        TextField(
-            value = sku,
-            onValueChange = { sku = it },
-            label = { Text("Event SKU") }
-        )
-        Spacer(Modifier.height(20.dp))
-        Button(onClick = {
-            coroutineScope.launch {
-                team = Team(number)
-                event = Event(sku)
-            }
-        }) {
-            Text("Search")
-        }
-        if (team.number.isNotEmpty()) {
-            Button(onClick = {
-                coroutineScope.launch {
-                    team.fetchEvents()
-                    events = team.events
-                }
-            }) {
-                Text("Fetch Events")
-            }
-        }
-        Spacer(Modifier.height(40.dp))
-        Text(
-            text = team.team_name
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = event.name
-        )
-        Spacer(Modifier.height(10.dp))
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            contentPadding = PaddingValues(10.dp, 20.dp)
-        ) {
-            items(events) { event ->
-                Text(event.name)
-            }
-        }
-    }
-}
-
-@Composable
 fun TabView(tabBarItems: List<TabBarItem>, navController: NavController) {
-    var selectedTabIndex by remember {
+    var selectedTabIndex by rememberSaveable {
         mutableIntStateOf(0)
     }
 

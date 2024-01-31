@@ -156,38 +156,38 @@ class Event {
 
         val event: Event = jsonWorker.decodeFromJsonElement(res[0])
 
-        var id: Int = 0
         this.id = event.id
-        var sku: String = ""
         this.sku = event.sku
-        var name: String = ""
         this.name = event.name
-        var start: String = ""
         this.start = event.start
         // TODO: this.startDate
-        var end: String = ""
         this.end = event.end
         // TODO: this.endDate
-        var season: Int = 0
         this.season = event.season
-        var venue: String = ""
         this.venue = event.venue
-        var address: String = ""
         this.address = event.address
-        var city: String = ""
         this.city = event.city
-        var region: String = ""
         this.region = event.region
-        var postcode: Int = 0
         this.postcode = event.postcode
-        var country: String = ""
         this.country = event.country
-        var teams: List<Team> = listOf(Team())
         this.teams = event.teams
         // TODO: this.teams_map
         this.teams_map = event.teams_map
         // TODO: this.livestream_link
     }
+
+}
+
+@Serializable
+class Location {
+
+    var venue: String? = ""
+    var address_1: String? = ""
+    var address_2: String? = ""
+    var city: String? = ""
+    var region: String? = ""
+    var postcode: String? = ""
+    var country: String? = ""
 
 }
 
@@ -201,9 +201,7 @@ class Team {
     var number: String = ""
     var organization: String = ""
     var robot_name: String = ""
-    var city: String = ""
-    var region: String = ""
-    var country: String = ""
+    var location: Location = Location()
     var grade: String = ""
     var registered: Boolean = false
 
@@ -227,12 +225,12 @@ class Team {
 
         if (this.id != 0) {
             runBlocking {
-                res = RoboScoutAPI.roboteventsRequest("/teams/$id")
+                res = RoboScoutAPI.roboteventsRequest("/teams/$id", mapOf("program" to 1))
             }
         }
         else if (this.number.isNotEmpty()) {
             runBlocking {
-                res = RoboScoutAPI.roboteventsRequest("/teams", mapOf("number" to number))
+                res = RoboScoutAPI.roboteventsRequest("/teams", mapOf("number" to number, "program" to 1))
             }
         }
         else {
@@ -250,9 +248,7 @@ class Team {
         this.number = team.number
         this.organization = team.organization
         this.robot_name = team.robot_name
-        this.city = team.city
-        this.region = team.region
-        this.country = team.country
+        this.location = team.location
         this.grade = team.grade
         this.registered = team.registered
     }
