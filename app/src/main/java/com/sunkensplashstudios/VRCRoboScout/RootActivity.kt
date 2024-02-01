@@ -1,5 +1,7 @@
 package com.sunkensplashstudios.VRCRoboScout
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +26,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +56,44 @@ data class TabBarItem(
     val badgeAmount: Int? = null
 )
 
+class UserSettings(context: Context) {
+    private val userSettings: SharedPreferences =
+        context.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE)
+
+    fun saveData(key: String, value: String) {
+        println("Saving $key with value $value")
+        val editor = userSettings.edit()
+        editor.putString(key, value)
+        editor.apply()
+    }
+
+    fun getData(key: String, defaultValue: String): String {
+        return userSettings.getString(key, defaultValue) ?: defaultValue
+    }
+
+    fun addFavoriteTeam(number: String) {
+        println("Adding $number")
+        println("Data: " + this.getData("favorites", ""))
+        val newFavorites = this.getData("favorites", "").replace("[", "").replace("]", "").split(", ").toMutableList()
+        newFavorites.removeAll(listOf(""))
+        if (!newFavorites.contains(number)) newFavorites.add(number)
+        println("New Data: $newFavorites")
+        this.saveData("favorites", newFavorites.toString())
+    }
+
+    fun removeFavoriteTeam(number: String) {
+        println("Removing $number")
+        println("Data: " + this.getData("favorites", ""))
+        val newFavorites = this.getData("favorites", "").replace("[", "").replace("]", "").split(", ").toMutableList()
+        newFavorites.removeAll(listOf(""))
+        newFavorites.remove(number)
+        println("New Data: $newFavorites")
+        this.saveData("favorites", newFavorites.toString())
+    }
+}
+
 class RootActivity : ComponentActivity() {
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
