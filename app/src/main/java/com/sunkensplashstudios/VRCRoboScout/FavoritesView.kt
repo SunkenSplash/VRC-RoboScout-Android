@@ -1,5 +1,6 @@
 package com.sunkensplashstudios.VRCRoboScout
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,9 +17,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.navigate
+import com.sunkensplashstudios.VRCRoboScout.destinations.*
 
+@RootNavGraph(start = true)
+@Destination
 @Composable
-fun FavoritesView() {
+fun FavoritesView(navController: NavController) {
 
     val localContext = LocalContext.current
     val favorites = remember { UserSettings(localContext).getData("favorites", "").replace("[", "").replace("]", "").split(", ") }
@@ -31,8 +42,13 @@ fun FavoritesView() {
             modifier = Modifier.padding(10.dp)
         ) {
             items(favorites) { favorite ->
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.padding(10.dp)) {
-                    Text(favorite)
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.padding(10.dp).clickable{
+                        navController.navigate(TeamEventsViewDestination(Team(favorite, false)))
+                    }
+                ) {
+                    Text(favorite, fontSize = 18.sp)
                     Spacer(modifier = Modifier.weight(1.0f))
                 }
                 if (favorites.indexOf(favorite) < favorites.size - 1) {

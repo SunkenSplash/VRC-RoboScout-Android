@@ -45,10 +45,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
+@Destination
 @Composable
-fun LookupView() {
+fun LookupView(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -72,7 +76,6 @@ fun Lookup() {
         var textColor by remember { mutableStateOf(Color.DarkGray) }
         var number by remember { mutableStateOf("229V\u200B") }
         var team by remember { mutableStateOf(Team()) }
-        var events by remember { mutableStateOf(listOf(Event())) }
         var fetched by remember { mutableStateOf(false) }
         var favorites by remember { mutableStateOf(userSettings.getData("favorites", "").replace("[", "").replace("]", "").split(", ")) }
 
@@ -121,19 +124,19 @@ fun Lookup() {
             )
             Spacer(modifier = Modifier.weight(1.0F))
             IconButton(onClick = {
-                if (number.isEmpty()) {
+                if (number.isEmpty() || number == "229V\u200B") {
                     return@IconButton
                 }
-                else if (favorites.contains(number) && textColor != Color.Unspecified) {
-                    userSettings.removeFavoriteTeam(number)
+                else if (favorites.contains(number.uppercase()) && textColor != Color.Unspecified) {
+                    userSettings.removeFavoriteTeam(number.uppercase())
                     favorites = userSettings.getData("favorites", "").replace("[", "").replace("]", "").split(", ")
                 }
                 else {
-                    userSettings.addFavoriteTeam(number)
+                    userSettings.addFavoriteTeam(number.uppercase())
                     favorites = userSettings.getData("favorites", "").replace("[", "").replace("]", "").split(", ")
                 }
             }) {
-                if (favorites.contains(number) && textColor != Color.Unspecified) {
+                if (favorites.contains(number.uppercase()) && textColor != Color.Unspecified) {
                     Icon(Icons.Filled.Star, modifier = Modifier.size(32.dp), contentDescription = "Favorite")
                 }
                 else {
@@ -192,17 +195,6 @@ fun Lookup() {
                     Spacer(modifier = Modifier.weight(1.0f))
                     Text(if (fetched && (team.location.country ?: "").isNotEmpty()) "${team.location.city}, ${team.location.region}" else "")
                 }
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            contentPadding = PaddingValues(10.dp, 20.dp)
-        ) {
-            items(events) { event ->
-                Text(event.name)
             }
         }
     }

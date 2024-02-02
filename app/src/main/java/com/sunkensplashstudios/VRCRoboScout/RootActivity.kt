@@ -2,6 +2,7 @@ package com.sunkensplashstudios.VRCRoboScout
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Path
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,15 +47,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.spec.Direction
+import com.sunkensplashstudios.VRCRoboScout.destinations.*
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
 import kotlinx.coroutines.launch
-
-data class TabBarItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val badgeAmount: Int? = null
-)
 
 class UserSettings(context: Context) {
     private val userSettings: SharedPreferences =
@@ -92,6 +90,14 @@ class UserSettings(context: Context) {
     }
 }
 
+data class TabBarItem(
+    val title: String,
+    val direction: Direction,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val badgeAmount: Int? = null
+)
+
 class RootActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -99,11 +105,11 @@ class RootActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             // setting up the individual tabs
-            val favoritesTab = TabBarItem(title = "Favorites", selectedIcon = Icons.Filled.Star, unselectedIcon = Icons.Outlined.Star)
-            val worldSkillsTab = TabBarItem(title = "World Skills", selectedIcon = Icons.Filled.Language, unselectedIcon = Icons.Outlined.Language)
-            val trueskillTab = TabBarItem(title = "TrueSkill", selectedIcon = Icons.Filled.TrendingUp, unselectedIcon = Icons.Outlined.TrendingUp)
-            val lookupTab = TabBarItem(title = "Lookup", selectedIcon = Icons.Filled.Search, unselectedIcon = Icons.Outlined.Search)
-            val settingsTab = TabBarItem(title = "Settings", selectedIcon = Icons.Filled.Settings, unselectedIcon = Icons.Outlined.Settings)
+            val favoritesTab = TabBarItem(title = "Favorites", direction = FavoritesViewDestination(), selectedIcon = Icons.Filled.Star, unselectedIcon = Icons.Outlined.Star)
+            val worldSkillsTab = TabBarItem(title = "World Skills", direction = WorldSkillsViewDestination(), selectedIcon = Icons.Filled.Language, unselectedIcon = Icons.Outlined.Language)
+            val trueskillTab = TabBarItem(title = "TrueSkill", direction = TrueSkillViewDestination(), selectedIcon = Icons.Filled.TrendingUp, unselectedIcon = Icons.Outlined.TrendingUp)
+            val lookupTab = TabBarItem(title = "Lookup", direction = LookupViewDestination(), selectedIcon = Icons.Filled.Search, unselectedIcon = Icons.Outlined.Search)
+            val settingsTab = TabBarItem(title = "Settings", direction = SettingsViewDestination(), selectedIcon = Icons.Filled.Settings, unselectedIcon = Icons.Outlined.Settings)
 
             // creating a list of all the tabs
             val tabBarItems = listOf(favoritesTab, worldSkillsTab, trueskillTab, lookupTab, settingsTab)
@@ -113,6 +119,14 @@ class RootActivity : ComponentActivity() {
 
             val tabState by navController.currentBackStackEntryAsState()
 
+            val routeNameMap = mapOf(
+                "favorites_view" to "Favorites",
+                "world_skills_view" to "World Skills",
+                "true_skill_view" to "World TrueSkill",
+                "lookup_view" to "Lookup",
+                "settings_view" to "Settings"
+            )
+
             VRCRoboScoutTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -121,36 +135,35 @@ class RootActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         topBar = {
-                            CenterAlignedTopAppBar(
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    titleContentColor = MaterialTheme.colorScheme.primary,
-                                ),
-                                title = {
-                                    Text(tabState?.destination?.route ?: "VRC RoboScout", fontWeight = FontWeight.Bold)
-                                }
-                            )
+                            if (routeNameMap[tabState?.destination?.route] != null) {
+                                CenterAlignedTopAppBar(
+                                    colors = TopAppBarDefaults.topAppBarColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        titleContentColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                                    title = {
+                                        Text(
+                                            routeNameMap[tabState?.destination?.route]
+                                                ?: "VRC RoboScout", fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                )
+                            }
                         },
-                        bottomBar = { TabView(tabBarItems, navController) }
-                    ) { padding ->
-                        NavHost(navController = navController, startDestination = favoritesTab.title, modifier = Modifier
-                            .padding(padding)) {
-                            composable(favoritesTab.title) {
-                                FavoritesView()
-                            }
-                            composable(worldSkillsTab.title) {
-                                WorldSkillsView()
-                            }
-                            composable(trueskillTab.title) {
-                                TrueSkillView()
-                            }
-                            composable(lookupTab.title) {
-                                LookupView()
-                            }
-                            composable(settingsTab.title) {
-                                SettingsView()
+                        bottomBar = {
+                            if (routeNameMap[tabState?.destination?.route] != null) {
+                                TabView(tabBarItems, navController)
                             }
                         }
+                    ) { padding ->
+                        DestinationsNavHost(
+                            navController = navController,
+                            navGraph = NavGraphs.root,
+                            modifier = Modifier
+                                .padding(padding)
+                                .fillMaxSize(),
+                            startRoute = FavoritesViewDestination
+                        )
                     }
                 }
             }
@@ -171,7 +184,7 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController) {
                 selected = selectedTabIndex == index,
                 onClick = {
                     selectedTabIndex = index
-                    navController.navigate(tabBarItem.title)
+                    navController.navigate(tabBarItem.direction)
                 },
                 icon = {
                     TabBarIconView(
