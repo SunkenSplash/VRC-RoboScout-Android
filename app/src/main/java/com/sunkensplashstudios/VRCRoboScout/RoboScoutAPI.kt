@@ -13,7 +13,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 val API = RoboScoutAPI()
 val jsonWorker = Json {
@@ -41,6 +43,34 @@ class RoboScoutAPI {
 
         public final fun roboteventsAccessKey(): String {
             return BuildConfig.ROBOTEVENTS_API_KEY
+        }
+
+        fun roboteventsDate(date: String, localize: Boolean): Date? {
+            val formatter = SimpleDateFormat()
+
+            try {
+                // Example date: "2023-04-26T11:54:40-04:00"
+                return if (localize) {
+                    formatter.applyPattern("yyyy-MM-dd'T'HH:mm:ssZ")
+                    formatter.parse(date)
+                } else {
+                    formatter.applyPattern("yyyy-MM-dd'T'HH:mm:ss")
+                    val split = date.split("-").toMutableList()
+                    if (split.isNotEmpty()) {
+                        split.removeAt(split.size - 1)
+                    }
+                    formatter.parse(split.joinToString("-"))
+                }
+            }
+            catch (e: java.text.ParseException) {
+                return null
+            }
+        }
+
+        fun formatDate(date: Date?): String {
+            if (date == null) return ""
+            val outputFormat = SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH)
+            return outputFormat.format(date)
         }
 
         public final suspend fun roboteventsRequest(requestUrl: String, params: Map<String, Any> = emptyMap<String, Any>()): List<JsonObject> {
@@ -112,15 +142,15 @@ class Event {
     var end: String = ""
     @kotlinx.serialization.Transient var endDate: Date? = null
     var season: Season = Season()
-    var venue: String = ""
-    var address: String = ""
-    var city: String = ""
-    var region: String = ""
-    var postcode: Int = 0
-    var country: String = ""
+    var location: Location = Location()
     var teams: List<Team> = listOf(Team())
     @kotlinx.serialization.Transient var teams_map: Map<Int, Team> = emptyMap<Int, Team>()
     @kotlinx.serialization.Transient var livestream_link: String? = null
+
+    init {
+        this.startDate = RoboScoutAPI.roboteventsDate(this.start, true)
+        this.endDate = RoboScoutAPI.roboteventsDate(this.end, true)
+    }
 
     constructor(id: Int = 0, fetch: Boolean = true) {
         this.id = id
@@ -159,15 +189,12 @@ class Event {
         this.name = event.name
         this.start = event.start
         // TODO: this.startDate
+        this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
         this.end = event.end
         // TODO: this.endDate
+        this.endDate = RoboScoutAPI.roboteventsDate(event.end, true)
         this.season = event.season
-        this.venue = event.venue
-        this.address = event.address
-        this.city = event.city
-        this.region = event.region
-        this.postcode = event.postcode
-        this.country = event.country
+        this.location = event.location
         this.teams = event.teams
         // TODO: this.teams_map
         this.teams_map = event.teams_map

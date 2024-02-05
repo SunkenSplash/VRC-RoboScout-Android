@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
@@ -18,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,7 +50,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Destination
 @Composable
@@ -64,7 +71,6 @@ fun LookupView(navController: NavController) {
 @Composable
 fun Lookup() {
 
-    val coroutineScope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val localContext = LocalContext.current
@@ -73,10 +79,11 @@ fun Lookup() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
         // eventually rememberSaveable
-        var textColor by remember { mutableStateOf(Color.DarkGray) }
+        var textColor by remember { mutableStateOf(Color.Gray) }
         var number by remember { mutableStateOf("229V\u200B") }
         var team by remember { mutableStateOf(Team()) }
         var fetched by remember { mutableStateOf(false) }
+        var loading by remember { mutableStateOf(false) }
         var favorites by remember { mutableStateOf(userSettings.getData("favorites", "").replace("[", "").replace("]", "").split(", ")) }
 
         Spacer(Modifier.height(20.dp))
@@ -115,10 +122,15 @@ fun Lookup() {
                 keyboardActions = KeyboardActions(
                     onDone = {
                         keyboardController?.hide()
-                        coroutineScope.launch {
-                            team = Team(number)
-                            fetched = true
-                            textColor = Color.Unspecified
+                        loading = true
+                        CoroutineScope(Dispatchers.Default).launch {
+                            val fetchedTeam = Team(number)
+                            withContext(Dispatchers.Main) {
+                                team = fetchedTeam
+                                fetched = true
+                                loading = false
+                                textColor = Color.Unspecified
+                            }
                         }
                     })
             )
@@ -136,7 +148,7 @@ fun Lookup() {
                     favorites = userSettings.getData("favorites", "").replace("[", "").replace("]", "").split(", ")
                 }
             }) {
-                if (favorites.contains(number.uppercase()) && textColor != Color.Unspecified) {
+                if (favorites.contains(number.uppercase())) {
                     Icon(Icons.Filled.Star, modifier = Modifier.size(32.dp), contentDescription = "Favorite")
                 }
                 else {
@@ -144,17 +156,16 @@ fun Lookup() {
                 }
             }
         }
-        /*if (team.number.isNotEmpty()) {
-            Button(onClick = {
-                coroutineScope.launch {
-                    team.fetchEvents()
-                    events = team.events
-                }
-            }) {
-                Text("Fetch Events")
-            }
-        }*/
-        Spacer(Modifier.height(40.dp))
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(30.dp),
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
+        }
+        else {
+            Spacer(Modifier.height(40.dp))
+        }
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(10.dp)
