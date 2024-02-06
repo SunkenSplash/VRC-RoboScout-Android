@@ -79,7 +79,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3:1.2.0-rc01")
     implementation("androidx.compose.material:material-icons-extended")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -93,6 +93,6 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("androidx.navigation:navigation-compose:2.7.6")
-    implementation("io.github.raamcosta.compose-destinations:core:1.10.0")
+    implementation("io.github.raamcosta.compose-destinations:animations-core:1.10.0")
     ksp("io.github.raamcosta.compose-destinations:ksp:1.10.0")
 }

@@ -95,7 +95,7 @@ fun TeamEventsView(navController: NavController, team: Team) {
             Card(modifier = Modifier.padding(10.dp)) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(0.dp),
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                 ) {
                     items(events.reversed()) { event ->
                         Column(
