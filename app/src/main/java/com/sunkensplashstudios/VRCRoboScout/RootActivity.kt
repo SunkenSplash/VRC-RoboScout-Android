@@ -2,19 +2,24 @@ package com.sunkensplashstudios.VRCRoboScout
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Path
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.TrendingUp
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,36 +28,27 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.Direction
-import com.sunkensplashstudios.VRCRoboScout.destinations.*
+import com.sunkensplashstudios.VRCRoboScout.destinations.FavoritesViewDestination
+import com.sunkensplashstudios.VRCRoboScout.destinations.LookupViewDestination
+import com.sunkensplashstudios.VRCRoboScout.destinations.SettingsViewDestination
+import com.sunkensplashstudios.VRCRoboScout.destinations.TrueSkillViewDestination
+import com.sunkensplashstudios.VRCRoboScout.destinations.WorldSkillsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
-import kotlinx.coroutines.launch
 
 class UserSettings(context: Context) {
     private val userSettings: SharedPreferences =
@@ -134,22 +130,6 @@ class RootActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(
-                        topBar = {
-                            if (routeNameMap[tabState?.destination?.route] != null) {
-                                CenterAlignedTopAppBar(
-                                    colors = TopAppBarDefaults.topAppBarColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        titleContentColor = MaterialTheme.colorScheme.primary,
-                                    ),
-                                    title = {
-                                        Text(
-                                            routeNameMap[tabState?.destination?.route]
-                                                ?: "VRC RoboScout", fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                )
-                            }
-                        },
                         bottomBar = {
                             if (routeNameMap[tabState?.destination?.route] != null) {
                                 TabView(tabBarItems, navController)
@@ -160,8 +140,8 @@ class RootActivity : ComponentActivity() {
                             navController = navController,
                             navGraph = NavGraphs.root,
                             modifier = Modifier
-                                .padding(padding)
-                                .fillMaxSize(),
+                                .fillMaxSize()
+                                .padding(padding),
                             startRoute = FavoritesViewDestination
                         )
                     }
