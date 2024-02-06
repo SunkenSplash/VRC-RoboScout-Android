@@ -1,6 +1,5 @@
 package com.sunkensplashstudios.VRCRoboScout
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,8 +37,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.navigate
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,34 +45,32 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun TeamEventsView(navController: NavController, team: Team) {
+fun EventView(navController: NavController, event: Event) {
 
-    var events by remember { mutableStateOf(listOf(Event())) }
+    var event by remember { mutableStateOf(event) }
     val navState by navController.currentBackStackEntryAsState()
-    var loading by remember { mutableStateOf(true) }
+    var loading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         loading = true
         CoroutineScope(Dispatchers.Default).launch {
-            team.fetchInfo()
-            team.fetchEvents()
+            // event.fetchTeams()
             withContext(Dispatchers.Main) {
                 loading = false
-                events = team.events
             }
         }
     }
 
     Scaffold(
         topBar = {
-            if ((navState?.destination?.route ?: "").endsWith("{team}")) {
+            if ((navState?.destination?.route ?: "").endsWith("{event}")) {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                     title = {
-                        Text("${team.number} Events", fontWeight = FontWeight.Bold)
+                        Text(event.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 )
             }
@@ -96,42 +92,52 @@ fun TeamEventsView(navController: NavController, team: Team) {
                     )
                 }
             }
-            Card(modifier = Modifier.padding(10.dp)) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(0.dp),
-                    modifier = Modifier.padding(10.dp)
-                ) {
-                    items(events.reversed()) { event ->
-                        Column(
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.padding(5.dp).clickable {
-                                navController.navigate(EventViewDestination(event))
-                            }
-                        ) {
+            else {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Event", modifier = Modifier.padding(horizontal = 10.dp), color = Color.Gray)
+                Card(modifier = Modifier.padding(10.dp)) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        item {
+                            Text("Information")
+                        }
+                        item {
+                            Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                        }
+                        item {
+                            Text("Teams")
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Skills", modifier = Modifier.padding(horizontal = 10.dp), color = Color.Gray)
+                Card(modifier = Modifier.padding(10.dp)) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        item {
                             Row {
-                                Text(
-                                    event.name,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(5.dp))
-                            Row {
-                                Text(
-                                    "${event.location.city}, ${event.location.region}, ${
-                                        event.location.country?.replace(
-                                            "United States",
-                                            "USA"
-                                        )
-                                    }",
-                                    fontSize = 13.sp
-                                )
+                                Text("Skills Rankings")
                                 Spacer(modifier = Modifier.weight(1.0f))
-                                Text(RoboScoutAPI.formatDate(event.startDate), fontSize = 13.sp)
                             }
                         }
-                        if (events.indexOf(event) != 0) {
-                            Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Divisions", modifier = Modifier.padding(horizontal = 10.dp), color = Color.Gray)
+                Card(modifier = Modifier.padding(10.dp)) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        item {
+                            Row {
+                                Text("Default")
+                                Spacer(modifier = Modifier.weight(1.0f))
+                            }
                         }
                     }
                 }

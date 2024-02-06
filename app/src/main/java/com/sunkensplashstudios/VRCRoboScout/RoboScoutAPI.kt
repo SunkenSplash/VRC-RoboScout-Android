@@ -7,6 +7,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -31,9 +32,7 @@ val client = HttpClient(CIO) {
 
 class RoboScoutAPI {
 
-    init {
-
-    }
+    var importedSkills = false
 
     companion object {
 
@@ -81,7 +80,6 @@ class RoboScoutAPI {
             var params = params.toMutableMap()
 
             while (cont) {
-
                 try {
                     val response = client.get(request_url) {
                         header("Authorization", "Bearer ${RoboScoutAPI.roboteventsAccessKey()}")
@@ -114,14 +112,62 @@ class RoboScoutAPI {
                     println("Error: $e")
                     e.printStackTrace()
                 }
+            }
+            return data
+        }
+    }
 
+    /*final suspend fun updateWorldSkillsCache(season: Int? = null) {
+
+        this.importedSkills = false
+
+        try {
+            val response = client.get("https://www.robotevents.com/api/seasons/${season ?: 181}/skills") {
+                url {
+                    parameters.append("grade_level", "High School")
+                }
             }
 
-            return data
+            val json = Json.parseToJsonElement(response.bodyAsText())
 
+            json.jsonObject["data"]!!.jsonArray.forEach { element ->
+                data.add(element.jsonObject)
+            }
+        }
+        catch (e: Exception) {
+            cont = false
+            println("Error: $e")
+            e.printStackTrace()
         }
 
-    }
+        let task = URLSession.shared.dataTask(with: request as URLRequest) { (response_data, response, error) in
+            if response_data != nil {
+                // Decode
+                let data: WorldSkillsCache
+
+                        do {
+                            data = WorldSkillsCache(responses: try JSONDecoder().decode([WorldSkillsResponse].self, from: response_data!))
+                                self.world_skills_cache = data
+                                self.current_skills_season_id = season ?? self.selected_season_id()
+                                for team in self.world_skills_cache.teams {
+                                    self.regions_map[team.event_region.replacingOccurrences(of: "Chinese Taipei", with: "Taiwan")] = team.event_region_id
+                                }
+                                print("World skills cache updated")
+                            }
+                            catch let error as NSError {
+                                print("NSERROR " + error.description)
+                                print("Failed to update world skills cache")
+                            }
+                            semaphore.signal()
+                        } else if let error = error {
+                print(error.localizedDescription)
+                semaphore.signal()
+            }
+        }
+        task.resume()
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        self.imported_skills = true
+    }*/
 
 }
 
@@ -144,8 +190,8 @@ class Event {
     var season: Season = Season()
     var location: Location = Location()
     var teams: List<Team> = listOf(Team())
-    @kotlinx.serialization.Transient var teams_map: Map<Int, Team> = emptyMap<Int, Team>()
-    @kotlinx.serialization.Transient var livestream_link: String? = null
+    @kotlinx.serialization.Transient var teamsMap: Map<Int, Team> = emptyMap<Int, Team>()
+    @kotlinx.serialization.Transient var livestreamLink: String? = null
 
     init {
         this.startDate = RoboScoutAPI.roboteventsDate(this.start, true)
@@ -188,16 +234,13 @@ class Event {
         this.sku = event.sku
         this.name = event.name
         this.start = event.start
-        // TODO: this.startDate
         this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
         this.end = event.end
-        // TODO: this.endDate
         this.endDate = RoboScoutAPI.roboteventsDate(event.end, true)
         this.season = event.season
         this.location = event.location
         this.teams = event.teams
-        // TODO: this.teams_map
-        this.teams_map = event.teams_map
+        this.teamsMap = event.teamsMap
         // TODO: this.livestream_link
     }
 
@@ -206,8 +249,8 @@ class Event {
 @Serializable
 class Location {
     var venue: String? = ""
-    var address_1: String? = ""
-    var address_2: String? = ""
+    @SerialName("address_1") var address1: String? = ""
+    @SerialName("address_2") var address2: String? = ""
     var city: String? = ""
     var region: String? = ""
     var postcode: String? = ""
@@ -219,11 +262,11 @@ class Team {
 
     var id: Int = 0
     var events: MutableList<Event> = mutableListOf<Event>()
-    var event_count: Int = 0
-    var team_name: String = ""
+    var eventCount: Int = 0
+    @SerialName("team_name") var name: String = ""
     var number: String = ""
     var organization: String = ""
-    var robot_name: String = ""
+    @SerialName("robotName") var robotName: String = ""
     var location: Location = Location()
     var grade: String = ""
     var registered: Boolean = false
@@ -267,10 +310,10 @@ class Team {
         val team: Team = jsonWorker.decodeFromJsonElement(res[0])
 
         this.id = team.id
-        this.team_name = team.team_name
+        this.name = team.name
         this.number = team.number
         this.organization = team.organization
-        this.robot_name = team.robot_name
+        this.robotName = team.robotName
         this.location = team.location
         this.grade = team.grade
         this.registered = team.registered

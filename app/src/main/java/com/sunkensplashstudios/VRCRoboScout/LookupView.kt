@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -166,45 +167,50 @@ fun Lookup() {
         else {
             Spacer(Modifier.height(40.dp))
         }
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(10.dp)
-        ) {
-            item {
-                Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Name")
-                    Spacer(modifier = Modifier.weight(1.0f))
-                    Text(if (fetched) team.team_name else "")
+        Card(modifier = Modifier.padding(10.dp)) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(10.dp)
+            ) {
+                item {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Name")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(if (fetched) team.name else "")
+                    }
                 }
-            }
-            item {
-                Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
-            }
-            item {
-                Row {
-                    Text("Robot")
-                    Spacer(modifier = Modifier.weight(1.0f))
-                    Text(if (fetched) team.robot_name else "")
+                item {
+                    Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
                 }
-            }
-            item {
-                Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
-            }
-            item {
-                Row {
-                    Text("Organization")
-                    Spacer(modifier = Modifier.weight(1.0f))
-                    Text(if (fetched) team.organization else "")
+                item {
+                    Row {
+                        Text("Robot")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(if (fetched) team.robotName else "")
+                    }
                 }
-            }
-            item {
-                Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
-            }
-            item {
-                Row {
-                    Text("Location")
-                    Spacer(modifier = Modifier.weight(1.0f))
-                    Text(if (fetched && (team.location.country ?: "").isNotEmpty()) "${team.location.city}, ${team.location.region}" else "")
+                item {
+                    Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                }
+                item {
+                    Row {
+                        Text("Organization")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(if (fetched) team.organization else "")
+                    }
+                }
+                item {
+                    Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                }
+                item {
+                    Row {
+                        Text("Location")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (fetched && (team.location.country ?: "").isNotEmpty()
+                            ) "${team.location.city}, ${team.location.region}" else ""
+                        )
+                    }
                 }
             }
         }

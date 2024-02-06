@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.*
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,22 +38,24 @@ fun FavoritesView(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(0.dp),
-            modifier = Modifier.padding(10.dp)
-        ) {
-            items(favorites) { favorite ->
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.padding(10.dp).clickable{
-                        navController.navigate(TeamEventsViewDestination(Team(favorite, false)))
+        Card(modifier = Modifier.padding(10.dp)) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+                modifier = Modifier.padding(horizontal = 10.dp)
+            ) {
+                items(favorites) { favorite ->
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.padding(10.dp).clickable {
+                            navController.navigate(TeamEventsViewDestination(Team(favorite, false)))
+                        }
+                    ) {
+                        Text(favorite, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.weight(1.0f))
                     }
-                ) {
-                    Text(favorite, fontSize = 18.sp)
-                    Spacer(modifier = Modifier.weight(1.0f))
-                }
-                if (favorites.indexOf(favorite) < favorites.size - 1) {
-                    Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                    if (favorites.indexOf(favorite) < favorites.size - 1) {
+                        Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                    }
                 }
             }
         }
