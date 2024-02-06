@@ -326,6 +326,8 @@ class Team {
             res = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (season ?: 181)))
         }
 
+        events.clear()
+
         for (event in res) {
             val fetchedEvent: Event = jsonWorker.decodeFromJsonElement(event)
             events.add(fetchedEvent)
