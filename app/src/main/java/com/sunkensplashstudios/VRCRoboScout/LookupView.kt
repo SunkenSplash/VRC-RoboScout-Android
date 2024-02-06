@@ -20,8 +20,8 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -214,7 +214,10 @@ fun Lookup() {
                         }
                     }
                     item {
-                        Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                     item {
                         Row {
@@ -224,7 +227,10 @@ fun Lookup() {
                         }
                     }
                     item {
-                        Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                     item {
                         Row {
@@ -234,7 +240,10 @@ fun Lookup() {
                         }
                     }
                     item {
-                        Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                     item {
                         Row {
