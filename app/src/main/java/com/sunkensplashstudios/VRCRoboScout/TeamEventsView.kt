@@ -14,8 +14,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -127,7 +127,10 @@ fun TeamEventsView(navController: NavController, team: Team) {
                             }
                         }
                         if (events.indexOf(event) != 0) {
-                            Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
                 }

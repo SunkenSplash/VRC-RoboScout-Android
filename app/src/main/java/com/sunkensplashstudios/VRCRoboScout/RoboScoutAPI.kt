@@ -266,7 +266,7 @@ class Team {
     @SerialName("team_name") var name: String = ""
     var number: String = ""
     var organization: String = ""
-    @SerialName("robotName") var robotName: String = ""
+    @SerialName("robot_name") var robotName: String = ""
     var location: Location = Location()
     var grade: String = ""
     var registered: Boolean = false

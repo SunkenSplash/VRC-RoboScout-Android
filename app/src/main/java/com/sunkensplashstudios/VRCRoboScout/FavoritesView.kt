@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -53,11 +51,6 @@ fun FavoritesView(navController: NavController) {
             )
         }
     ) { padding ->
-        CircularProgressIndicator(
-            modifier = Modifier.width(50.dp).padding(10.dp),
-            color = MaterialTheme.colorScheme.secondary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
         Column(
             modifier = Modifier.fillMaxSize().padding(padding)
         ) {
@@ -66,17 +59,21 @@ fun FavoritesView(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(0.dp),
                     modifier = Modifier.padding(horizontal = 10.dp)
                 ) {
-                    items(favorites) { favorite ->
+                    items(
+                        favorites
+                            .sorted()
+                            .sortedBy{
+                                (it.filter { char -> "0123456789".contains(char) }
+                                    .toIntOrNull() ?: 0)
+                            }
+                    ) { favorite ->
                         if (favorite == "") return@items
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.padding(10.dp).clickable {
                                 navController.navigate(
                                     TeamEventsViewDestination(
-                                        Team(
-                                            favorite,
-                                            false
-                                        )
+                                        Team(favorite,false)
                                     )
                                 )
                             }
@@ -84,8 +81,15 @@ fun FavoritesView(navController: NavController) {
                             Text(favorite, fontSize = 18.sp)
                             Spacer(modifier = Modifier.weight(1.0f))
                         }
-                        if (favorites.indexOf(favorite) < favorites.size - 1) {
-                            Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                        if (favorites.sorted()
+                                .sortedBy{
+                                    (it.filter { char -> "0123456789".contains(char) }
+                                        .toIntOrNull() ?: 0)
+                                }.indexOf(favorite) < favorites.size - 1) {
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
                 }
