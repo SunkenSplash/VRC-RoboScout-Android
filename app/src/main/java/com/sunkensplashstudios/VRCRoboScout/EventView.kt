@@ -44,7 +44,6 @@ import kotlinx.coroutines.withContext
 fun EventView(navController: NavController, event: Event) {
 
     var event by remember { mutableStateOf(event) }
-    val navState by navController.currentBackStackEntryAsState()
     var loading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {

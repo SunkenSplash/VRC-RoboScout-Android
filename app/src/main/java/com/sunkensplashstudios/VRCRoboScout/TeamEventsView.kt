@@ -47,7 +47,6 @@ import kotlinx.coroutines.withContext
 fun TeamEventsView(navController: NavController, team: Team) {
 
     var events by remember { mutableStateOf(listOf(Event())) }
-    val navState by navController.currentBackStackEntryAsState()
     var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {

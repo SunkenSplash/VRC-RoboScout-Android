@@ -30,9 +30,56 @@ val client = HttpClient(CIO) {
     }
 }
 
+@Serializable
+class WSTeam {
+    var id: Int = 0
+    var program: String = ""
+    var teamRegId: Int = 0
+    @SerialName("team") var number: String = ""
+    @SerialName("teamName") var name: String = ""
+    var organization: String = ""
+    var city: String = ""
+    var region: String? = ""
+    var country: String = ""
+    var gradeLevel: String = ""
+    var link: String = ""
+    var eventRegion: String = ""
+    var eventRegionId: Int = 0
+}
+
+@Serializable
+class WSEvent {
+    var sku: String = ""
+    var startDate: String = ""
+    var seasonName: String = ""
+}
+
+@Serializable
+class WSScores {
+    var score: Int = 0
+    var programming: Int = 0
+    var driver: Int = 0
+    var combinedStopTime: Int = 0
+    var maxProgramming: Int = 0
+    var maxDriver: Int = 0
+    var progStopTime: Int = 0
+    var driverStopTime: Int = 0
+    var progScoredAt: String = ""
+    var driverScoredAt: String = ""
+}
+
+@Serializable
+class WSEntry {
+    var rank: Int = 0
+    var team: WSTeam = WSTeam()
+    var event: WSEvent = WSEvent()
+    var scores: WSScores = WSScores()
+}
+
 class RoboScoutAPI {
 
-    var importedSkills = false
+    var worldSkillsCache: MutableList<WSEntry> = mutableListOf<WSEntry>()
+    var importedSkills: Boolean = false
 
     companion object {
 
@@ -117,9 +164,10 @@ class RoboScoutAPI {
         }
     }
 
-    /*final suspend fun updateWorldSkillsCache(season: Int? = null) {
+    final suspend fun updateWorldSkillsCache(season: Int? = null) {
 
         this.importedSkills = false
+        this.worldSkillsCache.clear()
 
         try {
             val response = client.get("https://www.robotevents.com/api/seasons/${season ?: 181}/skills") {
@@ -130,44 +178,24 @@ class RoboScoutAPI {
 
             val json = Json.parseToJsonElement(response.bodyAsText())
 
-            json.jsonObject["data"]!!.jsonArray.forEach { element ->
-                data.add(element.jsonObject)
+            json.jsonArray.forEach { element ->
+                val wsEntry: WSEntry = jsonWorker.decodeFromJsonElement(element)
+                this.worldSkillsCache.add(wsEntry)
             }
+            this.importedSkills = true
+            println("Updated world skills cache")
         }
         catch (e: Exception) {
-            cont = false
-            println("Error: $e")
+            println("Failed to update world skills cache, error: $e")
             e.printStackTrace()
         }
+    }
 
-        let task = URLSession.shared.dataTask(with: request as URLRequest) { (response_data, response, error) in
-            if response_data != nil {
-                // Decode
-                let data: WorldSkillsCache
-
-                        do {
-                            data = WorldSkillsCache(responses: try JSONDecoder().decode([WorldSkillsResponse].self, from: response_data!))
-                                self.world_skills_cache = data
-                                self.current_skills_season_id = season ?? self.selected_season_id()
-                                for team in self.world_skills_cache.teams {
-                                    self.regions_map[team.event_region.replacingOccurrences(of: "Chinese Taipei", with: "Taiwan")] = team.event_region_id
-                                }
-                                print("World skills cache updated")
-                            }
-                            catch let error as NSError {
-                                print("NSERROR " + error.description)
-                                print("Failed to update world skills cache")
-                            }
-                            semaphore.signal()
-                        } else if let error = error {
-                print(error.localizedDescription)
-                semaphore.signal()
-            }
+    final fun worldSkillsFor(team: Team): WSEntry {
+        return worldSkillsCache.first{
+            it.team.id == team.id
         }
-        task.resume()
-        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
-        self.imported_skills = true
-    }*/
+    }
 
 }
 

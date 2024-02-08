@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -54,6 +55,10 @@ import com.sunkensplashstudios.VRCRoboScout.destinations.SettingsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.TrueSkillViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.WorldSkillsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UserSettings(context: Context) {
     private val userSettings: SharedPreferences =
@@ -107,6 +112,14 @@ class RootActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            if (!API.importedSkills) {
+                LaunchedEffect(Unit) {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        API.updateWorldSkillsCache()
+                    }
+                }
+            }
+
             // setting up the individual tabs
             val favoritesTab = TabBarItem(title = "Favorites", direction = FavoritesViewDestination(), selectedIcon = Icons.Filled.Star, unselectedIcon = Icons.Outlined.StarOutline)
             val worldSkillsTab = TabBarItem(title = "World Skills", direction = WorldSkillsViewDestination(), selectedIcon = Icons.Filled.Language, unselectedIcon = Icons.Outlined.Language)

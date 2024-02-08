@@ -1,5 +1,6 @@
 package com.sunkensplashstudios.VRCRoboScout
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,6 +31,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
@@ -97,6 +101,7 @@ fun Lookup() {
             var textColor by remember { mutableStateOf(Color.Gray) }
             var number by remember { mutableStateOf("229V\u200B") }
             var team by remember { mutableStateOf(Team()) }
+            var wsEntry by remember { mutableStateOf(WSEntry()) }
             var fetched by remember { mutableStateOf(false) }
             var loading by remember { mutableStateOf(false) }
             var favorites by remember {
@@ -154,6 +159,7 @@ fun Lookup() {
                                 val fetchedTeam = Team(number)
                                 withContext(Dispatchers.Main) {
                                     team = fetchedTeam
+                                    wsEntry = API.worldSkillsFor(team)
                                     fetched = true
                                     loading = false
                                     textColor = Color.Unspecified
@@ -252,6 +258,62 @@ fun Lookup() {
                             Text(
                                 if (fetched && (team.location.country ?: "").isNotEmpty()
                                 ) "${team.location.city}, ${team.location.region}" else ""
+                            )
+                        }
+                    }
+                    item {
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    item {
+                        Row {
+                            Text("World Skills Ranking")
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Text(
+                                if (fetched) "# ${wsEntry.rank} of ${API.worldSkillsCache.size}" else ""
+                            )
+                        }
+                    }
+                    item {
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    item {
+
+                        var expanded by remember { mutableStateOf(false) }
+
+                        Row {
+                            Text("World Skills Score", modifier = Modifier.clickable{
+                                expanded = !expanded
+                            }, color = MaterialTheme.colorScheme.primary)
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("${wsEntry.scores.programming} Programming") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("${wsEntry.scores.driver} Driver") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
+                                    onClick = { }
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Text(
+                                if (fetched) wsEntry.scores.score.toString() else ""
                             )
                         }
                     }
