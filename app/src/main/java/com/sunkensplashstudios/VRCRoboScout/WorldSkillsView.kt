@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -62,11 +63,11 @@ fun WorldSkillsView(navController: NavController) {
         }
     ) { padding ->
 
-        var importing by rememberSaveable { mutableStateOf(!API.importedSkills) }
+        var importing by rememberSaveable { mutableStateOf(!API.importedWS) }
 
         LaunchedEffect(Unit) {
             CoroutineScope(Dispatchers.Default).launch {
-                while (!API.importedSkills) {
+                while (!API.importedWS) {
                     continue
                 }
                 withContext(Dispatchers.Main) {
@@ -99,23 +100,24 @@ fun WorldSkillsView(navController: NavController) {
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                         modifier = Modifier.padding(horizontal = 10.dp)
                     ) {
-                        items(API.worldSkillsCache) { wsEntry ->
+                        items(API.wsCache) { wsEntry ->
 
                             var expanded by remember { mutableStateOf(false) }
 
                             Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.padding(horizontal = 10.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.padding(horizontal = 0.dp).fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(wsEntry.rank.toString(), fontSize = 18.sp)
-                                Spacer(modifier = Modifier.padding(horizontal = 26.dp))
+                                Text("#" + wsEntry.rank.toString(), fontSize = 18.sp, modifier = Modifier.width(130.dp))
                                 Spacer(modifier = Modifier.weight(1.0f))
                                 Text(wsEntry.team.number, fontSize = 18.sp)
                                 Spacer(modifier = Modifier.weight(1.0f))
                                 Row(
+                                    modifier = Modifier.width(130.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    Spacer(modifier = Modifier.weight(1.0f))
                                     Text(wsEntry.scores.score.toString(), fontSize = 18.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable{
                                         expanded = !expanded
                                     })

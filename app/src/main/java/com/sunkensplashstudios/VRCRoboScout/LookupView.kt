@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
@@ -55,10 +58,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.navigate
+import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
 
 @Destination
 @Composable
@@ -66,13 +72,13 @@ fun LookupView(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Lookup()
+        Lookup(navController = navController)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun Lookup() {
+fun Lookup(navController: NavController) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -102,6 +108,8 @@ fun Lookup() {
             var number by remember { mutableStateOf("229V\u200B") }
             var team by remember { mutableStateOf(Team()) }
             var wsEntry by remember { mutableStateOf(WSEntry()) }
+            var vdaEntry by remember { mutableStateOf(VDAEntry()) }
+            var avgRanking by remember { mutableStateOf(0.0) }
             var fetched by remember { mutableStateOf(false) }
             var loading by remember { mutableStateOf(false) }
             var favorites by remember {
@@ -160,6 +168,8 @@ fun Lookup() {
                                 withContext(Dispatchers.Main) {
                                     team = fetchedTeam
                                     wsEntry = API.worldSkillsFor(team)
+                                    vdaEntry = API.vdaFor(team)
+                                    avgRanking = team.averageQualifiersRanking()
                                     fetched = true
                                     loading = false
                                     textColor = Color.Unspecified
@@ -207,51 +217,44 @@ fun Lookup() {
             } else {
                 Spacer(Modifier.height(40.dp))
             }
-            Card(modifier = Modifier.padding(10.dp)) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(10.dp)
-                ) {
-                    item {
-                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Name")
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(if (fetched) team.name else "")
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                Card(modifier = Modifier.padding(10.dp)) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Name")
+                                Spacer(modifier = Modifier.weight(1.0f))
+                                Text(if (fetched) team.name else "")
+                            }
                         }
-                    }
-                    item {
                         HorizontalDivider(
                             thickness = 1.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                    }
-                    item {
                         Row {
                             Text("Robot")
                             Spacer(modifier = Modifier.weight(1.0f))
                             Text(if (fetched) team.robotName else "")
                         }
-                    }
-                    item {
                         HorizontalDivider(
                             thickness = 1.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                    }
-                    item {
                         Row {
                             Text("Organization")
                             Spacer(modifier = Modifier.weight(1.0f))
                             Text(if (fetched) team.organization else "")
                         }
-                    }
-                    item {
                         HorizontalDivider(
                             thickness = 1.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                    }
-                    item {
                         Row {
                             Text("Location")
                             Spacer(modifier = Modifier.weight(1.0f))
@@ -260,39 +263,68 @@ fun Lookup() {
                                 ) "${team.location.city}, ${team.location.region}" else ""
                             )
                         }
-                    }
-                    item {
                         HorizontalDivider(
                             thickness = 1.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                    }
-                    item {
+
+                        var tsExpanded by remember { mutableStateOf(false) }
+
+                        Row {
+                            Text("TrueSkill Ranking", modifier = Modifier.clickable {
+                                tsExpanded = !tsExpanded
+                            }, color = MaterialTheme.colorScheme.primary)
+                            DropdownMenu(
+                                expanded = tsExpanded,
+                                onDismissRequest = { tsExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(if (fetched) "${vdaEntry.trueskill} TrueSkill" else "No TrueSkill data") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            "${if ((vdaEntry.rankingChange ?: 0.0) >= 0.0) "Up" else "Down"} ${
+                                                abs(
+                                                    vdaEntry.rankingChange ?: 0.0
+                                                ).toInt()
+                                            } places since last update"
+                                        )
+                                    },
+                                    onClick = { }
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Text(
+                                if (fetched) "# ${vdaEntry.tsRanking} of ${API.vdaCache.size}" else ""
+                            )
+                        }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                         Row {
                             Text("World Skills Ranking")
                             Spacer(modifier = Modifier.weight(1.0f))
                             Text(
-                                if (fetched) "# ${wsEntry.rank} of ${API.worldSkillsCache.size}" else ""
+                                if (fetched) "# ${wsEntry.rank} of ${API.wsCache.size}" else ""
                             )
                         }
-                    }
-                    item {
                         HorizontalDivider(
                             thickness = 1.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                    }
-                    item {
 
-                        var expanded by remember { mutableStateOf(false) }
+                        var wsExpanded by remember { mutableStateOf(false) }
 
                         Row {
-                            Text("World Skills Score", modifier = Modifier.clickable{
-                                expanded = !expanded
+                            Text("World Skills Score", modifier = Modifier.clickable {
+                                wsExpanded = !wsExpanded
                             }, color = MaterialTheme.colorScheme.primary)
                             DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
+                                expanded = wsExpanded,
+                                onDismissRequest = { wsExpanded = false }
                             ) {
                                 DropdownMenuItem(
                                     text = { Text("${wsEntry.scores.programming} Programming") },
@@ -315,6 +347,97 @@ fun Lookup() {
                             Text(
                                 if (fetched) wsEntry.scores.score.toString() else ""
                             )
+                        }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        var msExpanded by remember { mutableStateOf(false) }
+
+                        Row {
+                            Text("Match Statistics", modifier = Modifier.clickable {
+                                msExpanded = !msExpanded
+                            }, color = MaterialTheme.colorScheme.primary)
+                            DropdownMenu(
+                                expanded = msExpanded,
+                                onDismissRequest = { msExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            String.format(
+                                                "Average Qualifiers Ranking: %.1f",
+                                                avgRanking
+                                            )
+                                        )
+                                    },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("CCWM: ${vdaEntry.ccwm}") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Winrate: ${vdaEntry.totalWinningPercent}%") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Total Matches: ${vdaEntry.totalMatches.toInt()}") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
+                                    onClick = { }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
+                                    onClick = { }
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Text(
+                                if (fetched) "${vdaEntry.totalWins.toInt()}-${vdaEntry.totalLosses.toInt()}-${vdaEntry.totalTies.toInt()}" else ""
+                            )
+                        }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Row {
+                            Text("Qualifications")
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Text(
+                                if (fetched) {
+                                    listOf(
+                                        if (vdaEntry.qualifiedForWorlds == 1) "Worlds" else "",
+                                        if (vdaEntry.qualifiedForRegionals == 1) "Regionals" else ""
+                                    )
+                                        .filter { it.isNotEmpty() }
+                                        .joinToString(", ")
+                                } else ""
+                            )
+                        }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        // Button to go to TeamEventsView labeled "Events"
+                        Column(modifier = Modifier.clickable {
+                            if (fetched) {
+                                navController.navigate(
+                                    TeamEventsViewDestination(
+                                        team
+                                    )
+                                )
+                            }
+                        }) {
+                            Text("Events", color = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxWidth())
+                            Spacer(modifier = Modifier.height(3.dp))
                         }
                     }
                 }

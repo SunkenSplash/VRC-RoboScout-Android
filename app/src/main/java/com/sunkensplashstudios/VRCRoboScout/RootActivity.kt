@@ -112,10 +112,15 @@ class RootActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            if (!API.importedSkills) {
-                LaunchedEffect(Unit) {
+            LaunchedEffect(Unit) {
+                if (!API.importedWS) {
                     CoroutineScope(Dispatchers.Default).launch {
                         API.updateWorldSkillsCache()
+                    }
+                }
+                if (!API.importedVDA) {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        API.updateVDACache()
                     }
                 }
             }
@@ -140,6 +145,10 @@ class RootActivity : ComponentActivity() {
 
             val tabState by navController.currentBackStackEntryAsState()
 
+            var selectedTabIndex by rememberSaveable {
+                mutableIntStateOf(0)
+            }
+
             val routeNameMap = mapOf(
                 "favorites_view" to "Favorites",
                 "world_skills_view" to "World Skills",
@@ -157,7 +166,9 @@ class RootActivity : ComponentActivity() {
                     Scaffold(
                         bottomBar = {
                             if (routeNameMap[tabState?.destination?.route] != null) {
-                                TabView(tabBarItems, navController)
+                                TabView(tabBarItems, navController, selectedTabIndex, onSelectedTabIndexChange = { index ->
+                                    selectedTabIndex = index
+                                })
                             }
                         }
                     ) { padding ->
@@ -178,10 +189,7 @@ class RootActivity : ComponentActivity() {
 }
 
 @Composable
-fun TabView(tabBarItems: List<TabBarItem>, navController: NavController) {
-    var selectedTabIndex by rememberSaveable {
-        mutableIntStateOf(0)
-    }
+fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selectedTabIndex: Int, onSelectedTabIndexChange: (Int) -> Unit) {
 
     NavigationBar {
         // looping over each tab to generate the views and navigation for each item
@@ -189,7 +197,7 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController) {
             NavigationBarItem(
                 selected = selectedTabIndex == index,
                 onClick = {
-                    selectedTabIndex = index
+                    onSelectedTabIndexChange(index)
                     navController.navigate(tabBarItem.direction)
                 },
                 icon = {
