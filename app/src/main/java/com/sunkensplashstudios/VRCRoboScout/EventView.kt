@@ -1,5 +1,6 @@
 package com.sunkensplashstudios.VRCRoboScout
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,13 +8,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,9 +37,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.navigate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -86,53 +95,120 @@ fun EventView(navController: NavController, event: Event) {
                 }
             }
             else {
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("Event", modifier = Modifier.padding(horizontal = 10.dp), color = Color.Gray)
-                Card(modifier = Modifier.padding(10.dp)) {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(10.dp)
-                    ) {
-                        item {
-                            Text("Information")
-                        }
-                        item {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        "EVENT",
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        color = Color.Gray,
+                        fontSize = 13.sp
+                    )
+                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+                                    /*navController.navigate(
+                                    EventInformationViewDestination(event)
+                                )*/
+                                }
+                            ) {
+                                Text("Information")
+                                Spacer(modifier = Modifier.weight(1.0f))
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    modifier = Modifier.size(18.dp),
+                                    contentDescription = "Show Events"
+                                )
+                            }
                             HorizontalDivider(
                                 thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.secondary
                             )
-                        }
-                        item {
-                            Text("Teams")
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("Skills", modifier = Modifier.padding(horizontal = 10.dp), color = Color.Gray)
-                Card(modifier = Modifier.padding(10.dp)) {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(10.dp)
-                    ) {
-                        item {
-                            Row {
-                                Text("Skills Rankings")
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+                                    /*navController.navigate(
+                                    EventTeamsViewDestination(event)
+                                )*/
+                                }
+                            ) {
+                                Text("Teams")
                                 Spacer(modifier = Modifier.weight(1.0f))
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    modifier = Modifier.size(18.dp),
+                                    contentDescription = "Show Event Teams"
+                                )
                             }
                         }
                     }
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("Divisions", modifier = Modifier.padding(horizontal = 10.dp), color = Color.Gray)
-                Card(modifier = Modifier.padding(10.dp)) {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(10.dp)
-                    ) {
-                        item {
-                            Row {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        "SKILLS",
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        color = Color.Gray,
+                        fontSize = 13.sp,
+                    )
+                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+                                    /*navController.navigate(
+                                    EventSkillsRankingsViewDestination(event)
+                                )*/
+                                }
+                            ) {
+                                Text("Skills Rankings")
+                                Spacer(modifier = Modifier.weight(1.0f))
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    modifier = Modifier.size(18.dp),
+                                    contentDescription = "Show Skills Rankings"
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        "DIVISIONS",
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        color = Color.Gray,
+                        fontSize = 13.sp,
+                    )
+                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+                                    /*navController.navigate(
+                                    EventDivisionsViewDestination(event)
+                                )*/
+                                }
+                            ) {
                                 Text("Default")
                                 Spacer(modifier = Modifier.weight(1.0f))
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    modifier = Modifier.size(18.dp),
+                                    contentDescription = "Show Division"
+                                )
                             }
                         }
                     }

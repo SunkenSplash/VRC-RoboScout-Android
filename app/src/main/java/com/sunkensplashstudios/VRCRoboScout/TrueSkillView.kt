@@ -168,7 +168,7 @@ fun TrueSkillView(navController: NavController) {
                             }
                             HorizontalDivider(
                                 thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }

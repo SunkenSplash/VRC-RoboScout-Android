@@ -7,14 +7,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -90,44 +96,54 @@ fun TeamEventsView(navController: NavController, team: Team) {
                     )
                 }
             }
-            Card(modifier = Modifier.padding(10.dp)) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(0.dp),
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                ) {
-                    items(events.reversed()) { event ->
-                        Column(
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.padding(5.dp).clickable {
-                                navController.navigate(EventViewDestination(event))
-                            }
-                        ) {
-                            Row {
-                                Text(
-                                    event.name,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            Row {
-                                Text(
-                                    "${event.location.city}, ${event.location.region}, ${
-                                        event.location.country?.replace(
-                                            "United States",
-                                            "USA"
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                Card(modifier = Modifier.padding(10.dp)) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                    ) {
+                        events.reversed().forEach { event ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.padding(5.dp).clickable {
+                                        navController.navigate(EventViewDestination(event))
+                                    }
+                                ) {
+                                    Row {
+                                        Text(
+                                            event.name,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
-                                    }",
-                                    fontSize = 13.sp
-                                )
-                                Spacer(modifier = Modifier.weight(1.0f))
-                                Text(RoboScoutAPI.formatDate(event.startDate), fontSize = 13.sp)
+                                    }
+                                    Row {
+                                        Text(
+                                            "${event.location.city}, ${event.location.region}, ${
+                                                event.location.country?.replace(
+                                                    "United States",
+                                                    "USA"
+                                                )
+                                            }",
+                                            fontSize = 13.sp
+                                        )
+                                        Spacer(modifier = Modifier.weight(1.0f))
+                                        Text(
+                                            RoboScoutAPI.formatDate(event.startDate),
+                                            fontSize = 13.sp
+                                        )
+                                    }
+                                }
                             }
-                        }
-                        if (events.indexOf(event) != 0) {
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            if (events.indexOf(event) != 0) {
+                                HorizontalDivider(
+                                    thickness = 1.dp,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
                         }
                     }
                 }

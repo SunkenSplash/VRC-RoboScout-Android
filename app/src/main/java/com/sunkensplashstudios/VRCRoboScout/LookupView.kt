@@ -19,6 +19,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.StarHalf
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
@@ -170,7 +175,7 @@ fun Lookup(navController: NavController) {
                                     wsEntry = API.worldSkillsFor(team)
                                     vdaEntry = API.vdaFor(team)
                                     avgRanking = team.averageQualifiersRanking()
-                                    fetched = true
+                                    fetched = team.id != 0
                                     loading = false
                                     textColor = Color.Unspecified
                                 }
@@ -234,27 +239,27 @@ fun Lookup(navController: NavController) {
                             }
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         Row {
                             Text("Robot")
                             Spacer(modifier = Modifier.weight(1.0f))
                             Text(if (fetched) team.robotName else "")
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         Row {
                             Text("Organization")
                             Spacer(modifier = Modifier.weight(1.0f))
                             Text(if (fetched) team.organization else "")
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         Row {
                             Text("Location")
                             Spacer(modifier = Modifier.weight(1.0f))
@@ -264,9 +269,9 @@ fun Lookup(navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
 
                         var tsExpanded by remember { mutableStateOf(false) }
 
@@ -301,9 +306,9 @@ fun Lookup(navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         Row {
                             Text("World Skills Ranking")
                             Spacer(modifier = Modifier.weight(1.0f))
@@ -312,9 +317,9 @@ fun Lookup(navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
 
                         var wsExpanded by remember { mutableStateOf(false) }
 
@@ -349,9 +354,9 @@ fun Lookup(navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
 
                         var msExpanded by remember { mutableStateOf(false) }
 
@@ -405,9 +410,9 @@ fun Lookup(navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         Row {
                             Text("Qualifications")
                             Spacer(modifier = Modifier.weight(1.0f))
@@ -423,9 +428,9 @@ fun Lookup(navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         // Button to go to TeamEventsView labeled "Events"
                         Column(modifier = Modifier.clickable {
                             if (fetched) {
@@ -436,7 +441,20 @@ fun Lookup(navController: NavController) {
                                 )
                             }
                         }) {
-                            Text("Events", color = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxWidth())
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Events",
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.weight(1.0f))
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    modifier = Modifier.size(16.dp).alpha(if (fetched) 1F else 0F),
+                                    contentDescription = "Show Events"
+                                )
+                            }
                             Spacer(modifier = Modifier.height(3.dp))
                         }
                     }
