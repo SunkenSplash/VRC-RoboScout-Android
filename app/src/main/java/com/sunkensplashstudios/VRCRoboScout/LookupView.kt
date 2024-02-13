@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,17 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.automirrored.filled.StarHalf
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
@@ -39,7 +35,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
@@ -123,17 +118,21 @@ fun Lookup(navController: NavController) {
                         .split(", ")
                 )
             }
-
             Spacer(Modifier.height(20.dp))
             Row(
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth()
             ) {
-                Icon(
-                    Icons.Filled.Star,
-                    modifier = Modifier.size(32.dp).alpha(0F),
-                    contentDescription = "Unfavorite"
-                )
+                Box(
+                    modifier = Modifier.width(30.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.Star,
+                        modifier = Modifier.alpha(0F),
+                        contentDescription = "Unfavorite"
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1.0F))
                 TextField(
                     value = number,
@@ -183,33 +182,35 @@ fun Lookup(navController: NavController) {
                         })
                 )
                 Spacer(modifier = Modifier.weight(1.0F))
-                IconButton(onClick = {
-                    if (number.isEmpty() || number == "229V\u200B") {
-                        return@IconButton
-                    } else if (favorites.contains(number.uppercase()) && textColor != Color.Unspecified) {
-                        userSettings.removeFavoriteTeam(number.uppercase())
-                        favorites =
-                            userSettings.getData("favorites", "").replace("[", "").replace("]", "")
+                Box(
+                    modifier = Modifier.width(30.dp)
+                ) {
+                    IconButton(onClick = {
+                        favorites = if (number.isEmpty() || number == "229V\u200B") {
+                            return@IconButton
+                        } else if (favorites.contains(number.uppercase()) && textColor != Color.Unspecified) {
+                            userSettings.removeFavoriteTeam(number.uppercase())
+                            userSettings.getData("favorites", "").replace("[", "")
+                                .replace("]", "")
                                 .split(", ")
-                    } else {
-                        userSettings.addFavoriteTeam(number.uppercase())
-                        favorites =
-                            userSettings.getData("favorites", "").replace("[", "").replace("]", "")
+                        } else {
+                            userSettings.addFavoriteTeam(number.uppercase())
+                            userSettings.getData("favorites", "").replace("[", "")
+                                .replace("]", "")
                                 .split(", ")
-                    }
-                }) {
-                    if (favorites.contains(number.uppercase()) && number.isNotBlank()) {
-                        Icon(
-                            Icons.Filled.Star,
-                            modifier = Modifier.size(32.dp),
-                            contentDescription = "Favorite"
-                        )
-                    } else {
-                        Icon(
-                            Icons.Outlined.StarOutline,
-                            modifier = Modifier.size(32.dp),
-                            contentDescription = "Unfavorite"
-                        )
+                        }
+                    }) {
+                        if (favorites.contains(number.uppercase()) && number.isNotBlank()) {
+                            Icon(
+                                Icons.Filled.Star,
+                                contentDescription = "Favorite"
+                            )
+                        } else {
+                            Icon(
+                                Icons.Outlined.StarOutline,
+                                contentDescription = "Unfavorite"
+                            )
+                        }
                     }
                 }
             }
