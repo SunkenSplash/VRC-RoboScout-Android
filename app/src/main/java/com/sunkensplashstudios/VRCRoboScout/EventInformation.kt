@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -19,7 +18,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,7 +39,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 @Destination
 @Composable
 fun EventInformationView(event: Event) {
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -93,6 +90,7 @@ fun EventInformationView(event: Event) {
                                 color = MaterialTheme.colorScheme.secondary
                             )
                             Box {
+                                var expanded by remember { mutableStateOf(false) }
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
@@ -100,17 +98,19 @@ fun EventInformationView(event: Event) {
                                 ) {
                                     Text(
                                         "Divisions",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.clickable {
+                                            expanded = !expanded
+                                        }
                                     )
                                     Spacer(modifier = Modifier.size(10.dp))
                                     Text(
                                         event.divisions.size.toString(),
                                     )
                                 }
-                                var expanded by remember { mutableStateOf(false) }
                                 DropdownMenu(
                                     expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                    modifier = Modifier.fillMaxWidth()
+                                    onDismissRequest = { expanded = false }
                                 ) {
                                     event.divisions.forEach { division ->
                                         DropdownMenuItem(

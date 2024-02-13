@@ -383,6 +383,15 @@ class Location {
     var region: String? = ""
     var postcode: String? = ""
     var country: String? = ""
+
+    override fun toString(): String {
+        return "${this.city}, ${this.region}, ${
+            this.country?.replace(
+                "United States",
+                "USA"
+            )
+        }"
+    }
 }
 
 @Serializable
