@@ -1,0 +1,235 @@
+package com.sunkensplashstudios.VRCRoboScout
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.ramcosta.composedestinations.annotation.Destination
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Destination
+@Composable
+fun EventInformationView(event: Event) {
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text("Event Info", fontWeight = FontWeight.Bold)
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding)
+        ) {
+            Text(
+                event.name,
+                modifier = Modifier.padding(20.dp),
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+            )
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(padding)
+                ) {
+                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(0.dp),
+                            modifier = Modifier.padding(horizontal = 10.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    "Teams",
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    event.teams.size.toString(),
+                                )
+                            }
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Box {
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                ) {
+                                    Text(
+                                        "Divisions",
+                                    )
+                                    Spacer(modifier = Modifier.size(10.dp))
+                                    Text(
+                                        event.divisions.size.toString(),
+                                    )
+                                }
+                                var expanded by remember { mutableStateOf(false) }
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    event.divisions.forEach { division ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    division.name
+                                                )
+                                            },
+                                            onClick = { }
+                                        )
+                                    }
+                                }
+                            }
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    "City",
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    event.location.city ?: "Unknown",
+                                )
+                            }
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    "Region",
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    event.location.region ?: "Unknown",
+                                )
+                            }
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    "Country",
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    event.location.country ?: "Unknown",
+                                )
+                            }
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    "Date",
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    RoboScoutAPI.formatDate(event.startDate)
+                                )
+                            }
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    "Season",
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    event.season.name
+                                )
+                            }
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    "Developer",
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                Text(
+                                    event.sku
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

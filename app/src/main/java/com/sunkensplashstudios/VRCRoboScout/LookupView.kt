@@ -245,7 +245,7 @@ fun Lookup(navController: NavController) {
                         Row {
                             Text("Robot")
                             Spacer(modifier = Modifier.weight(1.0f))
-                            Text(if (fetched) team.robotName else "")
+                            Text(if (fetched) (team.robotName ?: "") else "")
                         }
                         HorizontalDivider(
                                 thickness = 1.dp,

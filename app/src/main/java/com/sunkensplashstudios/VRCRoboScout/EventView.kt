@@ -30,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
+import com.sunkensplashstudios.VRCRoboScout.destinations.EventInformationViewDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,14 +54,15 @@ import kotlinx.coroutines.withContext
 @Composable
 fun EventView(navController: NavController, event: Event) {
 
-    var event by remember { mutableStateOf(event) }
+    var event_ by remember { mutableStateOf(event) }
     var loading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         loading = true
         CoroutineScope(Dispatchers.Default).launch {
-            // event.fetchTeams()
+            event.fetchTeams()
             withContext(Dispatchers.Main) {
+                event_ = event
                 loading = false
             }
         }
@@ -73,7 +76,7 @@ fun EventView(navController: NavController, event: Event) {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text(event.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(event_.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             )
         }
@@ -114,9 +117,9 @@ fun EventView(navController: NavController, event: Event) {
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable {
-                                    /*navController.navigate(
-                                    EventInformationViewDestination(event)
-                                )*/
+                                    navController.navigate(
+                                        EventInformationViewDestination(event_)
+                                    )
                                 }
                             ) {
                                 Text("Information")
@@ -193,22 +196,30 @@ fun EventView(navController: NavController, event: Event) {
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.padding(10.dp)
                         ) {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable {
-                                    /*navController.navigate(
-                                    EventDivisionsViewDestination(event)
-                                )*/
+                            event_.divisions.forEach { division ->
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.clickable {
+                                        /*navController.navigate(
+                                    EventDivisionViewDestination(event)
+                                    )*/
+                                    }
+                                ) {
+                                    Text(division.name)
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        modifier = Modifier.size(18.dp),
+                                        contentDescription = "Show Division"
+                                    )
                                 }
-                            ) {
-                                Text("Default")
-                                Spacer(modifier = Modifier.weight(1.0f))
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    modifier = Modifier.size(18.dp),
-                                    contentDescription = "Show Division"
-                                )
+                                if (event_.divisions.indexOf(division) != event_.divisions.size - 1) {
+                                    HorizontalDivider(
+                                        thickness = 1.dp,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
                             }
                         }
                     }

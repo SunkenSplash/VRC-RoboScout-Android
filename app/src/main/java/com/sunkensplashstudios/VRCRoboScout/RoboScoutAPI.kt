@@ -126,11 +126,11 @@ class RoboScoutAPI {
 
     companion object {
 
-        public final fun roboteventsUrl(): String {
+        fun roboteventsUrl(): String {
             return "https://www.robotevents.com/api/v2"
         }
 
-        public final fun roboteventsAccessKey(): String {
+        fun roboteventsAccessKey(): String {
             return BuildConfig.ROBOTEVENTS_API_KEY
         }
 
@@ -162,16 +162,16 @@ class RoboScoutAPI {
             return outputFormat.format(date)
         }
 
-        public final suspend fun roboteventsRequest(requestUrl: String, params: Map<String, Any> = emptyMap<String, Any>()): List<JsonObject> {
+        suspend fun roboteventsRequest(requestUrl: String, params: Map<String, Any> = emptyMap<String, Any>()): List<JsonObject> {
             var data = mutableListOf<JsonObject>()
-            var request_url = this.roboteventsUrl() + requestUrl
+            val requestUrl = this.roboteventsUrl() + requestUrl
             var page = 1
             var cont = true
             var params = params.toMutableMap()
 
             while (cont) {
                 try {
-                    val response = client.get(request_url) {
+                    val response = client.get(requestUrl) {
                         header("Authorization", "Bearer ${RoboScoutAPI.roboteventsAccessKey()}")
                         url {
                             params.forEach { param ->
@@ -207,7 +207,7 @@ class RoboScoutAPI {
         }
     }
 
-    final suspend fun updateWorldSkillsCache(season: Int? = null) {
+     suspend fun updateWorldSkillsCache(season: Int? = null) {
 
         this.importedWS = false
         this.wsCache.clear()
@@ -234,7 +234,7 @@ class RoboScoutAPI {
         }
     }
 
-    final suspend fun updateVDACache(season: Int? = null) {
+     suspend fun updateVDACache(season: Int? = null) {
 
         this.importedVDA = false
         this.vdaCache.clear()
@@ -257,7 +257,7 @@ class RoboScoutAPI {
         }
     }
 
-    final fun worldSkillsFor(team: Team): WSEntry {
+     fun worldSkillsFor(team: Team): WSEntry {
         return try {
             this.wsCache.first {
                 it.team.id == team.id
@@ -267,7 +267,7 @@ class RoboScoutAPI {
         }
     }
 
-    final fun vdaFor(team: Team): VDAEntry {
+     fun vdaFor(team: Team): VDAEntry {
         return try {
             this.vdaCache.first {
                 it.teamNumber == team.number
@@ -286,6 +286,13 @@ class Season {
 }
 
 @Serializable
+class Division {
+    var id: Int = 0
+    var name: String = ""
+    var order: Int = 0
+}
+
+@Serializable
 class Event {
 
     var id: Int = 0
@@ -298,7 +305,8 @@ class Event {
     var season: Season = Season()
     var location: Location = Location()
     var teams: List<Team> = listOf(Team())
-    @kotlinx.serialization.Transient var teamsMap: Map<Int, Team> = emptyMap<Int, Team>()
+    @kotlinx.serialization.Transient var teamsMap: MutableMap<Int, Team> = mutableMapOf<Int, Team>()
+    var divisions: List<Division> = listOf(Division())
     @kotlinx.serialization.Transient var livestreamLink: String? = null
 
     init {
@@ -320,7 +328,7 @@ class Event {
         }
     }
 
-    public fun fetchInfo() {
+     fun fetchInfo() {
 
         if (this.id == 0 && this.sku == "") {
             return
@@ -349,7 +357,19 @@ class Event {
         this.location = event.location
         this.teams = event.teams
         this.teamsMap = event.teamsMap
+        this.divisions = event.divisions
         // TODO: this.livestream_link
+    }
+
+    suspend fun fetchTeams() {
+        val teams = mutableListOf<Team>()
+        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/teams")
+        for (team in data) {
+            val cachedTeam: Team = jsonWorker.decodeFromJsonElement(team)
+            teams.add(cachedTeam)
+            teamsMap[cachedTeam.id] = cachedTeam
+        }
+        this.teams = teams
     }
 
 }
@@ -374,7 +394,7 @@ class Team {
     @SerialName("team_name") var name: String = ""
     var number: String = ""
     var organization: String = ""
-    @SerialName("robot_name") var robotName: String = ""
+    @SerialName("robot_name") var robotName: String? = ""
     var location: Location = Location()
     var grade: String = ""
     var registered: Boolean = false
@@ -393,7 +413,7 @@ class Team {
         }
     }
 
-    public fun fetchInfo() {
+     fun fetchInfo() {
 
         var res: List<JsonObject>
 
@@ -427,7 +447,7 @@ class Team {
         this.registered = team.registered
     }
 
-    public fun fetchEvents(season: Int? = null) {
+     fun fetchEvents(season: Int? = null) {
         var res: List<JsonObject>
 
         runBlocking {
