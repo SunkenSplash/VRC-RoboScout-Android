@@ -7,14 +7,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -69,68 +70,77 @@ fun TeamEventsView(navController: NavController, team: Team) {
                 ),
                 title = {
                     Text("${team.number} Events", fontWeight = FontWeight.Bold)
+                },
+                navigationIcon = {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBackIos,
+                        contentDescription = "Back",
+                        modifier = Modifier.clickable {
+                            navController.navigateUp()
+                        },
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier.padding(padding).fillMaxSize()
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
         ) {
             if (loading) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.width(50.dp).padding(10.dp),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
-                }
+                LoadingView()
             }
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                Card(modifier = Modifier.padding(10.dp)) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                    ) {
-                        events.reversed().forEach { event ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(
-                                    verticalArrangement = Arrangement.SpaceBetween,
-                                    modifier = Modifier.padding(5.dp).clickable {
-                                        navController.navigate(EventViewDestination(event))
-                                    }
+            else if (events.isEmpty()) {
+                NoDataView()
+            }
+            else {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    Card(modifier = Modifier.padding(10.dp)) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                        ) {
+                            events.reversed().forEach { event ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row {
-                                        Text(
-                                            event.name,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                    Row {
-                                        Text(
-                                            event.location.toString(),
-                                            fontSize = 13.sp
-                                        )
-                                        Spacer(modifier = Modifier.weight(1.0f))
-                                        Text(
-                                            RoboScoutAPI.formatDate(event.startDate),
-                                            fontSize = 13.sp
-                                        )
+                                    Column(
+                                        verticalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier
+                                            .padding(5.dp)
+                                            .clickable {
+                                                navController.navigate(EventViewDestination(event))
+                                            }
+                                    ) {
+                                        Row {
+                                            Text(
+                                                event.name,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                        Row {
+                                            Text(
+                                                event.location.toString(),
+                                                fontSize = 13.sp
+                                            )
+                                            Spacer(modifier = Modifier.weight(1.0f))
+                                            Text(
+                                                RoboScoutAPI.formatDate(event.startDate),
+                                                fontSize = 13.sp
+                                            )
+                                        }
                                     }
                                 }
-                            }
-                            if (events.indexOf(event) != 0) {
-                                HorizontalDivider(
-                                    thickness = 1.dp,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
+                                if (events.indexOf(event) != 0) {
+                                    HorizontalDivider(
+                                        thickness = 1.dp,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
                             }
                         }
                     }

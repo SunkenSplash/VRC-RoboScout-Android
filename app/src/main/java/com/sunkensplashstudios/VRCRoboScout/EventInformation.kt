@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,12 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun EventInformationView(event: Event) {
+fun EventInformationView(event: Event, navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -48,6 +52,16 @@ fun EventInformationView(event: Event) {
                 ),
                 title = {
                     Text("Event Info", fontWeight = FontWeight.Bold)
+                },
+                navigationIcon = {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBackIos,
+                        contentDescription = "Back",
+                        modifier = Modifier.clickable {
+                            navController.navigateUp()
+                        },
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             )
         }

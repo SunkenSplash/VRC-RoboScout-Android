@@ -9,17 +9,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -75,12 +78,63 @@ fun EventView(navController: NavController, event: Event) {
                 ),
                 title = {
                     Text(event_.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                },
+                navigationIcon = {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBackIos,
+                        contentDescription = "Back",
+                        modifier = Modifier.clickable {
+                            navController.navigateUp()
+                        },
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                actions = {
+                    val localContext = LocalContext.current
+                    val userSettings = remember { UserSettings(localContext) }
+                    var favoriteEvents by remember {
+                        mutableStateOf(
+                            userSettings.getData("favoriteEvents", "").replace("[", "").replace("]", "")
+                                .split(", ")
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            favoriteEvents = if (favoriteEvents.contains(event.sku)) {
+                                userSettings.removeFavoriteEvent(event.sku)
+                                userSettings.getData("favoriteEvents", "").replace("[", "")
+                                    .replace("]", "")
+                                    .split(", ")
+                            } else {
+                                userSettings.addFavoriteEvent(event.sku)
+                                userSettings.getData("favoriteEvents", "").replace("[", "")
+                                    .replace("]", "")
+                                    .split(", ")
+                            }
+                        }
+                    ) {
+                        if (favoriteEvents.contains(event.sku)) {
+                            Icon(
+                                Icons.Filled.Star,
+                                contentDescription = "Favorite",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        } else {
+                            Icon(
+                                Icons.Outlined.StarOutline,
+                                contentDescription = "Unfavorite",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier.padding(padding).fillMaxSize()
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
         ) {
             if (loading) {
                 Column(
@@ -88,11 +142,7 @@ fun EventView(navController: NavController, event: Event) {
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.width(50.dp).padding(10.dp),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
+                    LoadingView()
                 }
             }
             else {

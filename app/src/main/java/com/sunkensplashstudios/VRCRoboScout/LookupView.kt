@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -112,9 +111,9 @@ fun Lookup(navController: NavController) {
             var avgRanking by remember { mutableStateOf(0.0) }
             var fetched by remember { mutableStateOf(false) }
             var loading by remember { mutableStateOf(false) }
-            var favorites by remember {
+            var favoriteTeams by remember {
                 mutableStateOf(
-                    userSettings.getData("favorites", "").replace("[", "").replace("]", "")
+                    userSettings.getData("favoriteTeams", "").replace("[", "").replace("]", "")
                         .split(", ")
                 )
             }
@@ -125,12 +124,12 @@ fun Lookup(navController: NavController) {
                 modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth()
             ) {
                 Box(
-                    modifier = Modifier.width(30.dp)
+                    modifier = Modifier.width(40.dp)
                 ) {
                     Icon(
                         Icons.Filled.Star,
-                        modifier = Modifier.alpha(0F),
-                        contentDescription = "Unfavorite"
+                        modifier = Modifier.size(30.dp).alpha(0F),
+                        contentDescription = "Unfavorite",
                     )
                 }
                 Spacer(modifier = Modifier.weight(1.0F))
@@ -183,49 +182,51 @@ fun Lookup(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.weight(1.0F))
                 Box(
-                    modifier = Modifier.width(30.dp)
+                    modifier = Modifier.width(40.dp)
                 ) {
                     IconButton(onClick = {
-                        favorites = if (number.isEmpty() || number == "229V\u200B") {
+                        favoriteTeams = if (number.isEmpty() || number == "229V\u200B") {
                             return@IconButton
-                        } else if (favorites.contains(number.uppercase()) && textColor != Color.Unspecified) {
+                        } else if (favoriteTeams.contains(number.uppercase()) && textColor != Color.Unspecified) {
                             userSettings.removeFavoriteTeam(number.uppercase())
-                            userSettings.getData("favorites", "").replace("[", "")
+                            userSettings.getData("favoriteTeams", "").replace("[", "")
                                 .replace("]", "")
                                 .split(", ")
                         } else {
                             userSettings.addFavoriteTeam(number.uppercase())
-                            userSettings.getData("favorites", "").replace("[", "")
+                            userSettings.getData("favoriteTeams", "").replace("[", "")
                                 .replace("]", "")
                                 .split(", ")
                         }
                     }) {
-                        if (favorites.contains(number.uppercase()) && number.isNotBlank()) {
+                        if (favoriteTeams.contains(number.uppercase()) && number.isNotBlank()) {
                             Icon(
                                 Icons.Filled.Star,
-                                contentDescription = "Favorite"
+                                contentDescription = "Favorite",
+                                modifier = Modifier.size(30.dp)
                             )
                         } else {
                             Icon(
                                 Icons.Outlined.StarOutline,
-                                contentDescription = "Unfavorite"
+                                contentDescription = "Unfavorite",
+                                modifier = Modifier.size(30.dp)
                             )
                         }
                     }
                 }
             }
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.width(30.dp),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                )
-            } else {
-                Spacer(Modifier.height(40.dp))
-            }
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
+                if (loading) {
+                    Column(
+                        modifier = Modifier.height(60.dp),
+                    ) {
+                        LoadingView()
+                    }
+                } else {
+                    Spacer(Modifier.height(60.dp))
+                }
                 Card(modifier = Modifier.padding(10.dp)) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp),

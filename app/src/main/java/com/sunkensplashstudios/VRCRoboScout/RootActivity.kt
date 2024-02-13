@@ -6,11 +6,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.automirrored.outlined.TrendingUp
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -21,6 +26,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,8 +43,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -58,14 +66,12 @@ import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class UserSettings(context: Context) {
     private val userSettings: SharedPreferences =
         context.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE)
 
     fun saveData(key: String, value: String) {
-        println("Saving $key with value $value")
         val editor = userSettings.edit()
         editor.putString(key, value)
         editor.apply()
@@ -76,23 +82,31 @@ class UserSettings(context: Context) {
     }
 
     fun addFavoriteTeam(number: String) {
-        println("Adding $number")
-        println("Data: " + this.getData("favorites", ""))
-        val newFavorites = this.getData("favorites", "").replace("[", "").replace("]", "").split(", ").toMutableList()
+        val newFavorites = this.getData("favoriteTeams", "").replace("[", "").replace("]", "").split(", ").toMutableList()
         newFavorites.removeAll(listOf(""))
         if (!newFavorites.contains(number)) newFavorites.add(number)
-        println("New Data: $newFavorites")
-        this.saveData("favorites", newFavorites.toString())
+        this.saveData("favoriteTeams", newFavorites.toString())
     }
 
     fun removeFavoriteTeam(number: String) {
-        println("Removing $number")
-        println("Data: " + this.getData("favorites", ""))
-        val newFavorites = this.getData("favorites", "").replace("[", "").replace("]", "").split(", ").toMutableList()
+        val newFavorites = this.getData("favoriteTeams", "").replace("[", "").replace("]", "").split(", ").toMutableList()
         newFavorites.removeAll(listOf(""))
         newFavorites.remove(number)
-        println("New Data: $newFavorites")
-        this.saveData("favorites", newFavorites.toString())
+        this.saveData("favoriteTeams", newFavorites.toString())
+    }
+
+    fun addFavoriteEvent(sku: String) {
+        val newFavorites = this.getData("favoriteEvents", "").replace("[", "").replace("]", "").split(", ").toMutableList()
+        newFavorites.removeAll(listOf(""))
+        if (!newFavorites.contains(sku)) newFavorites.add(sku)
+        this.saveData("favoriteEvents", newFavorites.toString())
+    }
+
+    fun removeFavoriteEvent(sku: String) {
+        val newFavorites = this.getData("favoriteEvents", "").replace("[", "").replace("]", "").split(", ").toMutableList()
+        newFavorites.removeAll(listOf(""))
+        newFavorites.remove(sku)
+        this.saveData("favoriteEvents", newFavorites.toString())
     }
 }
 
@@ -103,6 +117,56 @@ data class TabBarItem(
     val unselectedIcon: ImageVector,
     val badgeAmount: Int? = null
 )
+
+@Composable
+fun LoadingView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .width(50.dp)
+                .padding(10.dp),
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+    }
+}
+
+@Composable
+fun NoDataView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Error,
+            contentDescription = "No Data",
+            tint = Color.Gray,
+            modifier = Modifier.size(40.dp).padding(5.dp)
+        )
+        Text("No Data", color = Color.Gray)
+    }
+}
+
+@Composable
+fun ImportingDataView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(40.dp).padding(5.dp),
+            color = MaterialTheme.colorScheme.secondary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+        Text("Importing Data", color = Color.Gray)
+    }
+}
 
 class RootActivity : ComponentActivity() {
 
@@ -195,7 +259,7 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selecte
         // looping over each tab to generate the views and navigation for each item
         tabBarItems.forEachIndexed { index, tabBarItem ->
             NavigationBarItem(
-                selected = selectedTabIndex == index,
+                selected = false,
                 onClick = {
                     onSelectedTabIndexChange(index)
                     navController.navigate(tabBarItem.direction)
@@ -209,7 +273,10 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selecte
                         badgeAmount = tabBarItem.badgeAmount
                     )
                 },
-                label = {Text(text = tabBarItem.title, fontSize = 11.sp)})
+                label = {
+                    Text(text = tabBarItem.title, fontSize = 10.sp, color = if (selectedTabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                }
+            )
         }
     }
 }
@@ -225,8 +292,18 @@ fun TabBarIconView(
 ) {
     BadgedBox(badge = { TabBarBadgeView(badgeAmount) }) {
         Icon(
-            imageVector = if (isSelected) {selectedIcon} else {unselectedIcon},
-            contentDescription = title
+            imageVector = if (isSelected) {
+                selectedIcon
+            } else {
+                unselectedIcon
+            },
+            contentDescription = title,
+            tint = if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+            modifier = Modifier.size(28.dp)
         )
     }
 }
