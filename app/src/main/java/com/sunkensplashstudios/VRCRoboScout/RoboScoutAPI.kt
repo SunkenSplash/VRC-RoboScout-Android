@@ -175,7 +175,14 @@ class RoboScoutAPI {
                         header("Authorization", "Bearer ${RoboScoutAPI.roboteventsAccessKey()}")
                         url {
                             params.forEach { param ->
-                                parameters.append(param.key, param.value.toString())
+                                if (param.value is List<*>) {
+                                    for (value in param.value as List<*>) {
+                                        parameters.append("${param.key}[]", value.toString())
+                                    }
+                                }
+                                else {
+                                    parameters.append(param.key, param.value.toString())
+                                }
                             }
                             parameters.append("page", page.toString())
                             if (params["per_page"] == null) {
