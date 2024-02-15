@@ -94,7 +94,8 @@ fun EventTeamsView(event: Event, navController: NavController) {
                                         )
                                         Text(
                                             team.location.toString(),
-                                            modifier = Modifier.padding(start = 10.dp)
+                                            modifier = Modifier.padding(start = 10.dp),
+                                            fontSize = 12.sp
                                         )
                                     }
                                 }

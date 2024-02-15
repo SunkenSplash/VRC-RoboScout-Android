@@ -32,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
@@ -41,22 +43,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+class TeamEventsViewModel: ViewModel() {
+    var events by mutableStateOf(listOf<Event>())
+    var loading by mutableStateOf(true)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun TeamEventsView(navController: NavController, team: Team) {
-
-    var events by remember { mutableStateOf(listOf(Event())) }
-    var loading by remember { mutableStateOf(true) }
+fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navController: NavController, team: Team) {
 
     LaunchedEffect(Unit) {
-        loading = true
+        if (teamEventsViewModel.events.isNotEmpty()) {
+            return@LaunchedEffect
+        }
+        teamEventsViewModel.loading = true
         CoroutineScope(Dispatchers.Default).launch {
             team.fetchInfo()
             team.fetchEvents()
             withContext(Dispatchers.Main) {
-                loading = false
-                events = team.events
+                teamEventsViewModel.loading = false
+                teamEventsViewModel.events = team.events
             }
         }
     }
@@ -89,10 +96,10 @@ fun TeamEventsView(navController: NavController, team: Team) {
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            if (loading) {
+            if (teamEventsViewModel.loading) {
                 LoadingView()
             }
-            else if (events.isEmpty()) {
+            else if (teamEventsViewModel.events.isEmpty()) {
                 NoDataView()
             }
             else {
@@ -103,7 +110,7 @@ fun TeamEventsView(navController: NavController, team: Team) {
                         Column(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                         ) {
-                            events.reversed().forEach { event ->
+                            teamEventsViewModel.events.reversed().forEach { event ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -135,7 +142,7 @@ fun TeamEventsView(navController: NavController, team: Team) {
                                         }
                                     }
                                 }
-                                if (events.indexOf(event) != 0) {
+                                if (teamEventsViewModel.events.indexOf(event) != 0) {
                                     HorizontalDivider(
                                         thickness = 1.dp,
                                         color = MaterialTheme.colorScheme.secondary

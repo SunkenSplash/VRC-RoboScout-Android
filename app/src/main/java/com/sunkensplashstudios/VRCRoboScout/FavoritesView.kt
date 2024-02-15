@@ -74,7 +74,6 @@ class FavoritesViewModel : ViewModel() {
             withContext(Dispatchers.Main) {
                 eventSKUMap.clear()
                 eventSKUMap.putAll(fetchedEventSKUMap)
-                println(eventSKUMap)
             }
         }
     }
@@ -84,7 +83,7 @@ class FavoritesViewModel : ViewModel() {
 @RootNavGraph(start = true)
 @Destination
 @Composable
-fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModel(), navController: NavController) {
+fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites_view"] as FavoritesViewModel, navController: NavController) {
 
     val localContext = LocalContext.current
     val favoriteTeams = remember { UserSettings(localContext).getData("favoriteTeams", "").replace("[", "").replace("]", "").split(", ") }
@@ -195,6 +194,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModel(), navContr
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                         ) {
+                            Spacer(modifier = Modifier.height(10.dp))
                             LoadingView()
                         }
                     }

@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -55,6 +56,7 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.Direction
 import com.sunkensplashstudios.VRCRoboScout.destinations.FavoritesViewDestination
@@ -168,6 +170,11 @@ fun ImportingDataView() {
     }
 }
 
+val viewModels = mapOf(
+    "favorites_view" to FavoritesViewModel(),
+    "lookup_view" to LookupViewModel()
+)
+
 class RootActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class,
@@ -244,7 +251,36 @@ class RootActivity : ComponentActivity() {
                                 .padding(padding),
                             startRoute = FavoritesViewDestination,
                             engine = navHostEngine
-                        )
+                        ) {
+
+                            composable(FavoritesViewDestination) {
+                                FavoritesView(
+                                    favoritesViewModel = viewModels["favorites_view"] as FavoritesViewModel,
+                                    navController = navController
+                                )
+                            }
+                            composable(WorldSkillsViewDestination) {
+                                WorldSkillsView(
+                                    navController = navController
+                                )
+                            }
+                            composable(TrueSkillViewDestination) {
+                                TrueSkillView(
+                                    navController = navController
+                                )
+                            }
+                            composable(LookupViewDestination) {
+                                LookupView(
+                                    lookupViewModel = viewModels["lookup_view"] as LookupViewModel,
+                                    navController = navController
+                                )
+                            }
+                            composable(SettingsViewDestination) {
+                                SettingsView(
+                                    navController = navController
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -269,8 +305,7 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selecte
                         isSelected = selectedTabIndex == index,
                         selectedIcon = tabBarItem.selectedIcon,
                         unselectedIcon = tabBarItem.unselectedIcon,
-                        title = tabBarItem.title,
-                        badgeAmount = tabBarItem.badgeAmount
+                        title = tabBarItem.title
                     )
                 },
                 label = {
@@ -287,10 +322,9 @@ fun TabBarIconView(
     isSelected: Boolean,
     selectedIcon: ImageVector,
     unselectedIcon: ImageVector,
-    title: String,
-    badgeAmount: Int? = null
+    title: String
 ) {
-    BadgedBox(badge = { TabBarBadgeView(badgeAmount) }) {
+    Box {
         Icon(
             imageVector = if (isSelected) {
                 selectedIcon

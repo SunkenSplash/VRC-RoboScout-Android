@@ -40,6 +40,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
@@ -50,21 +52,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+class EventViewModel: ViewModel() {
+    var event by mutableStateOf(Event())
+    var loading by mutableStateOf(true)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun EventView(navController: NavController, event: Event) {
-
-    var event_ by remember { mutableStateOf(event) }
-    var loading by remember { mutableStateOf(false) }
+fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavController, event: Event) {
 
     LaunchedEffect(Unit) {
-        loading = true
+        if (eventViewModel.event.id != 0) {
+            return@LaunchedEffect
+        }
+        eventViewModel.loading = true
         CoroutineScope(Dispatchers.Default).launch {
             event.fetchTeams()
             withContext(Dispatchers.Main) {
-                event_ = event
-                loading = false
+                eventViewModel.event = event
+                eventViewModel.loading = false
             }
         }
     }
@@ -77,7 +84,7 @@ fun EventView(navController: NavController, event: Event) {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text(event_.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(eventViewModel.event.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
                     Icon(
@@ -136,7 +143,7 @@ fun EventView(navController: NavController, event: Event) {
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            if (loading) {
+            if (eventViewModel.loading) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Top,
@@ -166,7 +173,7 @@ fun EventView(navController: NavController, event: Event) {
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable {
                                     navController.navigate(
-                                        EventInformationViewDestination(event_)
+                                        EventInformationViewDestination(eventViewModel.event)
                                     )
                                 }
                             ) {
@@ -187,7 +194,7 @@ fun EventView(navController: NavController, event: Event) {
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable {
                                     navController.navigate(
-                                        EventTeamsViewDestination(event_)
+                                        EventTeamsViewDestination(eventViewModel.event)
                                     )
                                 }
                             ) {
@@ -244,7 +251,7 @@ fun EventView(navController: NavController, event: Event) {
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.padding(10.dp)
                         ) {
-                            event_.divisions.forEach { division ->
+                            eventViewModel.event.divisions.forEach { division ->
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
@@ -262,7 +269,7 @@ fun EventView(navController: NavController, event: Event) {
                                         contentDescription = "Show Division"
                                     )
                                 }
-                                if (event_.divisions.indexOf(division) != event_.divisions.size - 1) {
+                                if (eventViewModel.event.divisions.indexOf(division) != eventViewModel.event.divisions.size - 1) {
                                     HorizontalDivider(
                                         thickness = 1.dp,
                                         color = MaterialTheme.colorScheme.secondary

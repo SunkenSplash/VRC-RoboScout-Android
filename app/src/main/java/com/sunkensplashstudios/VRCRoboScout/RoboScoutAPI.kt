@@ -1,5 +1,6 @@
 package com.sunkensplashstudios.VRCRoboScout
 
+import androidx.compose.runtime.MutableState
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -71,15 +72,31 @@ class WSScores {
 }
 
 @Serializable
-class WSEntry {
+class WSEntry : MutableState<WSEntry> {
     var rank: Int = 0
     var team: WSTeam = WSTeam()
     var event: WSEvent = WSEvent()
     var scores: WSScores = WSScores()
+    override var value: WSEntry
+        get() = this
+        set(value) {
+            this.rank = value.rank
+            this.team = value.team
+            this.event = value.event
+            this.scores = value.scores
+        }
+
+    override fun component1(): WSEntry {
+        return this
+    }
+
+    override fun component2(): (WSEntry) -> Unit {
+        return { this.value = it }
+    }
 }
 
 @Serializable
-class VDAEntry {
+class VDAEntry : MutableState<VDAEntry> {
     @SerialName("ts_ranking") var tsRanking: Int = 0
     @SerialName("ranking_change") var rankingChange: Double? = 0.0
     @SerialName("ts_ranking_region") var tsRankingRegion: Int = 0
@@ -115,6 +132,17 @@ class VDAEntry {
     var dpr: Double = 0.0
     @SerialName("qualified_for_regionals") var qualifiedForRegionals: Int = 0
     @SerialName("qualified_for_worlds") var qualifiedForWorlds: Int = 0
+    override var value: VDAEntry
+        get() = TODO("Not yet implemented")
+        set(value) {}
+
+    override fun component1(): VDAEntry {
+        TODO("Not yet implemented")
+    }
+
+    override fun component2(): (VDAEntry) -> Unit {
+        TODO("Not yet implemented")
+    }
 }
 
 class RoboScoutAPI {
@@ -402,7 +430,7 @@ class Location {
 }
 
 @Serializable
-class Team {
+class Team : MutableState<Team> {
 
     var id: Int = 0
     var events: MutableList<Event> = mutableListOf<Event>()
@@ -489,6 +517,29 @@ class Team {
         }
         this.eventCount = data.size
         return total.toDouble() / data.size.toDouble()
+    }
+
+    override var value: Team
+        get() = this
+        set(value) {
+            this.id = value.id
+            this.events = value.events
+            this.eventCount = value.eventCount
+            this.name = value.name
+            this.number = value.number
+            this.organization = value.organization
+            this.robotName = value.robotName
+            this.location = value.location
+            this.grade = value.grade
+            this.registered = value.registered
+        }
+
+    override fun component1(): Team {
+        return this
+    }
+
+    override fun component2(): (Team) -> Unit {
+        return { this.value = it }
     }
 
 }
