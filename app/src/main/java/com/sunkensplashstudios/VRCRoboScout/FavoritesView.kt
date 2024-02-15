@@ -44,6 +44,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
+import com.sunkensplashstudios.VRCRoboScout.destinations.LookupViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -83,7 +84,7 @@ class FavoritesViewModel : ViewModel() {
 @RootNavGraph(start = true)
 @Destination
 @Composable
-fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites_view"] as FavoritesViewModel, navController: NavController) {
+fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites_view"] as FavoritesViewModel, onSelectedTabIndexChange: (Int) -> Unit, navController: NavController) {
 
     val localContext = LocalContext.current
     val favoriteTeams = remember { UserSettings(localContext).getData("favoriteTeams", "").replace("[", "").replace("]", "").split(", ") }
@@ -170,7 +171,8 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                             Text(
                                 "Find a team",
                                 modifier = Modifier.padding(vertical = 10.dp).fillMaxWidth().clickable {
-                                    // TODO: Change tab index to show team lookup
+                                    navController.navigate(LookupViewDestination())
+                                    onSelectedTabIndexChange(3)
                                 },
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -188,8 +190,6 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                     fontSize = 13.sp,
                     color = Color.Gray
                 )
-                println(favoriteEvents.size)
-                println(favoritesViewModel.eventSKUMap.size)
                 if (favoriteEvents.size != favoritesViewModel.eventSKUMap.size && favoriteEvents.any{it.isNotBlank()}) {
                     Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
                         Column(
@@ -283,7 +283,8 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                     "Find an event",
                                     modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth()
                                         .clickable {
-                                            // TODO: Change tab index to show event lookup
+                                            navController.navigate(LookupViewDestination())
+                                            onSelectedTabIndexChange(3)
                                         },
                                     color = MaterialTheme.colorScheme.primary
                                 )

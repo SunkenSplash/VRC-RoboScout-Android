@@ -256,6 +256,9 @@ class RootActivity : ComponentActivity() {
                             composable(FavoritesViewDestination) {
                                 FavoritesView(
                                     favoritesViewModel = viewModels["favorites_view"] as FavoritesViewModel,
+                                    onSelectedTabIndexChange = { index ->
+                                        selectedTabIndex = index
+                                    },
                                     navController = navController
                                 )
                             }
