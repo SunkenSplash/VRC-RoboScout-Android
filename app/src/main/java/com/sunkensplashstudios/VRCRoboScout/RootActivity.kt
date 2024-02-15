@@ -309,7 +309,7 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selecte
                     )
                 },
                 label = {
-                    Text(text = tabBarItem.title, fontSize = 10.sp, color = if (selectedTabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                    Text(text = tabBarItem.title, fontSize = 9.sp, color = if (selectedTabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
                 }
             )
         }

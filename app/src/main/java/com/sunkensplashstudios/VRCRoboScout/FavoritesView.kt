@@ -188,7 +188,9 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                     fontSize = 13.sp,
                     color = Color.Gray
                 )
-                if (favoriteEvents.size != favoritesViewModel.eventSKUMap.size) {
+                println(favoriteEvents.size)
+                println(favoritesViewModel.eventSKUMap.size)
+                if (favoriteEvents.size != favoritesViewModel.eventSKUMap.size && favoriteEvents.any{it.isNotBlank()}) {
                     Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(0.dp),

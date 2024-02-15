@@ -163,41 +163,45 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     )
                 }
                 Spacer(modifier = Modifier.weight(1.0F))
-                TextField(
-                    value = lookupViewModel.number.value,
-                    onValueChange = { lookupViewModel.number.value = it },
-                    singleLine = true,
-                    interactionSource = remember { MutableInteractionSource() }
-                        .also { interactionSource ->
-                            LaunchedEffect(interactionSource) {
-                                interactionSource.interactions.collect {
-                                    if (it is PressInteraction.Release) {
-                                        lookupViewModel.number.value = ""
-                                        lookupViewModel.fetched.value = false
+                Box(
+                    modifier = Modifier.width(200.dp)
+                ) {
+                    TextField(
+                        value = lookupViewModel.number.value,
+                        onValueChange = { lookupViewModel.number.value = it },
+                        singleLine = true,
+                        interactionSource = remember { MutableInteractionSource() }
+                            .also { interactionSource ->
+                                LaunchedEffect(interactionSource) {
+                                    interactionSource.interactions.collect {
+                                        if (it is PressInteraction.Release) {
+                                            lookupViewModel.number.value = ""
+                                            lookupViewModel.fetched.value = false
+                                        }
                                     }
                                 }
-                            }
-                        },
-                    textStyle = LocalTextStyle.current.copy(
-                        textAlign = TextAlign.Center,
-                        fontSize = 34.sp
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        unfocusedTextColor = lookupViewModel.textColor.value
-                    ),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide()
-                            lookupViewModel.fetchTeam()
-                        })
-                )
+                            },
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center,
+                            fontSize = 34.sp
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            unfocusedTextColor = lookupViewModel.textColor.value
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                lookupViewModel.fetchTeam()
+                            })
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1.0F))
                 Box(
                     modifier = Modifier.width(40.dp)
