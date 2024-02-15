@@ -82,7 +82,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBackIos,
                         contentDescription = "Back",
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.padding(10.dp).clickable {
                             navController.navigateUp()
                         },
                         tint = MaterialTheme.colorScheme.primary

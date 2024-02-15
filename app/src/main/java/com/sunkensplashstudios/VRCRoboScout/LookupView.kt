@@ -237,18 +237,18 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     }
                 }
             }
+            if (lookupViewModel.loading.value) {
+                Column(
+                    modifier = Modifier.height(60.dp),
+                ) {
+                    LoadingView()
+                }
+            } else {
+                Spacer(Modifier.height(60.dp))
+            }
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                if (lookupViewModel.loading.value) {
-                    Column(
-                        modifier = Modifier.height(60.dp),
-                    ) {
-                        LoadingView()
-                    }
-                } else {
-                    Spacer(Modifier.height(60.dp))
-                }
                 Card(modifier = Modifier.padding(10.dp)) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
