@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -50,6 +53,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.saket.cascade.CascadeDropdownMenu
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
@@ -95,6 +99,9 @@ fun WorldSkillsView(navController: NavController) {
                 NoDataView()
             }
             else {
+                // start filter menu retracted
+                var filterDropdownExpanded by remember { mutableStateOf(false) }
+
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
@@ -111,18 +118,83 @@ fun WorldSkillsView(navController: NavController) {
                                 interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
                             )
                             .clickable {
-                                // print a debug message in the console
-                                println("Filter button clicked")
+                                // toggle the filter dropdown
+                                filterDropdownExpanded = !filterDropdownExpanded
                             }
 
                     ) {
-                        Text(
-                            text = "Filter",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 18.sp,
-                            // not sure why the iOS app has more padding at the bottom, but I guess I'll replicate it
-                            modifier = Modifier.padding(bottom = 18.dp, top = 10.dp).align(Alignment.Center)
-                        )
+                        Box(modifier = Modifier.align(Alignment.Center)) {
+                            Text(
+                                text = "Filter",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 18.sp,
+                                // not sure why the iOS app has more padding at the bottom, but I guess I'll replicate it
+                                modifier = Modifier
+                                    .padding(bottom = 18.dp, top = 10.dp)
+                            )
+
+                            CascadeDropdownMenu(
+                                expanded = filterDropdownExpanded,
+                                onDismissRequest = { filterDropdownExpanded = false },
+                                // padding top -10dp
+                                offset = DpOffset(x = (-72).dp, y = (-12).dp),
+
+                                modifier = Modifier
+                                    .heightIn(max = 265.dp)
+
+                                // set max height to 200dp
+
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Favorites") },
+                                    onClick = {
+                                    }
+                                )
+
+                                HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+
+                                DropdownMenuItem(
+                                    text = { Text("Region") },
+                                    children = {
+                                        DropdownMenuItem(
+                                            text = { Text("North America") },
+                                            onClick = {
+                                                filterDropdownExpanded = false
+                                                println("North America")
+                                            }
+                                        )
+                                    }
+                                )
+
+                                HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+
+                                DropdownMenuItem(
+                                    text = { Text("Letter") },
+                                    children = {
+                                        // make a list of all the letters
+                                        for (letter in 'A'..'Z') {
+                                            HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+
+                                            DropdownMenuItem(
+                                                text = { Text(letter.toString()) },
+                                                onClick = {
+                                                    filterDropdownExpanded = false
+                                                    println(letter)
+                                                }
+                                            )
+                                        }
+                                    }
+                                )
+
+                                HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+
+                                DropdownMenuItem(
+                                    text = { Text("Clear Filters") },
+                                    onClick = {
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
 

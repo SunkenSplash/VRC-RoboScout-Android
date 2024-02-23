@@ -96,4 +96,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("io.github.raamcosta.compose-destinations:animations-core:1.10.0")
     ksp("io.github.raamcosta.compose-destinations:ksp:1.10.0")
+    implementation ("me.saket.cascade:cascade:2.3.0")
+    implementation ("me.saket.cascade:cascade-compose:2.3.0")
 }
