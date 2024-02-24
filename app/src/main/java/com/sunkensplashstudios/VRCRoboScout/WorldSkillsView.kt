@@ -257,7 +257,20 @@ fun WorldSkillsView(navController: NavController) {
                         modifier = Modifier.padding(horizontal = 10.dp)
                     ) {
                         if (isFilteredByFavorites) {
-                            itemsIndexed(API.wsCache.filter { it.team.number in favoriteTeams }) { index, wsEntry ->
+                            if (favoriteTeams.isEmpty() || favoriteTeams[0] == "") {
+                                item {
+                                    Text(
+                                        "You have no favorite teams!",
+                                        fontSize = 18.sp,
+                                        modifier = Modifier
+                                            .padding(10.dp)
+                                            .fillMaxSize()
+                                            .wrapContentSize(align = Alignment.Center)
+                                    )
+                                }
+                            }
+
+                            else itemsIndexed(API.wsCache.filter { it.team.number in favoriteTeams }) { index, wsEntry ->
 
                                 var expanded by remember { mutableStateOf(false) }
 
