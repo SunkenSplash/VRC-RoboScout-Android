@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -60,6 +61,40 @@ import me.saket.cascade.CascadeDropdownMenu
 @Composable
 fun WorldSkillsView(navController: NavController) {
 
+    var viewTitle by rememberSaveable { mutableStateOf("World Skills") }
+    val context = LocalContext.current
+
+    // filters
+    var isFilteredByFavorites by remember { mutableStateOf(false) }
+    var hasFilteredLetter by remember { mutableStateOf(' ') }
+
+    // get favorite teams
+    val favoriteTeams = remember {
+        UserSettings(context).getData("favoriteTeams", "").replace("[", "").replace("]", "")
+            .split(", ")
+    }
+
+    // clear filters
+    fun clearFilters() {
+        isFilteredByFavorites = false
+        hasFilteredLetter = ' '
+        viewTitle = "World Skills"
+    }
+
+    // filter by favorites
+    fun filterByFavorites() {
+        isFilteredByFavorites = true
+        hasFilteredLetter = ' '
+        viewTitle = "Favorites Skills"
+    }
+
+    // filter by letter
+    fun filterByLetter(letter: Char) {
+        hasFilteredLetter = letter
+        isFilteredByFavorites = false
+        viewTitle = "$letter Skills"
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -68,7 +103,7 @@ fun WorldSkillsView(navController: NavController) {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("World Skills", fontWeight = FontWeight.Bold)
+                    Text(viewTitle, fontWeight = FontWeight.Bold)
                 }
             )
         }
@@ -94,11 +129,9 @@ fun WorldSkillsView(navController: NavController) {
         ) {
             if (importing) {
                 ImportingDataView()
-            }
-            else if (API.wsCache.isEmpty()) {
+            } else if (API.wsCache.isEmpty()) {
                 NoDataView()
-            }
-            else {
+            } else {
                 // start filter menu retracted
                 var filterDropdownExpanded by remember { mutableStateOf(false) }
 
@@ -148,10 +181,16 @@ fun WorldSkillsView(navController: NavController) {
                                 DropdownMenuItem(
                                     text = { Text("Favorites") },
                                     onClick = {
+                                        filterDropdownExpanded = false
+                                        filterByFavorites()
                                     }
                                 )
 
-                                HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+                                HorizontalDivider(
+                                    color = Color.Gray,
+                                    thickness = 0.5.dp,
+                                    modifier = Modifier.padding(horizontal = 5.dp)
+                                )
 
                                 DropdownMenuItem(
                                     text = { Text("Region") },
@@ -166,31 +205,45 @@ fun WorldSkillsView(navController: NavController) {
                                     }
                                 )
 
-                                HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+                                HorizontalDivider(
+                                    color = Color.Gray,
+                                    thickness = 0.5.dp,
+                                    modifier = Modifier.padding(horizontal = 5.dp)
+                                )
 
                                 DropdownMenuItem(
                                     text = { Text("Letter") },
                                     children = {
                                         // make a list of all the letters
                                         for (letter in 'A'..'Z') {
-                                            HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+                                            HorizontalDivider(
+                                                color = Color.Gray,
+                                                thickness = 0.5.dp,
+                                                modifier = Modifier.padding(horizontal = 5.dp)
+                                            )
 
                                             DropdownMenuItem(
                                                 text = { Text(letter.toString()) },
                                                 onClick = {
+                                                    filterByLetter(letter)
                                                     filterDropdownExpanded = false
-                                                    println(letter)
                                                 }
                                             )
                                         }
                                     }
                                 )
 
-                                HorizontalDivider(color = Color.Gray, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 5.dp))
+                                HorizontalDivider(
+                                    color = Color.Gray,
+                                    thickness = 0.5.dp,
+                                    modifier = Modifier.padding(horizontal = 5.dp)
+                                )
 
                                 DropdownMenuItem(
                                     text = { Text("Clear Filters") },
                                     onClick = {
+                                        clearFilters()
+                                        filterDropdownExpanded = false
                                     }
                                 )
                             }
@@ -203,68 +256,233 @@ fun WorldSkillsView(navController: NavController) {
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                         modifier = Modifier.padding(horizontal = 10.dp)
                     ) {
-                        items(API.wsCache) { wsEntry ->
+                        if (isFilteredByFavorites) {
+                            itemsIndexed(API.wsCache.filter { it.team.number in favoriteTeams }) { index, wsEntry ->
 
-                            var expanded by remember { mutableStateOf(false) }
+                                var expanded by remember { mutableStateOf(false) }
 
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .padding(horizontal = 0.dp)
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("#" + wsEntry.rank.toString(), fontSize = 18.sp, modifier = Modifier.width(130.dp))
-                                Spacer(modifier = Modifier.weight(1.0f))
-                                Text(wsEntry.team.number, fontSize = 18.sp)
-                                Spacer(modifier = Modifier.weight(1.0f))
                                 Row(
-                                    modifier = Modifier.width(130.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                        .padding(horizontal = 0.dp)
+                                        .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    Text(
+                                        "#" + wsEntry.rank.toString(),
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.width(130.dp)
+                                    )
                                     Spacer(modifier = Modifier.weight(1.0f))
-                                    Text(wsEntry.scores.score.toString(), fontSize = 18.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable{
-                                        expanded = !expanded
-                                    })
-                                    DropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false }
+                                    Text(wsEntry.team.number, fontSize = 18.sp)
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Row(
+                                        modifier = Modifier.width(130.dp),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        DropdownMenuItem(
-                                            text = { Text("${wsEntry.scores.score} Combined") },
-                                            onClick = { }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("${wsEntry.scores.programming} Programming") },
-                                            onClick = { }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("${wsEntry.scores.driver} Driver") },
-                                            onClick = { }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                            onClick = { }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                            onClick = { }
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-                                    Column {
+                                        Spacer(modifier = Modifier.weight(1.0f))
                                         Text(
-                                            wsEntry.scores.programming.toString(),
-                                            fontSize = 12.sp
-                                        )
-                                        Text(wsEntry.scores.driver.toString(), fontSize = 12.sp)
+                                            wsEntry.scores.score.toString(),
+                                            fontSize = 18.sp,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable {
+                                                expanded = !expanded
+                                            })
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.score} Combined") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.programming} Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.driver} Driver") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
+                                                onClick = { }
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                                        Column {
+                                            Text(
+                                                wsEntry.scores.programming.toString(),
+                                                fontSize = 12.sp
+                                            )
+                                            Text(wsEntry.scores.driver.toString(), fontSize = 12.sp)
+                                        }
                                     }
                                 }
+
+                                if (index != API.wsCache.filter { it.team.number in favoriteTeams }.size - 1) {
+                                    HorizontalDivider(
+                                        thickness = 1.dp,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
                             }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
+                        }
+
+                        else if (hasFilteredLetter != ' ') {
+                            itemsIndexed(API.wsCache.filter { it.team.number.last() == hasFilteredLetter }) { index, wsEntry ->
+
+                                var expanded by remember { mutableStateOf(false) }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                        .padding(horizontal = 0.dp)
+                                        .fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        "#" + wsEntry.rank.toString(),
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.width(130.dp)
+                                    )
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Text(wsEntry.team.number, fontSize = 18.sp)
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Row(
+                                        modifier = Modifier.width(130.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Spacer(modifier = Modifier.weight(1.0f))
+                                        Text(
+                                            wsEntry.scores.score.toString(),
+                                            fontSize = 18.sp,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable {
+                                                expanded = !expanded
+                                            })
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.score} Combined") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.programming} Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.driver} Driver") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
+                                                onClick = { }
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                                        Column {
+                                            Text(
+                                                wsEntry.scores.programming.toString(),
+                                                fontSize = 12.sp
+                                            )
+                                            Text(wsEntry.scores.driver.toString(), fontSize = 12.sp)
+                                        }
+                                    }
+                                }
+
+                                if (index != API.wsCache.filter { it.team.number.last() == hasFilteredLetter }.size - 1) {
+                                    HorizontalDivider(
+                                        thickness = 1.dp,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                            }
+                        }
+
+                        // no filtering!
+                        else {
+                            items(API.wsCache) { wsEntry ->
+
+                                var expanded by remember { mutableStateOf(false) }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                        .padding(horizontal = 0.dp)
+                                        .fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        "#" + wsEntry.rank.toString(),
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.width(130.dp)
+                                    )
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Text(wsEntry.team.number, fontSize = 18.sp)
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Row(
+                                        modifier = Modifier.width(130.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Spacer(modifier = Modifier.weight(1.0f))
+                                        Text(
+                                            wsEntry.scores.score.toString(),
+                                            fontSize = 18.sp,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable {
+                                                expanded = !expanded
+                                            })
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.score} Combined") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.programming} Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.driver} Driver") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
+                                                onClick = { }
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                                        Column {
+                                            Text(
+                                                wsEntry.scores.programming.toString(),
+                                                fontSize = 12.sp
+                                            )
+                                            Text(wsEntry.scores.driver.toString(), fontSize = 12.sp)
+                                        }
+                                    }
+                                }
+                                HorizontalDivider(
+                                    thickness = 1.dp,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
                         }
                     }
                 }
