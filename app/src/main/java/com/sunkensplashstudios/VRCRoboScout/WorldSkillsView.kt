@@ -67,6 +67,7 @@ fun WorldSkillsView(navController: NavController) {
     // filters
     var isFilteredByFavorites by remember { mutableStateOf(false) }
     var hasFilteredLetter by remember { mutableStateOf(' ') }
+    var hasFilteredRegion by remember { mutableStateOf(0) }
 
     // get favorite teams
     val favoriteTeams = remember {
@@ -78,12 +79,14 @@ fun WorldSkillsView(navController: NavController) {
     fun clearFilters() {
         isFilteredByFavorites = false
         hasFilteredLetter = ' '
+        hasFilteredRegion = 0
         viewTitle = "World Skills"
     }
 
     // filter by favorites
     fun filterByFavorites() {
         isFilteredByFavorites = true
+        hasFilteredRegion = 0
         hasFilteredLetter = ' '
         viewTitle = "Favorites Skills"
     }
@@ -91,8 +94,17 @@ fun WorldSkillsView(navController: NavController) {
     // filter by letter
     fun filterByLetter(letter: Char) {
         hasFilteredLetter = letter
+        hasFilteredRegion = 0
         isFilteredByFavorites = false
         viewTitle = "$letter Skills"
+    }
+
+    // filter by region
+    fun filterByRegion(region: Int, regionName: String) {
+        hasFilteredRegion = region
+        isFilteredByFavorites = false
+        hasFilteredLetter = ' '
+        viewTitle = "$regionName Skills"
     }
 
     Scaffold(
@@ -195,13 +207,21 @@ fun WorldSkillsView(navController: NavController) {
                                 DropdownMenuItem(
                                     text = { Text("Region") },
                                     children = {
-                                        DropdownMenuItem(
-                                            text = { Text("North America") },
-                                            onClick = {
-                                                filterDropdownExpanded = false
-                                                println("North America")
-                                            }
-                                        )
+                                        API.regionsMap.toSortedMap().forEach { (name, id) ->
+                                            HorizontalDivider(
+                                                color = Color.Gray,
+                                                thickness = 0.5.dp,
+                                                modifier = Modifier.padding(horizontal = 5.dp)
+                                            )
+
+                                            DropdownMenuItem(
+                                                text = { Text(name) },
+                                                onClick = {
+                                                    filterByRegion(id, name)
+                                                    filterDropdownExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
                                 )
 
@@ -415,6 +435,84 @@ fun WorldSkillsView(navController: NavController) {
                                 }
 
                                 if (index != API.wsCache.filter { it.team.number.last() == hasFilteredLetter }.size - 1) {
+                                    HorizontalDivider(
+                                        thickness = 1.dp,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                            }
+                        }
+
+                        else if (hasFilteredRegion != 0) {
+
+                            itemsIndexed(API.wsCache.filter { it.team.eventRegionId == hasFilteredRegion }) { index, wsEntry ->
+
+                                var expanded by remember { mutableStateOf(false) }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                        .padding(horizontal = 0.dp)
+                                        .fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        "#" + wsEntry.rank.toString(),
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.width(130.dp)
+                                    )
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Text(wsEntry.team.number, fontSize = 18.sp)
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Row(
+                                        modifier = Modifier.width(130.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Spacer(modifier = Modifier.weight(1.0f))
+                                        Text(
+                                            wsEntry.scores.score.toString(),
+                                            fontSize = 18.sp,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable {
+                                                expanded = !expanded
+                                            })
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.score} Combined") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.programming} Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.driver} Driver") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
+                                                onClick = { }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
+                                                onClick = { }
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                                        Column {
+                                            Text(
+                                                wsEntry.scores.programming.toString(),
+                                                fontSize = 12.sp
+                                            )
+                                            Text(wsEntry.scores.driver.toString(), fontSize = 12.sp)
+                                        }
+                                    }
+                                }
+
+                                if (index != API.wsCache.filter { it.team.eventRegionId == hasFilteredRegion }.size - 1) {
                                     HorizontalDivider(
                                         thickness = 1.dp,
                                         color = MaterialTheme.colorScheme.secondary
