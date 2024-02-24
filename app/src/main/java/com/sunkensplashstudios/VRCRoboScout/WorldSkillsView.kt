@@ -2,6 +2,7 @@ package com.sunkensplashstudios.VRCRoboScout
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
@@ -147,13 +149,12 @@ fun WorldSkillsView(navController: NavController) {
                 // start filter menu retracted
                 var filterDropdownExpanded by remember { mutableStateOf(false) }
 
-                Row(
-                    horizontalArrangement = Arrangement.Center,
+                Card(
+                    shape = RectangleShape,
                     modifier = Modifier
                         .padding(0.dp, 1.dp, 0.dp, 15.dp)
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     Box(
                         modifier = Modifier
@@ -301,11 +302,20 @@ fun WorldSkillsView(navController: NavController) {
                                         .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        "#" + wsEntry.rank.toString(),
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.width(130.dp)
-                                    )
+                                    Column (
+                                        modifier = Modifier.padding(vertical = 7.dp)
+                                    ) {
+                                        Text(
+                                            "#" + (index + 1),
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.width(130.dp)
+                                        )
+                                        Text(
+                                            "(#" + wsEntry.rank.toString() + ")",
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.width(130.dp)
+                                        )
+                                    }
                                     Spacer(modifier = Modifier.weight(1.0f))
                                     Text(wsEntry.team.number, fontSize = 18.sp)
                                     Spacer(modifier = Modifier.weight(1.0f))
@@ -378,11 +388,20 @@ fun WorldSkillsView(navController: NavController) {
                                         .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        "#" + wsEntry.rank.toString(),
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.width(130.dp)
-                                    )
+                                    Column (
+                                        modifier = Modifier.padding(vertical = 7.dp)
+                                    ) {
+                                        Text(
+                                            "#" + (index + 1),
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.width(130.dp)
+                                        )
+                                        Text(
+                                            "(#" + wsEntry.rank.toString() + ")",
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.width(130.dp)
+                                        )
+                                    }
                                     Spacer(modifier = Modifier.weight(1.0f))
                                     Text(wsEntry.team.number, fontSize = 18.sp)
                                     Spacer(modifier = Modifier.weight(1.0f))
@@ -456,11 +475,20 @@ fun WorldSkillsView(navController: NavController) {
                                         .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        "#" + wsEntry.rank.toString(),
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.width(130.dp)
-                                    )
+                                    Column (
+                                        modifier = Modifier.padding(vertical = 7.dp)
+                                    ) {
+                                        Text(
+                                            "#" + (index + 1),
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.width(130.dp)
+                                        )
+                                        Text(
+                                            "(#" + wsEntry.rank.toString() + ")",
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.width(130.dp)
+                                        )
+                                    }
                                     Spacer(modifier = Modifier.weight(1.0f))
                                     Text(wsEntry.team.number, fontSize = 18.sp)
                                     Spacer(modifier = Modifier.weight(1.0f))
