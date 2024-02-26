@@ -149,6 +149,7 @@ class RoboScoutAPI {
 
     var wsCache: MutableList<WSEntry> = mutableListOf<WSEntry>()
     var vdaCache: MutableList<VDAEntry> = mutableListOf<VDAEntry>()
+    var regionsMap: MutableMap<String, Int> = mutableMapOf<String, Int>()
     var importedWS: Boolean = false
     var importedVDA: Boolean = false
 
@@ -260,6 +261,11 @@ class RoboScoutAPI {
                 val wsEntry: WSEntry = jsonWorker.decodeFromJsonElement(element)
                 this.wsCache.add(wsEntry)
             }
+
+            for (item in this.wsCache) {
+                regionsMap[item.team.eventRegion.replace("Chinese Taipei", "Taiwan")] = item.team.eventRegionId
+            }
+
             this.importedWS = true
             println("Updated world skills cache")
         }
