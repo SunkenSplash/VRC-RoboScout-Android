@@ -210,7 +210,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                             if (favoriteEvents.any { it.isNotBlank() }) {
                                 favoriteEvents.sortedBy {
                                     favoritesViewModel.eventSKUMap[it]?.startDate
-                                }.forEach { sku ->
+                                }.reversed().forEach { sku ->
                                     if (sku == "") return@forEach
                                     Row(
                                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -270,7 +270,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                     }
                                     if (favoriteEvents.sortedBy {
                                             favoritesViewModel.eventSKUMap[it]?.startDate
-                                        }.indexOf(sku) < favoriteEvents.size - 1
+                                        }.reversed().indexOf(sku) < favoriteEvents.size - 1
                                     ) {
                                         HorizontalDivider(
                                             thickness = 1.dp,

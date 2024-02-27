@@ -301,6 +301,7 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selecte
                 selected = false,
                 onClick = {
                     onSelectedTabIndexChange(index)
+                    navController.clearBackStack(navController.graph.startDestinationId)
                     navController.navigate(tabBarItem.direction)
                 },
                 icon = {

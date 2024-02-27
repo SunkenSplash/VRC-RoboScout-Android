@@ -46,6 +46,7 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventInformationViewDestination
+import com.sunkensplashstudios.VRCRoboScout.destinations.EventSkillsRankingsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -224,9 +225,9 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable {
-                                    /*navController.navigate(
-                                    EventSkillsRankingsViewDestination(event)
-                                )*/
+                                    navController.navigate(
+                                        EventSkillsRankingsViewDestination(eventViewModel.event, eventViewModel.event.teamsMap.keys.toIntArray(), ArrayList<Team>(eventViewModel.event.teamsMap.values))
+                                    )
                                 }
                             ) {
                                 Text("Skills Rankings")

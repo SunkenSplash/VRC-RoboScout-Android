@@ -334,6 +334,44 @@ class Division {
 }
 
 @Serializable
+data class SkillsTeam(
+    val id: Int,
+    val name: String,
+    val code: String?
+)
+
+@Serializable
+data class SkillsEvent(
+    val id: Int,
+    val name: String,
+    val code: String?
+)
+
+@Serializable
+data class TeamSkillsEntry(
+    val id: Int,
+    val event: SkillsEvent,
+    val team: SkillsTeam,
+    val type: String,
+    val rank: Int,
+    val score: Int,
+    val attempts: Int?
+)
+
+class TeamSkillsRanking(
+    var driverId: Int = 0,
+    var programmingId: Int = 0,
+    var team: SkillsTeam,
+    var event: SkillsEvent,
+    var rank: Int,
+    var combinedScore: Int = 0,
+    var driverScore: Int = 0,
+    var programmingScore: Int = 0,
+    var driverAttempts: Int = 0,
+    var programmingAttempts: Int = 0
+)
+
+@Serializable
 class Event {
 
     var id: Int = 0
@@ -348,6 +386,7 @@ class Event {
     var teams: List<Team> = listOf(Team())
     @kotlinx.serialization.Transient var teamsMap: MutableMap<Int, Team> = mutableMapOf<Int, Team>()
     var divisions: List<Division> = listOf(Division())
+    @kotlinx.serialization.Transient var skillsRankings: MutableList<TeamSkillsRanking> = mutableListOf<TeamSkillsRanking>()
     @kotlinx.serialization.Transient var livestreamLink: String? = null
 
     init {
@@ -411,6 +450,42 @@ class Event {
             teamsMap[cachedTeam.id] = cachedTeam
         }
         this.teams = teams
+    }
+
+    fun getTeam(id: Int): Team? {
+        return this.teamsMap[id]
+    }
+
+    suspend fun fetchSkillsRankings() {
+        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/skills")
+        this.skillsRankings = mutableListOf<TeamSkillsRanking>()
+        var index = 0
+        while (index < data.size) {
+            val teamSkillsEntry1 = jsonWorker.decodeFromString<TeamSkillsEntry>(data[index].toString())
+            val bundle = mutableListOf(teamSkillsEntry1)
+            if (index + 1 < data.size) {
+                val teamSkillsEntry2 = jsonWorker.decodeFromString<TeamSkillsEntry>(data[index + 1].toString())
+                if (teamSkillsEntry1.team.id == teamSkillsEntry2.team.id) {
+                    bundle.add(teamSkillsEntry2)
+                    index++
+                }
+            }
+            val teamSkillsEntry2 = bundle[1]
+            val teamSkillsRanking = TeamSkillsRanking(
+                driverId = teamSkillsEntry1.id,
+                programmingId = teamSkillsEntry2.id,
+                team = teamSkillsEntry1.team,
+                event = teamSkillsEntry1.event,
+                rank = teamSkillsEntry1.rank,
+                combinedScore = teamSkillsEntry1.score + teamSkillsEntry2.score,
+                driverScore = teamSkillsEntry1.score,
+                programmingScore = teamSkillsEntry2.score,
+                driverAttempts = teamSkillsEntry1.attempts ?: 0,
+                programmingAttempts = teamSkillsEntry2.attempts ?: 0
+            )
+            this.skillsRankings.add(teamSkillsRanking)
+            index++
+        }
     }
 
 }
