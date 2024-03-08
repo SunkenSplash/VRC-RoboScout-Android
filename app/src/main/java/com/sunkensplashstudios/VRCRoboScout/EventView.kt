@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
+import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventInformationViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventSkillsRankingsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
@@ -257,9 +258,9 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.clickable {
-                                        /*navController.navigate(
-                                    EventDivisionViewDestination(event)
-                                    )*/
+                                        navController.navigate(
+                                            EventDivisionViewDestination(event, division)
+                                        )
                                     }
                                 ) {
                                     Text(division.name)

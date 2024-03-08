@@ -22,6 +22,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -31,9 +34,10 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 
 @OptIn(ExperimentalMaterial3Api::class)
+@EventDivisionNavGraph(start = true)
 @Destination
 @Composable
-fun EventTeamsView(event: Event, navController: NavController) {
+fun EventTeamsView(navController: NavController, event: Event? = null, division: Division? = null) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -57,15 +61,20 @@ fun EventTeamsView(event: Event, navController: NavController) {
             )
         }
     ) { padding ->
+        val loading by remember { mutableStateOf(division != null && event != null) }
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
+            print(event!!.teams)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                if (event.teams.isEmpty()) {
+                if (loading) {
+                    LoadingView()
+                }
+                else if (event!!.teams.isEmpty()) {
                     NoDataView()
                 }
                 else {
