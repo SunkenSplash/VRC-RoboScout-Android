@@ -118,11 +118,11 @@ class VDAEntry : MutableState<VDAEntry> {
     @SerialName("elimination_wins") var eliminationWins: Double = 0.0
     @SerialName("elimination_losses") var eliminationLosses: Double = 0.0
     @SerialName("elimination_ties") var eliminationTies: Double = 0.0
-    @SerialName("elimination_winning_percent") var eliminationWinningPercent: Double = 0.0
+    @SerialName("elimination_winning_percent") var eliminationWinningPercent: Double? = 0.0
     @SerialName("qual_wins") var qualWins: Double = 0.0
     @SerialName("qual_losses") var qualLosses: Double = 0.0
     @SerialName("qual_ties") var qualTies: Double = 0.0
-    @SerialName("qual_winning_percent") var qualWinningPercent: Double = 0.0
+    @SerialName("qual_winning_percent") var qualWinningPercent: Double? = 0.0
     @SerialName("ap_per_match") var apPerMatch: Double = 0.0
     @SerialName("awp_per_match") var awpPerMatch: Double = 0.0
     @SerialName("wp_per_match") var wpPerMatch: Double = 0.0
@@ -286,6 +286,7 @@ class RoboScoutAPI {
             val json = Json.parseToJsonElement(response.bodyAsText())
 
             json.jsonArray.forEach { element ->
+                //println("Element: $element")
                 val vdaEntry: VDAEntry = jsonWorker.decodeFromJsonElement(element)
                 this.vdaCache.add(vdaEntry)
             }
