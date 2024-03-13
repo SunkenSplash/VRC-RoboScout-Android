@@ -78,14 +78,18 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
             CoroutineScope(Dispatchers.Default).launch {
                 event!!.fetchRankings(division!!)
                 withContext(Dispatchers.Main) {
-                    teams = event.rankings[division]!!.map { event.teamsMap[it.team.id] ?: Team() }.toMutableList()
+                    teams = Event.sortTeamsByNumber(event.rankings[division]!!.map { event.getTeam(it.team.id) ?: Team() }).toMutableList()
                     loading = false
                 }
             }
         }
 
         if (loading) {
-            LoadingView()
+            Column(
+                modifier = Modifier.padding(padding).fillMaxSize()
+            ) {
+                LoadingView()
+            }
             fetchDivisionalTeamsList()
         }
         else if (teams.isEmpty()) {

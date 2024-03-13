@@ -111,6 +111,21 @@ class UserSettings(context: Context) {
     }
 }
 
+class EventViewModelStore {
+    val eventViewModels = mutableMapOf<Event, EventViewModel>()
+
+    fun updateEventViewModel(eventViewModel: EventViewModel) {
+        for (model in eventViewModels) {
+            if (model.key == eventViewModel.event) {
+                eventViewModels[model.key] = eventViewModel
+            }
+        }
+    }
+    fun getEventViewModel(event: Event): EventViewModel? {
+        return eventViewModels[event]
+    }
+}
+
 data class TabBarItem(
     val title: String,
     val direction: Direction,

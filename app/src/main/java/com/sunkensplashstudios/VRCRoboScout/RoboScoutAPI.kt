@@ -403,7 +403,8 @@ class Event {
     var season: Season = Season()
     var location: Location = Location()
     var teams: MutableList<Team> = mutableListOf<Team>()
-    @kotlinx.serialization.Transient var teamsMap: MutableMap<Int, Team> = mutableMapOf<Int, Team>()
+    @kotlinx.serialization.Transient var teamIDs: IntArray = intArrayOf()
+    @kotlinx.serialization.Transient var teamObjects = ArrayList<Team>()
     var divisions: MutableList<Division> = mutableListOf<Division>()
     var rankings: MutableMap<Division, MutableList<TeamRanking>> = mutableMapOf<Division, MutableList<TeamRanking>>()
     @kotlinx.serialization.Transient var skillsRankings: MutableList<TeamSkillsRanking> = mutableListOf<TeamSkillsRanking>()
@@ -456,7 +457,8 @@ class Event {
          this.season = event.season
          this.location = event.location
          this.teams = event.teams
-         this.teamsMap = event.teamsMap
+         this.teamIDs = event.teamIDs
+         this.teamObjects = event.teamObjects
          this.divisions = event.divisions
          // TODO: Add livestream link
     }
@@ -467,13 +469,14 @@ class Event {
         for (team in data) {
             val cachedTeam: Team = jsonWorker.decodeFromJsonElement(team)
             teams.add(cachedTeam)
-            teamsMap[cachedTeam.id] = cachedTeam
+            this.teamIDs += cachedTeam.id
+            this.teamObjects.add(cachedTeam)
         }
         this.teams = teams
     }
 
     fun getTeam(id: Int): Team? {
-        return this.teamsMap[id]
+        return this.teams.find { it.id == id }
     }
 
     suspend fun fetchRankings(division: Division) {
@@ -514,6 +517,19 @@ class Event {
             )
             this.skillsRankings.add(teamSkillsRanking)
             index++
+        }
+    }
+    companion object {
+        fun sortTeamsByNumber(teams: List<Team>): List<Team> {
+            // Teams can be:
+            // 229V, 4082B, 10C, 2775V, 9364C, 9364A
+            // These teams are first sorted by the letter part of their team.number, then by the number part
+            // The sorted list for the above teams:
+            // 10C, 229V, 2775V, 4082B, 9364A, 9364C
+            // Sort by letter part (remove all non-letter characters and sort)
+            val sortedTeams = teams.sortedBy { it.number.replace(Regex("[^A-Za-z]"), "") }
+            // Sort by number part (remove all non-number characters and sort)
+            return sortedTeams.sortedBy { it.number.replace(Regex("[^0-9]"), "").toInt() }
         }
     }
 

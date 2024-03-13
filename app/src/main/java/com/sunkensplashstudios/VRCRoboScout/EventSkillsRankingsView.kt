@@ -46,7 +46,7 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun EventSkillsRankingsView(navController: NavController, event: Event, teamIDs: IntArray, teamNames: ArrayList<Team>) {
+fun EventSkillsRankingsView(navController: NavController, event: Event) {
 
     var loading by remember { mutableStateOf(true) }
 
@@ -89,13 +89,7 @@ fun EventSkillsRankingsView(navController: NavController, event: Event, teamIDs:
                 .fillMaxSize()
         ) {
             if (loading) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    LoadingView()
-                }
+                LoadingView()
             }
             else {
                 Column(
@@ -134,7 +128,7 @@ fun EventSkillsRankingsView(navController: NavController, event: Event, teamIDs:
                                         }
                                         Column {
                                             Text(
-                                                teamNames[teamIDs.indexOf(skillsRanking.team.id)].name,
+                                                event.getTeam(skillsRanking.team.id)?.name ?: "Unknown",
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                                 fontSize = 18.sp

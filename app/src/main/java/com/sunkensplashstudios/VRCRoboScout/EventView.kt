@@ -65,7 +65,8 @@ class EventViewModel: ViewModel() {
 fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavController, event: Event) {
 
     LaunchedEffect(Unit) {
-        if (eventViewModel.event.id != 0) {
+        eventViewModel.event = event
+        if (eventViewModel.event.teams.isNotEmpty()) {
             return@LaunchedEffect
         }
         eventViewModel.loading = true
@@ -227,7 +228,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable {
                                     navController.navigate(
-                                        EventSkillsRankingsViewDestination(eventViewModel.event, eventViewModel.event.teamsMap.keys.toIntArray(), ArrayList<Team>(eventViewModel.event.teamsMap.values))
+                                        EventSkillsRankingsViewDestination(eventViewModel.event)
                                     )
                                 }
                             ) {
