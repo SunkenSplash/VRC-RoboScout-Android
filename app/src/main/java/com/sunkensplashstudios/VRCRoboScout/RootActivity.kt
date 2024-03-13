@@ -26,7 +26,6 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -50,7 +49,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -60,10 +58,6 @@ import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.Direction
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionAwardsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionMatchesViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionRankingsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.FavoritesViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.LookupViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.SettingsViewDestination

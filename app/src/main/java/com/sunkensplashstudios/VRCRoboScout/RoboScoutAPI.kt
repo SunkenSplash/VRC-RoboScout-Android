@@ -335,7 +335,7 @@ class Division {
 }
 
 @Serializable
-data class SkillsTeam(
+data class ShortTeam(
     val id: Int,
     val name: String,
     val code: String?
@@ -349,10 +349,28 @@ data class SkillsEvent(
 )
 
 @Serializable
+data class TeamRanking(
+    val id: Int,
+    val team: ShortTeam,
+    val event: Event,
+    val division: Division,
+    val rank: Int,
+    val wins: Int,
+    val losses: Int,
+    val ties: Int,
+    val wp: Int,
+    val ap: Int,
+    val sp: Int,
+    @SerialName("high_score") val highScore: Int,
+    @SerialName("average_points") val averagePoints: Double,
+    @SerialName("total_points") val totalPoints: Int
+)
+
+@Serializable
 data class TeamSkillsEntry(
     val id: Int,
     val event: SkillsEvent,
-    val team: SkillsTeam,
+    val team: ShortTeam,
     val type: String,
     val rank: Int,
     val score: Int,
@@ -362,7 +380,7 @@ data class TeamSkillsEntry(
 class TeamSkillsRanking(
     var driverId: Int = 0,
     var programmingId: Int = 0,
-    var team: SkillsTeam,
+    var team: ShortTeam,
     var event: SkillsEvent,
     var rank: Int,
     var combinedScore: Int = 0,
@@ -384,9 +402,10 @@ class Event {
     @kotlinx.serialization.Transient var endDate: Date? = null
     var season: Season = Season()
     var location: Location = Location()
-    var teams: List<Team> = listOf(Team())
+    var teams: MutableList<Team> = mutableListOf<Team>()
     @kotlinx.serialization.Transient var teamsMap: MutableMap<Int, Team> = mutableMapOf<Int, Team>()
-    var divisions: List<Division> = listOf(Division())
+    var divisions: MutableList<Division> = mutableListOf<Division>()
+    var rankings: MutableMap<Division, MutableList<TeamRanking>> = mutableMapOf<Division, MutableList<TeamRanking>>()
     @kotlinx.serialization.Transient var skillsRankings: MutableList<TeamSkillsRanking> = mutableListOf<TeamSkillsRanking>()
     @kotlinx.serialization.Transient var livestreamLink: String? = null
 
@@ -411,35 +430,35 @@ class Event {
 
      fun fetchInfo() {
 
-        if (this.id == 0 && this.sku == "") {
+         if (this.id == 0 && this.sku == "") {
             return
-        }
+         }
 
-        var res: List<JsonObject>
+         var res: List<JsonObject>
 
-        runBlocking {
-            res = RoboScoutAPI.roboteventsRequest("/events/", if (id != 0) mapOf("id" to id.toString()) else mapOf("sku" to sku))
-        }
+         runBlocking {
+             res = RoboScoutAPI.roboteventsRequest("/events/", if (id != 0) mapOf("id" to id.toString()) else mapOf("sku" to sku))
+         }
 
-        if (res.isEmpty()) {
-            return
-        }
+         if (res.isEmpty()) {
+             return
+         }
 
-        val event: Event = jsonWorker.decodeFromJsonElement(res[0])
+         val event: Event = jsonWorker.decodeFromJsonElement(res[0])
 
-        this.id = event.id
-        this.sku = event.sku
-        this.name = event.name
-        this.start = event.start
-        this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
-        this.end = event.end
-        this.endDate = RoboScoutAPI.roboteventsDate(event.end, true)
-        this.season = event.season
-        this.location = event.location
-        this.teams = event.teams
-        this.teamsMap = event.teamsMap
-        this.divisions = event.divisions
-        // TODO: this.livestream_link
+         this.id = event.id
+         this.sku = event.sku
+         this.name = event.name
+         this.start = event.start
+         this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
+         this.end = event.end
+         this.endDate = RoboScoutAPI.roboteventsDate(event.end, true)
+         this.season = event.season
+         this.location = event.location
+         this.teams = event.teams
+         this.teamsMap = event.teamsMap
+         this.divisions = event.divisions
+         // TODO: Add livestream link
     }
 
     suspend fun fetchTeams() {
@@ -455,6 +474,15 @@ class Event {
 
     fun getTeam(id: Int): Team? {
         return this.teamsMap[id]
+    }
+
+    suspend fun fetchRankings(division: Division) {
+        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/divisions/${division.id}/rankings")
+        this.rankings[division] = mutableListOf<TeamRanking>()
+        for (ranking in data) {
+            val teamRanking: TeamRanking = jsonWorker.decodeFromJsonElement(ranking)
+            this.rankings[division]!!.add(teamRanking)
+        }
     }
 
     suspend fun fetchSkillsRankings() {

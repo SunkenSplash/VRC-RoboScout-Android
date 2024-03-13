@@ -2,6 +2,7 @@ package com.sunkensplashstudios.VRCRoboScout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,12 +34,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @EventDivisionNavGraph(start = true)
 @Destination
 @Composable
 fun EventTeamsView(navController: NavController, event: Event? = null, division: Division? = null) {
+
+    var title by remember { mutableStateOf("Event Teams") }
+    var teams by remember { mutableStateOf(event!!.teams) }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -46,7 +56,7 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Event Teams", fontWeight = FontWeight.Bold)
+                    Text(title, fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     Icon(
@@ -61,29 +71,46 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
             )
         }
     ) { padding ->
-        val loading by remember { mutableStateOf(division != null && event != null) }
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
-        ) {
-            print(event!!.teams)
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
+        var loading by remember { mutableStateOf(division != null) }
+
+        fun fetchDivisionalTeamsList() {
+            title = "${division?.name} Teams"
+            CoroutineScope(Dispatchers.Default).launch {
+                event!!.fetchRankings(division!!)
+                withContext(Dispatchers.Main) {
+                    teams = event.rankings[division]!!.map { event.teamsMap[it.team.id] ?: Team() }.toMutableList()
+                    loading = false
+                }
+            }
+        }
+
+        if (loading) {
+            LoadingView()
+            fetchDivisionalTeamsList()
+        }
+        else if (teams.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                if (loading) {
-                    LoadingView()
-                }
-                else if (event!!.teams.isEmpty()) {
-                    NoDataView()
-                }
-                else {
+                NoDataView()
+            }
+        }
+        else {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()).padding(padding)
+                    .fillMaxSize()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
                     Card(modifier = Modifier.padding(10.dp)) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp)
                         ) {
-                            event.teams.forEach { team ->
+                            teams.forEach { team ->
                                 Row(
                                     modifier = Modifier
                                         .padding(vertical = 10.dp)
@@ -108,7 +135,7 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
                                         )
                                     }
                                 }
-                                if (event.teams.indexOf(team) != event.teams.size - 1) {
+                                if (teams.indexOf(team) != teams.size - 1) {
                                     HorizontalDivider(
                                         thickness = 1.dp,
                                         color = MaterialTheme.colorScheme.secondary
