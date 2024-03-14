@@ -71,7 +71,7 @@ class UserSettings(context: Context) {
     private val userSettings: SharedPreferences =
         context.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE)
 
-    fun saveData(key: String, value: String) {
+    private fun saveData(key: String, value: String) {
         val editor = userSettings.edit()
         editor.putString(key, value)
         editor.apply()

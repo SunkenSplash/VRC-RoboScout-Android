@@ -45,8 +45,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun EventTeamsView(navController: NavController, event: Event? = null, division: Division? = null) {
 
-    var title by remember { mutableStateOf("Event Teams") }
-    var teams by remember { mutableStateOf(event!!.teams.toList()) }
+    var teams by remember { mutableStateOf(if (division == null) event!!.teams.toList() else event!!.rankings[division]?.map { event.getTeam(it.team.id) ?: Team() }
+        ?.let { Event.sortTeamsByNumber(it) } ?: emptyList()) }
 
     Scaffold(
         topBar = {
@@ -56,7 +56,7 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text(title, fontWeight = FontWeight.Bold)
+                    Text("${division?.name ?: "Event"} Teams", fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     Icon(
@@ -74,7 +74,6 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
         var loading by remember { mutableStateOf(division != null && event!!.rankings[division] == null) }
 
         fun fetchDivisionalTeamsList() {
-            title = "${division?.name} Teams"
             CoroutineScope(Dispatchers.Default).launch {
                 event!!.fetchRankings(division!!)
                 withContext(Dispatchers.Main) {
