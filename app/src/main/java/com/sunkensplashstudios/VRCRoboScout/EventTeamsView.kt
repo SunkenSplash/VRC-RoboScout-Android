@@ -46,7 +46,7 @@ import kotlinx.coroutines.withContext
 fun EventTeamsView(navController: NavController, event: Event? = null, division: Division? = null) {
 
     var title by remember { mutableStateOf("Event Teams") }
-    var teams by remember { mutableStateOf(event!!.teams) }
+    var teams by remember { mutableStateOf(event!!.teams.toList()) }
 
     Scaffold(
         topBar = {
@@ -71,7 +71,7 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
             )
         }
     ) { padding ->
-        var loading by remember { mutableStateOf(division != null) }
+        var loading by remember { mutableStateOf(division != null && event!!.rankings[division] == null) }
 
         fun fetchDivisionalTeamsList() {
             title = "${division?.name} Teams"

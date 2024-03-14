@@ -25,7 +25,6 @@ import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material3.Badge
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -112,19 +111,23 @@ class UserSettings(context: Context) {
 }
 
 class EventViewModelStore {
-    val eventViewModels = mutableMapOf<Event, EventViewModel>()
+    val eventViewModels = mutableMapOf<String, EventViewModel>()
 
     fun updateEventViewModel(eventViewModel: EventViewModel) {
         for (model in eventViewModels) {
-            if (model.key == eventViewModel.event) {
+            if (model.value.event.sku == eventViewModel.event.sku) {
                 eventViewModels[model.key] = eventViewModel
+                return
             }
         }
+        eventViewModels[eventViewModel.event.sku] = eventViewModel
     }
     fun getEventViewModel(event: Event): EventViewModel? {
-        return eventViewModels[event]
+        return eventViewModels[event.sku]
     }
 }
+
+val eventViewModelStore = EventViewModelStore()
 
 data class TabBarItem(
     val title: String,
@@ -357,16 +360,6 @@ fun TabBarIconView(
             },
             modifier = Modifier.size(28.dp)
         )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun TabBarBadgeView(count: Int? = null) {
-    if (count != null) {
-        Badge {
-            Text(count.toString())
-        }
     }
 }
 

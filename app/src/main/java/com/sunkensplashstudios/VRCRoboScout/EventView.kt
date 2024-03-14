@@ -64,10 +64,12 @@ class EventViewModel: ViewModel() {
 @Composable
 fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavController, event: Event) {
 
-    LaunchedEffect(Unit) {
-        eventViewModel.event = event
-        if (eventViewModel.event.teams.isNotEmpty()) {
-            return@LaunchedEffect
+    fun getEventViewModel() {
+        if (eventViewModelStore.getEventViewModel(event) != null) {
+            eventViewModel.event = eventViewModelStore.getEventViewModel(event)!!.event
+            println("Using cached eventViewModel with ${eventViewModel.event.teams.size} teams")
+            eventViewModel.loading = false
+            return
         }
         eventViewModel.loading = true
         CoroutineScope(Dispatchers.Default).launch {
@@ -75,8 +77,13 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
             withContext(Dispatchers.Main) {
                 eventViewModel.event = event
                 eventViewModel.loading = false
+                eventViewModelStore.updateEventViewModel(eventViewModel)
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        getEventViewModel()
     }
 
     Scaffold(
@@ -146,6 +153,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                 .padding(padding)
                 .fillMaxSize()
         ) {
+            getEventViewModel()
             if (eventViewModel.loading) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -260,7 +268,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.clickable {
                                         navController.navigate(
-                                            EventDivisionViewDestination(event, division)
+                                            EventDivisionViewDestination(eventViewModel.event, division)
                                         )
                                     }
                                 ) {
