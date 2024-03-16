@@ -28,8 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,7 +37,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -119,7 +116,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
             ) {
                 Text(
                     if (favoriteTeams.any { it.isNotBlank() }) "FAVORITE TEAMS" else "ADD FAVORITE TEAMS IN THE TEAM LOOKUP",
-                    modifier = Modifier.padding(horizontal = 10.dp),
+                    modifier = Modifier.padding(horizontal = 20.dp),
                     fontSize = 13.sp,
                     color = Color.Gray
                 )
@@ -146,7 +143,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                     Row(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(vertical = 10.dp).clickable {
+                                        modifier = Modifier.padding(vertical = 10.dp, horizontal = 0.dp).clickable {
                                             navController.navigate(
                                                 TeamEventsViewDestination(
                                                     Team(favorite, false)
@@ -154,11 +151,12 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                             )
                                         }
                                     ) {
-                                        Text(favorite, fontSize = 18.sp)
+                                        Text(favorite, fontSize = 17.sp)
                                         Spacer(modifier = Modifier.weight(1.0f))
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                            modifier = Modifier.size(18.dp),
+                                            modifier = Modifier.size(15.dp),
+                                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                             contentDescription = "Show Events"
                                         )
                                     }
@@ -194,7 +192,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
             ) {
                 Text(
                     if (favoriteEvents.any { it.isNotBlank() }) "FAVORITE EVENTS" else "ADD FAVORITE EVENTS ON EVENT PAGES",
-                    modifier = Modifier.padding(horizontal = 10.dp),
+                    modifier = Modifier.padding(horizontal = 20.dp),
                     fontSize = 13.sp,
                     color = Color.Gray
                 )
@@ -228,7 +226,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                     ) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(0.dp),
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 5.dp)
                         ) {
                             if (favoriteEvents.any { it.isNotBlank() }) {
                                 favoriteEvents.sortedBy {
@@ -247,8 +245,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                             )
                                         }
                                     ) {
-                                        val event =
-                                            favoritesViewModel.eventSKUMap[sku] ?: Event(sku, false)
+                                        val event = favoritesViewModel.eventSKUMap[sku] ?: Event(sku, false)
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
@@ -287,7 +284,8 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                         Spacer(modifier = Modifier.weight(1.0f))
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                            modifier = Modifier.size(18.dp),
+                                            modifier = Modifier.size(15.dp),
+                                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                             contentDescription = "Show Event"
                                         )
                                     }

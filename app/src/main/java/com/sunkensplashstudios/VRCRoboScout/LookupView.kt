@@ -42,12 +42,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -59,8 +57,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
@@ -69,8 +65,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
 import kotlin.math.abs
 
 class LookupViewModel : ViewModel() {
@@ -406,7 +400,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                                         Text(
                                             String.format(
                                                 "Average Qualifiers Ranking: %.1f",
-                                                lookupViewModel.avgRanking.value
+                                                lookupViewModel.avgRanking.doubleValue
                                             )
                                         )
                                     },
@@ -484,7 +478,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                                 Spacer(modifier = Modifier.weight(1.0f))
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    modifier = Modifier.size(16.dp).alpha(if (lookupViewModel.fetched.value) 1F else 0F),
+                                    modifier = Modifier.size(15.dp).alpha(if (lookupViewModel.fetched.value) 1F else 0F),
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                     contentDescription = "Show Events"
                                 )
                             }

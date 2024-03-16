@@ -171,7 +171,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         "EVENT",
-                        modifier = Modifier.padding(horizontal = 10.dp),
+                        modifier = Modifier.padding(horizontal = 20.dp),
                         color = Color.Gray,
                         fontSize = 13.sp
                     )
@@ -201,8 +201,9 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 Spacer(modifier = Modifier.weight(1.0f))
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    modifier = Modifier.size(18.dp),
-                                    contentDescription = "Show Events"
+                                    modifier = Modifier.size(15.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                    contentDescription = "Show Event Information"
                                 )
                             }
                             HorizontalDivider(
@@ -222,7 +223,8 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 Spacer(modifier = Modifier.weight(1.0f))
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    modifier = Modifier.size(18.dp),
+                                    modifier = Modifier.size(15.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                     contentDescription = "Show Event Teams"
                                 )
                             }
@@ -231,7 +233,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         "SKILLS",
-                        modifier = Modifier.padding(horizontal = 10.dp),
+                        modifier = Modifier.padding(horizontal = 20.dp),
                         color = Color.Gray,
                         fontSize = 13.sp,
                     )
@@ -260,7 +262,8 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 Spacer(modifier = Modifier.weight(1.0f))
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    modifier = Modifier.size(18.dp),
+                                    modifier = Modifier.size(15.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                     contentDescription = "Show Skills Rankings"
                                 )
                             }
@@ -269,7 +272,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         "DIVISIONS",
-                        modifier = Modifier.padding(horizontal = 10.dp),
+                        modifier = Modifier.padding(horizontal = 20.dp),
                         color = Color.Gray,
                         fontSize = 13.sp,
                     )
@@ -299,7 +302,8 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                     Spacer(modifier = Modifier.weight(1.0f))
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                        modifier = Modifier.size(18.dp),
+                                        modifier = Modifier.size(15.dp),
+                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                         contentDescription = "Show Division"
                                     )
                                 }
