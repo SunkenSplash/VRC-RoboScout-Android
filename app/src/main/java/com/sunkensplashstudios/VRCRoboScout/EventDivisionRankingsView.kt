@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -26,20 +29,28 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EventDivisionRankingsViewModel: ViewModel() {
     var event by mutableStateOf(Event())
@@ -50,7 +61,28 @@ class EventDivisionRankingsViewModel: ViewModel() {
 @EventDivisionNavGraph
 @Destination
 @Composable
-fun EventDivisionRankingsView(eventDivisionRankingsViewModel: EventDivisionRankingsViewModel = viewModel(), navController: NavController) {
+fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRankingsViewModel: EventDivisionRankingsViewModel = viewModel(), navController: NavController) {
+
+    var loading by remember { mutableStateOf(event.rankings[division] == null) }
+
+    fun updateRankings() {
+        loading = true
+        CoroutineScope(Dispatchers.Default).launch {
+            event.fetchRankings(division)
+            withContext(Dispatchers.Main) {
+                loading = false
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        eventDivisionRankingsViewModel.event = event
+        eventDivisionRankingsViewModel.division = division
+        if (event.rankings[division] == null) {
+            updateRankings()
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -59,7 +91,7 @@ fun EventDivisionRankingsView(eventDivisionRankingsViewModel: EventDivisionRanki
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Event Info", fontWeight = FontWeight.Bold)
+                    Text("${division.name} Rankings", fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     Icon(
@@ -75,177 +107,138 @@ fun EventDivisionRankingsView(eventDivisionRankingsViewModel: EventDivisionRanki
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding)
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
         ) {
-            Text(
-                eventDivisionRankingsViewModel.event.name,
-                modifier = Modifier.padding(20.dp),
-                textAlign = TextAlign.Center,
-                fontSize = 20.sp,
-            )
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
+            if (loading) {
+                LoadingView()
+            }
+            else if ((event.rankings[division] ?: listOf()).isEmpty()) {
+                NoDataView()
+            }
+            else {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding)
+                    modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Card(
+                        modifier = Modifier.padding(10.dp),
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContentColor = Color.Unspecified
+                        )
+                    ) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp)
                         ) {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
-                            ) {
-                                Text(
-                                    "Teams",
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    eventDivisionRankingsViewModel.event.teams.size.toString(),
-                                )
-                            }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Box {
-                                var expanded by remember { mutableStateOf(false) }
+                            (event.rankings[division] ?: emptyList()).reversed().forEach { ranking ->
                                 Row(
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                    modifier = Modifier
+                                        .padding(vertical = 10.dp)
+                                        .fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        "Divisions",
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.clickable {
-                                            expanded = !expanded
+                                    Column {
+                                        Row {
+                                            Text(
+                                                ranking.team.name,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 17.sp,
+                                                modifier = Modifier.width(80.dp)
+                                            )
+                                            Text(
+                                                event.getTeam(ranking.team.id)?.name ?: "Unknown",
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                                fontSize = 17.sp
+                                            )
                                         }
-                                    )
-                                    Spacer(modifier = Modifier.size(10.dp))
-                                    Text(
-                                        eventDivisionRankingsViewModel.event.divisions.size.toString(),
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    eventDivisionRankingsViewModel.event.divisions.forEach { division ->
-                                        DropdownMenuItem(
-                                            text = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column {
+
                                                 Text(
-                                                    division.name
+                                                    "# ${ranking.rank}",
                                                 )
-                                            },
-                                            onClick = { }
-                                        )
+                                                Text(
+                                                    "${ranking.wins}-${ranking.losses}-${ranking.ties}"
+                                                )
+                                            }
+                                            Column {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                                ) {
+                                                    Column(
+                                                        verticalArrangement = Arrangement.spacedBy((-10).dp)
+                                                    ) {
+                                                        Text(
+                                                            "WP: ${ranking.wp}",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                        Text(
+                                                            "OPR: ",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                        Text(
+                                                            "HIGH: ",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                    }
+                                                    Column(
+                                                        verticalArrangement = Arrangement.spacedBy((-10).dp)
+                                                    ) {
+                                                        Text(
+                                                            "AP: ${ranking.ap}",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                        Text(
+                                                            "DPR: ",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                        Text(
+                                                            "AVG: ",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                    }
+                                                    Column(
+                                                        verticalArrangement = Arrangement.spacedBy((-10).dp)
+                                                    ) {
+                                                        Text(
+                                                            "SP: ${ranking.sp}",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                        Text(
+                                                            "CCWM: ",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                        Text(
+                                                            "TTL: ",
+                                                            fontSize = 13.sp,
+                                                            color = Color.Gray
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
-                            ) {
-                                Text(
-                                    "City",
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    eventDivisionRankingsViewModel.event.location.city ?: "Unknown",
-                                )
-                            }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
-                            ) {
-                                Text(
-                                    "Region",
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    eventDivisionRankingsViewModel.event.location.region ?: "Unknown",
-                                )
-                            }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
-                            ) {
-                                Text(
-                                    "Country",
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    eventDivisionRankingsViewModel.event.location.country ?: "Unknown",
-                                )
-                            }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
-                            ) {
-                                Text(
-                                    "Date",
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    RoboScoutAPI.formatDate(eventDivisionRankingsViewModel.event.startDate)
-                                )
-                            }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
-                            ) {
-                                Text(
-                                    "Season",
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    eventDivisionRankingsViewModel.event.season.name
-                                )
-                            }
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
-                            ) {
-                                Text(
-                                    "Developer",
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                Text(
-                                    eventDivisionRankingsViewModel.event.sku
+                                HorizontalDivider(
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                 )
                             }
                         }

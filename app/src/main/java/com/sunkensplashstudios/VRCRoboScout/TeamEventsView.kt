@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -106,7 +108,15 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-                    Card(modifier = Modifier.padding(10.dp)) {
+                    Card(
+                        modifier = Modifier.padding(10.dp),
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContentColor = Color.Unspecified
+                        )
+                    ) {
                         Column(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                         ) {
@@ -144,8 +154,8 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                                 }
                                 if (teamEventsViewModel.events.indexOf(event) != 0) {
                                     HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.secondary
+                                        thickness = 0.5.dp,
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                     )
                                 }
                             }

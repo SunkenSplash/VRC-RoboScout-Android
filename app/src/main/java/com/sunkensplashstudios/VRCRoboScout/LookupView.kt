@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -249,7 +250,15 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                Card(modifier = Modifier.padding(10.dp)) {
+                Card(
+                    modifier = Modifier.padding(10.dp),
+                    colors = CardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = Color.Unspecified
+                    )
+                ) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.padding(10.dp)
@@ -263,8 +272,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             }
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
                         Row {
                             Text("Robot")
@@ -272,8 +281,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             Text(if (lookupViewModel.fetched.value) (lookupViewModel.team.value.robotName ?: "") else "")
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
                         Row {
                             Text("Organization")
@@ -281,8 +290,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             Text(if (lookupViewModel.fetched.value) lookupViewModel.team.value.organization else "")
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
                         Row {
                             Text("Location")
@@ -293,8 +302,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
 
                         var tsExpanded by remember { mutableStateOf(false) }
@@ -330,8 +339,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
                         Row {
                             Text("World Skills Ranking")
@@ -341,8 +350,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
 
                         var wsExpanded by remember { mutableStateOf(false) }
@@ -378,8 +387,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
 
                         var msExpanded by remember { mutableStateOf(false) }
@@ -434,8 +443,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
                         Row {
                             Text("Qualifications")
@@ -452,8 +461,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             )
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         )
                         // Button to go to TeamEventsView labeled "Events"
                         Column(modifier = Modifier.clickable {

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -174,7 +175,15 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                         color = Color.Gray,
                         fontSize = 13.sp
                     )
-                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                    Card(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContentColor = Color.Unspecified
+                        )
+                    ) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.padding(10.dp)
@@ -197,8 +206,8 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 )
                             }
                             HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                             )
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -226,7 +235,14 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                         color = Color.Gray,
                         fontSize = 13.sp,
                     )
-                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                    Card(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContentColor = Color.Unspecified
+                        )) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.padding(10.dp)
@@ -257,7 +273,14 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                         color = Color.Gray,
                         fontSize = 13.sp,
                     )
-                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                    Card(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContentColor = Color.Unspecified
+                        )) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.padding(10.dp)
@@ -282,8 +305,8 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 }
                                 if (eventViewModel.event.divisions.indexOf(division) != eventViewModel.event.divisions.size - 1) {
                                     HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.secondary
+                                        thickness = 0.5.dp,
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                     )
                                 }
                             }

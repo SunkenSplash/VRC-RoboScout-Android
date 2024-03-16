@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -190,7 +191,7 @@ fun WorldSkillsView(navController: NavController) {
                 )
 
                 HorizontalDivider(
-                    color = Color.Gray,
+                    color = Color.Gray.copy(alpha = 0.1f),
                     thickness = 0.5.dp,
                     modifier = Modifier.padding(horizontal = 5.dp)
                 )
@@ -200,7 +201,7 @@ fun WorldSkillsView(navController: NavController) {
                     children = {
                         API.regionsMap.toSortedMap().forEach { (name, id) ->
                             HorizontalDivider(
-                                color = Color.Gray,
+                                color = Color.Gray.copy(alpha = 0.1f),
                                 thickness = 0.5.dp,
                                 modifier = Modifier.padding(horizontal = 5.dp)
                             )
@@ -217,7 +218,7 @@ fun WorldSkillsView(navController: NavController) {
                 )
 
                 HorizontalDivider(
-                    color = Color.Gray,
+                    color = Color.Gray.copy(alpha = 0.1f),
                     thickness = 0.5.dp,
                     modifier = Modifier.padding(horizontal = 5.dp)
                 )
@@ -228,7 +229,7 @@ fun WorldSkillsView(navController: NavController) {
                         // make a list of all the letters
                         for (letter in 'A'..'Z') {
                             HorizontalDivider(
-                                color = Color.Gray,
+                                color = Color.Gray.copy(alpha = 0.1f),
                                 thickness = 0.5.dp,
                                 modifier = Modifier.padding(horizontal = 5.dp)
                             )
@@ -245,7 +246,7 @@ fun WorldSkillsView(navController: NavController) {
                 )
 
                 HorizontalDivider(
-                    color = Color.Gray,
+                    color = Color.Gray.copy(alpha = 0.1f),
                     thickness = 0.5.dp,
                     modifier = Modifier.padding(horizontal = 5.dp)
                 )
@@ -270,7 +271,15 @@ fun WorldSkillsView(navController: NavController) {
             } else if (API.wsCache.isEmpty()) {
                 NoDataView()
             } else {
-                Card(modifier = Modifier.padding(10.dp)) {
+                Card(
+                    modifier = Modifier.padding(10.dp),
+                    colors = CardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = Color.Unspecified
+                    )
+                ) {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                         modifier = Modifier.padding(horizontal = 10.dp)
@@ -367,8 +376,8 @@ fun WorldSkillsView(navController: NavController) {
 
                                 if (index != API.wsCache.filter { it.team.number in favoriteTeams }.size - 1) {
                                     HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.secondary
+                                        thickness = 0.5.dp,
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                     )
                                 }
                             }
@@ -453,8 +462,8 @@ fun WorldSkillsView(navController: NavController) {
 
                                 if (index != API.wsCache.filter { it.team.number.last() == filteredLetter }.size - 1) {
                                     HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.secondary
+                                        thickness = 0.5.dp,
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                     )
                                 }
                             }
@@ -539,8 +548,8 @@ fun WorldSkillsView(navController: NavController) {
 
                                 if (index != API.wsCache.filter { it.team.eventRegionId == filteredRegion }.size - 1) {
                                     HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.secondary
+                                        thickness = 0.5.dp,
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                     )
                                 }
                             }
@@ -615,8 +624,8 @@ fun WorldSkillsView(navController: NavController) {
                                     }
                                 }
                                 HorizontalDivider(
-                                    thickness = 1.dp,
-                                    color = MaterialTheme.colorScheme.secondary
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                 )
                             }
                         }

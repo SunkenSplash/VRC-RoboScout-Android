@@ -99,7 +99,7 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
     // setting up the individual tabs
     val teamsTab = TabBarItem(title = "Teams", direction = EventTeamsViewDestination(eventDivisionViewModel.event), selectedIcon = Icons.Filled.People, unselectedIcon = Icons.Outlined.PeopleOutline)
     val matchListTab = TabBarItem(title = "Match List", direction = EventDivisionMatchesViewDestination(), selectedIcon = Icons.Filled.AccessTimeFilled, unselectedIcon = Icons.Outlined.AccessTime)
-    val rankingsTab = TabBarItem(title = "Rankings", direction = EventDivisionRankingsViewDestination(), selectedIcon = Icons.Filled.FormatListNumbered, unselectedIcon = Icons.Filled.FormatListNumbered)
+    val rankingsTab = TabBarItem(title = "Rankings", direction = EventDivisionRankingsViewDestination(eventDivisionViewModel.event, eventDivisionViewModel.division), selectedIcon = Icons.Filled.FormatListNumbered, unselectedIcon = Icons.Filled.FormatListNumbered)
     val awardsTab = TabBarItem(title = "Awards", direction = EventDivisionAwardsViewDestination(), selectedIcon = Icons.Filled.EmojiEvents, unselectedIcon = Icons.Outlined.EmojiEvents)
 
     // creating a list of all the tabs
@@ -150,6 +150,8 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
             }
             else if (selectedTabIndex == 2) {
                 EventDivisionRankingsView(
+                    event = event,
+                    division = division,
                     navController = navController,
                     eventDivisionRankingsViewModel = divisionViewModels["event_division_rankings_view"] as EventDivisionRankingsViewModel
                 )

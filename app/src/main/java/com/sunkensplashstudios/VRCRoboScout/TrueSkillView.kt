@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -88,7 +89,15 @@ fun TrueSkillView(navController: NavController) {
                 NoDataView()
             }
             else {
-                Card(modifier = Modifier.padding(10.dp)) {
+                Card(
+                    modifier = Modifier.padding(10.dp),
+                    colors = CardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = Color.Unspecified
+                    )
+                ) {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                         modifier = Modifier.padding(horizontal = 10.dp)
@@ -157,8 +166,8 @@ fun TrueSkillView(navController: NavController) {
                                 }
                             }
                             HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                             )
                         }
                     }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -122,7 +123,14 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                     fontSize = 13.sp,
                     color = Color.Gray
                 )
-                Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                Card(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                    colors = CardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = Color.Unspecified
+                    )) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                         modifier = Modifier.padding(horizontal = 10.dp)
@@ -161,8 +169,8 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                             }.indexOf(favorite) < favoriteTeams.size - 1
                                     ) {
                                         HorizontalDivider(
-                                            thickness = 1.dp,
-                                            color = MaterialTheme.colorScheme.secondary
+                                            thickness = 0.5.dp,
+                                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                         )
                                     }
                                 }
@@ -191,7 +199,14 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                     color = Color.Gray
                 )
                 if (favoriteEvents.size != favoritesViewModel.eventSKUMap.size && favoriteEvents.any{it.isNotBlank()}) {
-                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                    Card(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContentColor = Color.Unspecified
+                        )) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
@@ -202,7 +217,15 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                     }
                 }
                 else {
-                    Card(modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)) {
+                    Card(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                        colors = CardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContentColor = Color.Unspecified
+                        )
+                    ) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
@@ -273,8 +296,8 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                         }.reversed().indexOf(sku) < favoriteEvents.size - 1
                                     ) {
                                         HorizontalDivider(
-                                            thickness = 1.dp,
-                                            color = MaterialTheme.colorScheme.secondary
+                                            thickness = 0.5.dp,
+                                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                         )
                                     }
                                 }

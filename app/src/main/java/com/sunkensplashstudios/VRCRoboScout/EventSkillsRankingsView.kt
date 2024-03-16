@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -83,24 +84,34 @@ fun EventSkillsRankingsView(navController: NavController, event: Event) {
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            if (loading) {
+        if (loading) {
+            Column(
+                modifier = Modifier.padding(padding).fillMaxSize()
+            ) {
                 LoadingView()
             }
-            else {
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+            ) {
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
                     Spacer(modifier = Modifier.height(10.dp))
                     if (event.skillsRankings.isEmpty()) {
                         NoDataView()
-                    }
-                    else {
-                        Card(modifier = Modifier.padding(10.dp)) {
+                    } else {
+                        Card(
+                            modifier = Modifier.padding(10.dp),
+                            colors = CardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                                disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                disabledContentColor = Color.Unspecified
+                            )
+                        ) {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(0.dp),
                                 modifier = Modifier.padding(horizontal = 10.dp)
@@ -128,7 +139,8 @@ fun EventSkillsRankingsView(navController: NavController, event: Event) {
                                         }
                                         Column {
                                             Text(
-                                                event.getTeam(skillsRanking.team.id)?.name ?: "Unknown",
+                                                event.getTeam(skillsRanking.team.id)?.name
+                                                    ?: "Unknown",
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                                 fontSize = 18.sp
@@ -158,8 +170,8 @@ fun EventSkillsRankingsView(navController: NavController, event: Event) {
                                         }
                                     }
                                     HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.secondary
+                                        thickness = 0.5.dp,
+                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                                     )
                                 }
                             }
