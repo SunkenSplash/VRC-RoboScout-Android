@@ -154,7 +154,6 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
             )
         }
     ) { padding ->
-        val localContext = LocalContext.current
         val view = LocalView.current
         val background = MaterialTheme.colorScheme.background
         if (!view.isInEditMode) {
