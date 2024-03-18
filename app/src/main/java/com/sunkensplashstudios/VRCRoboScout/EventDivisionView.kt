@@ -1,50 +1,41 @@
 package com.sunkensplashstudios.VRCRoboScout
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.app.Activity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.annotation.NavGraph
-import com.ramcosta.composedestinations.manualcomposablecalls.composable
-import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.*
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 
 class EventDivisionViewModel: ViewModel() {
     var event by mutableStateOf(Event())
@@ -59,28 +50,54 @@ annotation class EventDivisionNavGraph(
 
 @Composable
 fun DivisionTabView(tabBarItems: List<TabBarItem>, navController: NavController, selectedTabIndex: Int, onSelectedTabIndexChange: (Int) -> Unit) {
-
-    NavigationBar {
+    val localContext = LocalContext.current
+    val userSettings = UserSettings(localContext)
+    NavigationBar(
+        containerColor = if (userSettings.getMinimalisticMode()) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
         // looping over each tab to generate the views and navigation for each item
         tabBarItems.forEachIndexed { index, tabBarItem ->
-            NavigationBarItem(
-                selected = false,
-                onClick = {
-                    onSelectedTabIndexChange(index)
-                    navController.clearBackStack(navController.graph.startDestinationId)
-                },
-                icon = {
-                    TabBarIconView(
-                        isSelected = selectedTabIndex == index,
-                        selectedIcon = tabBarItem.selectedIcon,
-                        unselectedIcon = tabBarItem.unselectedIcon,
-                        title = tabBarItem.title
-                    )
-                },
-                label = {
-                    Text(text = tabBarItem.title, fontSize = 9.sp, color = if (selectedTabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
-                }
-            )
+            if (userSettings.getMinimalisticMode()) {
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onSelectedTabIndexChange(index)
+                        navController.clearBackStack(navController.graph.startDestinationId)
+                    },
+                    icon = {
+                        TabBarIconView(
+                            isSelected = selectedTabIndex == index,
+                            selectedIcon = tabBarItem.selectedIcon,
+                            unselectedIcon = tabBarItem.unselectedIcon,
+                            title = tabBarItem.title
+                        )
+                    }
+                )
+            }
+            else {
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onSelectedTabIndexChange(index)
+                        navController.clearBackStack(navController.graph.startDestinationId)
+                    },
+                    icon = {
+                        TabBarIconView(
+                            isSelected = selectedTabIndex == index,
+                            selectedIcon = tabBarItem.selectedIcon,
+                            unselectedIcon = tabBarItem.unselectedIcon,
+                            title = tabBarItem.title
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = tabBarItem.title,
+                            fontSize = 9.sp,
+                            color = if (selectedTabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -127,7 +144,18 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
                     selectedTabIndex,
                     onSelectedTabIndexChange = { index ->
                         selectedTabIndex = index
-                    })
+                    }
+                )
+                val localContext = LocalContext.current
+                val userSettings = UserSettings(localContext)
+                val view = LocalView.current
+                val surfaceContainerLow = if (userSettings.getMinimalisticMode()) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.surfaceContainerLow
+                if (!view.isInEditMode) {
+                    SideEffect {
+                        val window = (view.context as Activity).window
+                        window.navigationBarColor = surfaceContainerLow.toArgb()
+                    }
+                }
             }
         }
     ) { padding ->

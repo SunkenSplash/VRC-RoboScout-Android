@@ -286,7 +286,7 @@ class RootActivity : ComponentActivity() {
 
             val navHostEngine = rememberAnimatedNavHostEngine(
                 navHostContentAlignment = Alignment.TopCenter,
-                rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
+                //rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
             )
 
             val tabState by navController.currentBackStackEntryAsState()
@@ -317,10 +317,12 @@ class RootActivity : ComponentActivity() {
                     MaterialTheme.colorScheme.button = if (userSettings.getButtonColor().isSpecified) userSettings.getButtonColor() else MaterialTheme.colorScheme.primary
                     val view = LocalView.current
                     val topContainer = MaterialTheme.colorScheme.topContainer
+                    val surfaceContainerLow = if (userSettings.getMinimalisticMode()) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.surfaceContainerLow
                     if (!view.isInEditMode) {
                         SideEffect {
                             val window = (view.context as Activity).window
                             window.statusBarColor = topContainer.toArgb()
+                            window.navigationBarColor = surfaceContainerLow.toArgb()
                         }
                     }
                     Scaffold(
@@ -329,6 +331,21 @@ class RootActivity : ComponentActivity() {
                                 TabView(tabBarItems, navController, selectedTabIndex, onSelectedTabIndexChange = { index ->
                                     selectedTabIndex = index
                                 })
+                                if (!view.isInEditMode) {
+                                    SideEffect {
+                                        val window = (view.context as Activity).window
+                                        window.navigationBarColor = surfaceContainerLow.toArgb()
+                                    }
+                                }
+                            }
+                            else {
+                                if (!view.isInEditMode) {
+                                    val background = MaterialTheme.colorScheme.background
+                                    SideEffect {
+                                        val window = (view.context as Activity).window
+                                        window.navigationBarColor = background.toArgb()
+                                    }
+                                }
                             }
                         }
                     ) { padding ->
@@ -382,9 +399,11 @@ class RootActivity : ComponentActivity() {
 
 @Composable
 fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selectedTabIndex: Int, onSelectedTabIndexChange: (Int) -> Unit) {
-    NavigationBar {
-        val localContext = LocalContext.current
-        val userSettings = UserSettings(localContext)
+    val localContext = LocalContext.current
+    val userSettings = UserSettings(localContext)
+    NavigationBar(
+        containerColor = if (userSettings.getMinimalisticMode()) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
         // looping over each tab to generate the views and navigation for each item
         tabBarItems.forEachIndexed { index, tabBarItem ->
             if (userSettings.getMinimalisticMode()) {

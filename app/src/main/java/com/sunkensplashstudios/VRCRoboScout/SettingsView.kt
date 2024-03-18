@@ -125,6 +125,7 @@ fun SettingsView(navController: NavController) {
                                     SideEffect {
                                         val window = (view.context as Activity).window
                                         window.statusBarColor = topContainerColor.toArgb()
+                                        window.navigationBarColor = topContainerColor.toArgb()
                                     }
                                 }
                                 update = false
@@ -251,6 +252,7 @@ fun SettingsView(navController: NavController) {
                                     SideEffect {
                                         val window = (view.context as Activity).window
                                         window.statusBarColor = background.toArgb()
+                                        window.navigationBarColor = background.toArgb()
                                     }
                                 }
                                 update = false
@@ -266,6 +268,7 @@ fun SettingsView(navController: NavController) {
                                     SideEffect {
                                         val window = (view.context as Activity).window
                                         window.statusBarColor = userSettings.getTopContainerColor().toArgb()
+                                        window.navigationBarColor = userSettings.getTopContainerColor().toArgb()
                                     }
                                 }
                                 update = false
@@ -308,6 +311,7 @@ fun SettingsView(navController: NavController) {
                                     SideEffect {
                                         val window = (view.context as Activity).window
                                         window.statusBarColor = colorScheme.primaryContainer.toArgb()
+                                        window.navigationBarColor = colorScheme.primaryContainer.toArgb()
                                     }
                                 }
                                 reset = false
