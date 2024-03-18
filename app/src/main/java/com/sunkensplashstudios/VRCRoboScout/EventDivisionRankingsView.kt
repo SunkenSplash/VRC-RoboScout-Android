@@ -60,7 +60,9 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
     var loading by remember { mutableStateOf(event.rankings[division] == null) }
 
     fun updateRankings() {
-        loading = true
+        if (event.rankings[division] == null) {
+            loading = true
+        }
         CoroutineScope(Dispatchers.Default).launch {
             event.fetchRankings(division)
             withContext(Dispatchers.Main) {
@@ -72,9 +74,6 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
     LaunchedEffect(Unit) {
         eventDivisionRankingsViewModel.event = event
         eventDivisionRankingsViewModel.division = division
-        if (event.rankings[division] == null) {
-            updateRankings()
-        }
     }
 
     Scaffold(
@@ -105,6 +104,13 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                 .padding(padding)
                 .fillMaxSize()
         ) {
+            var update by remember { mutableStateOf(true) }
+
+            if (update) {
+                update = false
+                updateRankings()
+            }
+
             if (loading) {
                 LoadingView()
             }
