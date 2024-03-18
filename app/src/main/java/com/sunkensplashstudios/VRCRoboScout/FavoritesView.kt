@@ -44,6 +44,8 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.LookupViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -98,8 +100,8 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text("Favorites", fontWeight = FontWeight.Bold)
@@ -176,11 +178,11 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                         else {
                             Text(
                                 "Find a team",
-                                modifier = Modifier.padding(vertical = 10.dp).fillMaxWidth().clickable {
+                                modifier = Modifier.padding(vertical = 10.dp, horizontal = 0.dp).fillMaxWidth().clickable {
                                     navController.navigate(LookupViewDestination())
                                     onSelectedTabIndexChange(3)
                                 },
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.button
                             )
                         }
                     }
@@ -302,12 +304,12 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                             } else {
                                 Text(
                                     "Find an event",
-                                    modifier = Modifier.padding(vertical = 5.dp).fillMaxWidth()
+                                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 5.dp).fillMaxWidth()
                                         .clickable {
                                             navController.navigate(LookupViewDestination())
                                             onSelectedTabIndexChange(3)
                                         },
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.button
                                 )
                             }
                         }

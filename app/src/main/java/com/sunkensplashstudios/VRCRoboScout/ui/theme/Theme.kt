@@ -1,19 +1,19 @@
 package com.sunkensplashstudios.VRCRoboScout.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -37,6 +37,31 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+var onTopContainerColorSchemeColor by mutableStateOf(Color.Unspecified)
+var topContainerColorSchemeColor by mutableStateOf(Color.Unspecified)
+var buttonColorSchemeColor by mutableStateOf(Color.Unspecified)
+
+@Suppress("unused")
+var ColorScheme.onTopContainer: Color
+    get() = onTopContainerColorSchemeColor
+    set(value) {
+        onTopContainerColorSchemeColor = value
+    }
+
+@Suppress("unused")
+var ColorScheme.topContainer: Color
+    get() = topContainerColorSchemeColor
+    set(value) {
+        topContainerColorSchemeColor = value
+    }
+
+@Suppress("unused")
+var ColorScheme.button: Color
+    get() = buttonColorSchemeColor
+    set(value) {
+        buttonColorSchemeColor = value
+    }
+
 @Composable
 fun VRCRoboScoutTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -53,13 +78,23 @@ fun VRCRoboScoutTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primaryContainer.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-        }
+
+    MaterialTheme.colorScheme.onTopContainer = if (darkTheme) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    }
+
+    MaterialTheme.colorScheme.topContainer = if (darkTheme) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.primaryContainer
+    }
+
+    MaterialTheme.colorScheme.button = if (darkTheme) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.primary
     }
 
     MaterialTheme(

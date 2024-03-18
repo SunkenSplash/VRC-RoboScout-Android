@@ -50,6 +50,8 @@ import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionViewDestin
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventInformationViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventSkillsRankingsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,8 +93,8 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text(event.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -104,7 +106,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                         modifier = Modifier.padding(10.dp).clickable {
                             navController.navigateUp()
                         },
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onTopContainer
                     )
                 },
                 actions = {
@@ -135,13 +137,13 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                             Icon(
                                 Icons.Filled.Star,
                                 contentDescription = "Favorite",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.onTopContainer
                             )
                         } else {
                             Icon(
                                 Icons.Outlined.StarOutline,
                                 contentDescription = "Unfavorite",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.onTopContainer
                             )
                         }
                     }

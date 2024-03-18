@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -115,8 +117,8 @@ fun WorldSkillsView(navController: NavController) {
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text(viewTitle, fontWeight = FontWeight.Bold)
@@ -132,7 +134,7 @@ fun WorldSkillsView(navController: NavController) {
                         Icon(
                             imageVector = Icons.Default.Link,
                             contentDescription = "Open World Skills in Browser",
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.onTopContainer,
                             modifier = Modifier.size(26.dp)
                         )
                     }
@@ -147,7 +149,7 @@ fun WorldSkillsView(navController: NavController) {
                         Icon(
                             imageVector = Icons.Default.FilterList,
                             contentDescription = "Filter",
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.onTopContainer,
                             modifier = Modifier.size(26.dp)
                         )
                     }
@@ -334,7 +336,7 @@ fun WorldSkillsView(navController: NavController) {
                                         Text(
                                             wsEntry.scores.score.toString(),
                                             fontSize = 18.sp,
-                                            color = MaterialTheme.colorScheme.primary,
+                                            color = MaterialTheme.colorScheme.button,
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
@@ -420,7 +422,7 @@ fun WorldSkillsView(navController: NavController) {
                                         Text(
                                             wsEntry.scores.score.toString(),
                                             fontSize = 18.sp,
-                                            color = MaterialTheme.colorScheme.primary,
+                                            color = MaterialTheme.colorScheme.button,
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
@@ -506,7 +508,7 @@ fun WorldSkillsView(navController: NavController) {
                                         Text(
                                             wsEntry.scores.score.toString(),
                                             fontSize = 18.sp,
-                                            color = MaterialTheme.colorScheme.primary,
+                                            color = MaterialTheme.colorScheme.button,
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
@@ -584,7 +586,7 @@ fun WorldSkillsView(navController: NavController) {
                                         Text(
                                             wsEntry.scores.score.toString(),
                                             fontSize = 18.sp,
-                                            color = MaterialTheme.colorScheme.primary,
+                                            color = MaterialTheme.colorScheme.button,
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })

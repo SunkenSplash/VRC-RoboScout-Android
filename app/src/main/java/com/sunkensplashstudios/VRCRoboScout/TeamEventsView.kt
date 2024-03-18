@@ -39,6 +39,8 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,8 +75,8 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text("${team.number} Events", fontWeight = FontWeight.Bold)
@@ -86,7 +88,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                         modifier = Modifier.padding(10.dp).clickable {
                             navController.navigateUp()
                         },
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onTopContainer
                     )
                 }
             )

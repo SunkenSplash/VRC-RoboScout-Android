@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,8 +58,8 @@ fun TrueSkillView(navController: NavController) {
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text("World TrueSkill", fontWeight = FontWeight.Bold)
@@ -139,7 +141,7 @@ fun TrueSkillView(navController: NavController) {
                                     modifier = Modifier.width(130.dp)
                                 ) {
                                     Spacer(modifier = Modifier.weight(1.0f))
-                                    Text(vdaEntry.trueskill.toString(), fontSize = 18.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable {
+                                    Text(vdaEntry.trueskill.toString(), fontSize = 18.sp, color = MaterialTheme.colorScheme.button, modifier = Modifier.clickable {
                                         expanded = !expanded
                                     })
                                     DropdownMenu(

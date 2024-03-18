@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
@@ -49,8 +51,8 @@ fun EventInformationView(event: Event, navController: NavController) {
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text("Event Info", fontWeight = FontWeight.Bold)
@@ -62,7 +64,7 @@ fun EventInformationView(event: Event, navController: NavController) {
                         modifier = Modifier.padding(10.dp).clickable {
                             navController.navigateUp()
                         },
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onTopContainer
                     )
                 }
             )
@@ -122,7 +124,7 @@ fun EventInformationView(event: Event, navController: NavController) {
                                 ) {
                                     Text(
                                         "Divisions",
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.button,
                                         modifier = Modifier.clickable {
                                             expanded = !expanded
                                         }

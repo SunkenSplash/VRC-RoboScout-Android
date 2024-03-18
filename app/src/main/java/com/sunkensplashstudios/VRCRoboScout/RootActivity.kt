@@ -1,5 +1,6 @@
 package com.sunkensplashstudios.VRCRoboScout
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -36,6 +37,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,7 +45,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,6 +69,8 @@ import com.sunkensplashstudios.VRCRoboScout.destinations.SettingsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.TrueSkillViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.WorldSkillsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -107,6 +115,56 @@ class UserSettings(context: Context) {
         newFavorites.removeAll(listOf(""))
         newFavorites.remove(sku)
         this.saveData("favoriteEvents", newFavorites.toString())
+    }
+
+    fun setMinimalisticMode(value: Boolean) {
+        this.saveData("minimalisticMode", value.toString())
+    }
+
+    fun getMinimalisticMode(): Boolean {
+        return this.getData("minimalisticMode", "true").toBoolean()
+    }
+
+    fun setTopContainerColor(color: Color) {
+        this.saveData("topContainerColor", color.toArgb().toString())
+    }
+
+    fun getTopContainerColor(): Color {
+        return if (this.getData("topContainerColor", Color.Unspecified.toArgb().toString()) == "0") {
+            Color.Unspecified
+        } else {
+            Color(this.getData("topContainerColor", Color.Unspecified.toArgb().toString()).toInt())
+        }
+    }
+
+    fun setOnTopContainerColor(color: Color) {
+        this.saveData("onTopContainerColor", color.toArgb().toString())
+    }
+
+    fun getOnTopContainerColor(): Color {
+        return if (this.getData("onTopContainerColor", Color.Unspecified.toArgb().toString()) == "0") {
+            Color.Unspecified
+        } else {
+            Color(this.getData("onTopContainerColor", Color.Unspecified.toArgb().toString()).toInt())
+        }
+    }
+
+    fun setButtonColor(color: Color) {
+        this.saveData("buttonColor", color.toArgb().toString())
+    }
+
+    fun getButtonColor(): Color {
+        return if (this.getData("buttonColor", Color.Unspecified.toArgb().toString()) == "0") {
+            Color.Unspecified
+        } else {
+            Color(this.getData("buttonColor", Color.Unspecified.toArgb().toString()).toInt())
+        }
+    }
+
+    fun resetColors() {
+        this.saveData("topContainerColor", Color.Unspecified.toArgb().toString())
+        this.saveData("onTopContainerColor", Color.Unspecified.toArgb().toString())
+        this.saveData("buttonColor", Color.Unspecified.toArgb().toString())
     }
 }
 
@@ -251,6 +309,20 @@ class RootActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val localContext = LocalContext.current
+                    val userSettings = UserSettings(localContext)
+
+                    MaterialTheme.colorScheme.onTopContainer = if (userSettings.getOnTopContainerColor().isSpecified) userSettings.getOnTopContainerColor() else MaterialTheme.colorScheme.onPrimaryContainer
+                    MaterialTheme.colorScheme.topContainer = if (userSettings.getMinimalisticMode()) MaterialTheme.colorScheme.background else ( if (userSettings.getTopContainerColor().isSpecified) userSettings.getTopContainerColor() else MaterialTheme.colorScheme.primaryContainer )
+                    MaterialTheme.colorScheme.button = if (userSettings.getButtonColor().isSpecified) userSettings.getButtonColor() else MaterialTheme.colorScheme.primary
+                    val view = LocalView.current
+                    val topContainer = MaterialTheme.colorScheme.topContainer
+                    if (!view.isInEditMode) {
+                        SideEffect {
+                            val window = (view.context as Activity).window
+                            window.statusBarColor = topContainer.toArgb()
+                        }
+                    }
                     Scaffold(
                         bottomBar = {
                             if (routeNameMap[tabState?.destination?.route] != null) {
@@ -310,29 +382,53 @@ class RootActivity : ComponentActivity() {
 
 @Composable
 fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selectedTabIndex: Int, onSelectedTabIndexChange: (Int) -> Unit) {
-
     NavigationBar {
+        val localContext = LocalContext.current
+        val userSettings = UserSettings(localContext)
         // looping over each tab to generate the views and navigation for each item
         tabBarItems.forEachIndexed { index, tabBarItem ->
-            NavigationBarItem(
-                selected = false,
-                onClick = {
-                    onSelectedTabIndexChange(index)
-                    navController.clearBackStack(navController.graph.startDestinationId)
-                    navController.navigate(tabBarItem.direction)
-                },
-                icon = {
-                    TabBarIconView(
-                        isSelected = selectedTabIndex == index,
-                        selectedIcon = tabBarItem.selectedIcon,
-                        unselectedIcon = tabBarItem.unselectedIcon,
-                        title = tabBarItem.title
-                    )
-                },
-                label = {
-                    Text(text = tabBarItem.title, fontSize = 9.sp, color = if (selectedTabIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
-                }
-            )
+            if (userSettings.getMinimalisticMode()) {
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onSelectedTabIndexChange(index)
+                        navController.clearBackStack(navController.graph.startDestinationId)
+                        navController.navigate(tabBarItem.direction)
+                    },
+                    icon = {
+                        TabBarIconView(
+                            isSelected = selectedTabIndex == index,
+                            selectedIcon = tabBarItem.selectedIcon,
+                            unselectedIcon = tabBarItem.unselectedIcon,
+                            title = tabBarItem.title
+                        )
+                    }
+                )
+            } else {
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        onSelectedTabIndexChange(index)
+                        navController.clearBackStack(navController.graph.startDestinationId)
+                        navController.navigate(tabBarItem.direction)
+                    },
+                    icon = {
+                        TabBarIconView(
+                            isSelected = selectedTabIndex == index,
+                            selectedIcon = tabBarItem.selectedIcon,
+                            unselectedIcon = tabBarItem.unselectedIcon,
+                            title = tabBarItem.title,
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = tabBarItem.title,
+                            fontSize = 9.sp,
+                            color = if (selectedTabIndex == index) MaterialTheme.colorScheme.button else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -354,7 +450,7 @@ fun TabBarIconView(
             },
             contentDescription = title,
             tint = if (isSelected) {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.button
             } else {
                 MaterialTheme.colorScheme.onSurface
             },

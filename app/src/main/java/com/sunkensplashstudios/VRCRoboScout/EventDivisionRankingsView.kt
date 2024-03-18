@@ -39,6 +39,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,8 +81,8 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text("${division.name} Rankings", fontWeight = FontWeight.Bold)
@@ -92,7 +94,7 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                         modifier = Modifier.padding(10.dp).clickable {
                             navController.navigateUp()
                         },
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onTopContainer
                     )
                 }
             )

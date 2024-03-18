@@ -61,6 +61,8 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -123,8 +125,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text("Lookup", fontWeight = FontWeight.Bold)
@@ -220,13 +222,15 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             Icon(
                                 Icons.Filled.Star,
                                 contentDescription = "Favorite",
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(30.dp),
+                                tint = MaterialTheme.colorScheme.button
                             )
                         } else {
                             Icon(
                                 Icons.Outlined.StarOutline,
                                 contentDescription = "Unfavorite",
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(30.dp),
+                                tint = MaterialTheme.colorScheme.button
                             )
                         }
                     }
@@ -305,7 +309,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                         Row {
                             Text("TrueSkill Ranking", modifier = Modifier.clickable {
                                 tsExpanded = !tsExpanded
-                            }, color = MaterialTheme.colorScheme.primary)
+                            }, color = MaterialTheme.colorScheme.button)
                             DropdownMenu(
                                 expanded = tsExpanded,
                                 onDismissRequest = { tsExpanded = false }
@@ -353,7 +357,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                         Row {
                             Text("World Skills Score", modifier = Modifier.clickable {
                                 wsExpanded = !wsExpanded
-                            }, color = MaterialTheme.colorScheme.primary)
+                            }, color = MaterialTheme.colorScheme.button)
                             DropdownMenu(
                                 expanded = wsExpanded,
                                 onDismissRequest = { wsExpanded = false }
@@ -390,7 +394,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                         Row {
                             Text("Match Statistics", modifier = Modifier.clickable {
                                 msExpanded = !msExpanded
-                            }, color = MaterialTheme.colorScheme.primary)
+                            }, color = MaterialTheme.colorScheme.button)
                             DropdownMenu(
                                 expanded = msExpanded,
                                 onDismissRequest = { msExpanded = false }
@@ -473,7 +477,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             ) {
                                 Text(
                                     "Events",
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.button
                                 )
                                 Spacer(modifier = Modifier.weight(1.0f))
                                 Icon(

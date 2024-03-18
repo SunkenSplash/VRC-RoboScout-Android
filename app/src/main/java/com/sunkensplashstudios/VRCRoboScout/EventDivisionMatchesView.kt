@@ -42,6 +42,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
 
 class EventDivisionMatchesViewModel: ViewModel() {
     var event by mutableStateOf(Event())
@@ -57,8 +58,8 @@ fun EventDivisionMatchesView(eventDivisionMatchesViewModel: EventDivisionMatches
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.topContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
                     Text("Event Info", fontWeight = FontWeight.Bold)
@@ -70,7 +71,7 @@ fun EventDivisionMatchesView(eventDivisionMatchesViewModel: EventDivisionMatches
                         modifier = Modifier.padding(10.dp).clickable {
                             navController.navigateUp()
                         },
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onTopContainer
                     )
                 }
             )
@@ -130,7 +131,7 @@ fun EventDivisionMatchesView(eventDivisionMatchesViewModel: EventDivisionMatches
                                 ) {
                                     Text(
                                         "Divisions",
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.button,
                                         modifier = Modifier.clickable {
                                             expanded = !expanded
                                         }
