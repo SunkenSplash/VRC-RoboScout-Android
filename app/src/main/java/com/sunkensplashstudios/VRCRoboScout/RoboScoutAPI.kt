@@ -327,11 +327,82 @@ class Season {
     var name: String = ""
 }
 
+enum class AllianceColor {
+    RED, BLUE
+}
+
+enum class Round(val value: Int) {
+    NONE(0), PRACTICE(1), QUALIFICATION(2), R128(3), R64(4), R32(5), R16(6), QUARTERFINALS(7), SEMIFINALS(8), FINALS(9)
+}
+
+@Serializable
+data class AllianceMember(
+    val team: ShortTeam,
+    val sitting: Boolean
+)
+
+@Serializable
+data class MatchAlliance(
+    val color: String,
+    @kotlinx.serialization.Transient val allianceColor: AllianceColor = if (color == "red") AllianceColor.RED else AllianceColor.BLUE,
+    val score: Int,
+    @SerialName("teams") val members: List<AllianceMember>
+)
+
+@Serializable
+data class ShortEvent(
+    val id: Int,
+    val name: String,
+    val code: String
+)
+
+@Serializable
+data class Match(
+    val id: Int,
+    val event: ShortEvent,
+    val division: Division,
+    val round: Int,
+    val instance: Int,
+    @SerialName("matchnum") val matchNum: Int,
+    val scheduled: String?,
+    @kotlinx.serialization.Transient val scheduledDate: Date? = RoboScoutAPI.roboteventsDate(scheduled ?: "", true),
+    val started: String?,
+    @kotlinx.serialization.Transient val startedDate: Date? = RoboScoutAPI.roboteventsDate(started ?: "", true),
+    val field: String?,
+    val session: Int,
+    val scored: Boolean,
+    val name: String,
+    @kotlinx.serialization.Transient val shortName: String = name.replace("Qualifier", "Q").replace("Practice", "P").replace("Final", "F").replace("#", ""),
+    val alliances: List<MatchAlliance>,
+    @kotlinx.serialization.Transient val redAlliance: MatchAlliance = alliances.find { it.color == "red" }!!,
+    @kotlinx.serialization.Transient val blueAlliance: MatchAlliance = alliances.find { it.color == "blue" }!!,
+    @kotlinx.serialization.Transient val redScore: Int = redAlliance.score,
+    @kotlinx.serialization.Transient val blueScore: Int = blueAlliance.score
+) {
+
+    fun allianceFor(team: Team): AllianceColor? {
+        redAlliance.members.find { it.team.id == team.id }?.let { return AllianceColor.RED }
+        blueAlliance.members.find { it.team.id == team.id }?.let { return AllianceColor.BLUE }
+        return null
+    }
+
+    fun winningAlliance(): AllianceColor? {
+        return when {
+            redScore > blueScore -> AllianceColor.RED
+            blueScore > redScore -> AllianceColor.BLUE
+            else -> null
+        }
+    }
+
+    fun completed(): Boolean {
+        return !(started == null || (startedDate ?: Date()).time > Date().time - 300000) && redScore != 0 && blueScore != 0
+    }
+}
+
 @Serializable
 class Division {
     var id: Int = 0
     var name: String = ""
-    var order: Int = 0
 }
 
 @Serializable
@@ -402,6 +473,7 @@ class Event {
     @kotlinx.serialization.Transient var endDate: Date? = null
     var season: Season = Season()
     var location: Location = Location()
+    @kotlinx.serialization.Transient var matches: MutableMap<Division, MutableList<Match>> = mutableMapOf<Division, MutableList<Match>>()
     var teams: MutableList<Team> = mutableListOf<Team>()
     @kotlinx.serialization.Transient var teamIDs: IntArray = intArrayOf()
     @kotlinx.serialization.Transient var teamObjects = ArrayList<Team>()
@@ -485,6 +557,15 @@ class Event {
         for (ranking in data) {
             val teamRanking: TeamRanking = jsonWorker.decodeFromJsonElement(ranking)
             this.rankings[division]!!.add(teamRanking)
+        }
+    }
+
+    suspend fun fetchMatches(division: Division) {
+        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/divisions/${division.id}/matches")
+        this.matches[division] = mutableListOf<Match>()
+        for (match in data) {
+            val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
+            this.matches[division]!!.add(fetchedMatch)
         }
     }
 

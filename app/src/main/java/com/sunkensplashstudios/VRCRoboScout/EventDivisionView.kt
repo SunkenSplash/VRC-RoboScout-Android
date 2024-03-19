@@ -32,21 +32,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.ramcosta.composedestinations.annotation.NavGraph
 import com.sunkensplashstudios.VRCRoboScout.destinations.*
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 
 class EventDivisionViewModel: ViewModel() {
     var event by mutableStateOf(Event())
     var division by mutableStateOf(Division())
 }
-
-@RootNavGraph
-@NavGraph
-annotation class EventDivisionNavGraph(
-    val start: Boolean = false
-)
 
 @Composable
 fun DivisionTabView(tabBarItems: List<TabBarItem>, navController: NavController, selectedTabIndex: Int, onSelectedTabIndexChange: (Int) -> Unit) {
@@ -114,8 +105,8 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
     )
 
     // setting up the individual tabs
-    val teamsTab = TabBarItem(title = "Teams", direction = EventTeamsViewDestination(eventDivisionViewModel.event), selectedIcon = Icons.Filled.People, unselectedIcon = Icons.Outlined.PeopleOutline)
-    val matchListTab = TabBarItem(title = "Match List", direction = EventDivisionMatchesViewDestination(), selectedIcon = Icons.Filled.AccessTimeFilled, unselectedIcon = Icons.Outlined.AccessTime)
+    val teamsTab = TabBarItem(title = "Teams", direction = EventTeamsViewDestination(eventDivisionViewModel.event, eventDivisionViewModel.division), selectedIcon = Icons.Filled.People, unselectedIcon = Icons.Outlined.PeopleOutline)
+    val matchListTab = TabBarItem(title = "Match List", direction = EventDivisionMatchesViewDestination(eventDivisionViewModel.event, eventDivisionViewModel.division), selectedIcon = Icons.Filled.AccessTimeFilled, unselectedIcon = Icons.Outlined.AccessTime)
     val rankingsTab = TabBarItem(title = "Rankings", direction = EventDivisionRankingsViewDestination(eventDivisionViewModel.event, eventDivisionViewModel.division), selectedIcon = Icons.Filled.FormatListNumbered, unselectedIcon = Icons.Filled.FormatListNumbered)
     val awardsTab = TabBarItem(title = "Awards", direction = EventDivisionAwardsViewDestination(), selectedIcon = Icons.Filled.EmojiEvents, unselectedIcon = Icons.Outlined.EmojiEvents)
 
@@ -163,32 +154,36 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
             modifier = Modifier.fillMaxSize().padding(padding)
         ) {
             // Replace DestinationsNavHost below with if statement to check if the tab is selected
-            if (selectedTabIndex == 0) {
-                EventTeamsView(
-                    navController = navController,
-                    event = event,
-                    division = division
-                )
-            }
-            else if (selectedTabIndex == 1) {
-                EventDivisionMatchesView(
-                    navController = navController,
-                    eventDivisionMatchesViewModel = divisionViewModels["event_division_matches_view"] as EventDivisionMatchesViewModel
-                )
-            }
-            else if (selectedTabIndex == 2) {
-                EventDivisionRankingsView(
-                    event = event,
-                    division = division,
-                    navController = navController,
-                    eventDivisionRankingsViewModel = divisionViewModels["event_division_rankings_view"] as EventDivisionRankingsViewModel
-                )
-            }
-            else if (selectedTabIndex == 3) {
-                EventDivisionAwardsView(
-                    navController = navController,
-                    eventDivisionAwardsViewModel = divisionViewModels["event_division_awards_view"] as EventDivisionAwardsViewModel
-                )
+            when (selectedTabIndex) {
+                0 -> {
+                    EventTeamsView(
+                        navController = navController,
+                        event = event,
+                        division = division
+                    )
+                }
+                1 -> {
+                    EventDivisionMatchesView(
+                        navController = navController,
+                        event = event,
+                        division = division,
+                        eventDivisionMatchesViewModel = divisionViewModels["event_division_matches_view"] as EventDivisionMatchesViewModel
+                    )
+                }
+                2 -> {
+                    EventDivisionRankingsView(
+                        event = event,
+                        division = division,
+                        navController = navController,
+                        eventDivisionRankingsViewModel = divisionViewModels["event_division_rankings_view"] as EventDivisionRankingsViewModel
+                    )
+                }
+                3 -> {
+                    EventDivisionAwardsView(
+                        navController = navController,
+                        eventDivisionAwardsViewModel = divisionViewModels["event_division_awards_view"] as EventDivisionAwardsViewModel
+                    )
+                }
             }
         }
     }

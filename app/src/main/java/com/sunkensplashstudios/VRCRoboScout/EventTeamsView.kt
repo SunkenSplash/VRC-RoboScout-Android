@@ -44,7 +44,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
-@EventDivisionNavGraph(start = true)
 @Destination
 @Composable
 fun EventTeamsView(navController: NavController, event: Event? = null, division: Division? = null) {

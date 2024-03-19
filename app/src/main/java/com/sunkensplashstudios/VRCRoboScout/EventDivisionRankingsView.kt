@@ -52,7 +52,6 @@ class EventDivisionRankingsViewModel: ViewModel() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@EventDivisionNavGraph
 @Destination
 @Composable
 fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRankingsViewModel: EventDivisionRankingsViewModel = viewModel(), navController: NavController) {
