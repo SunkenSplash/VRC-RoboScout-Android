@@ -332,7 +332,7 @@ enum class AllianceColor {
 }
 
 enum class Round(val value: Int) {
-    NONE(0), PRACTICE(1), QUALIFICATION(2), R128(3), R64(4), R32(5), R16(6), QUARTERFINALS(7), SEMIFINALS(8), FINALS(9)
+    NONE(0), PRACTICE(1), QUALIFICATION(2), R128(9), R64(8), R32(7), R16(6), QUARTERFINALS(3), SEMIFINALS(4), FINALS(5)
 }
 
 @Serializable
@@ -362,6 +362,7 @@ data class Match(
     val event: ShortEvent,
     val division: Division,
     val round: Int,
+    @kotlinx.serialization.Transient val roundType: Round = Round.entries.find { it.value == round } ?: Round.NONE,
     val instance: Int,
     @SerialName("matchnum") val matchNum: Int,
     val scheduled: String?,
@@ -567,6 +568,8 @@ class Event {
             val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
             this.matches[division]!!.add(fetchedMatch)
         }
+        matches[division]?.sortBy { it.instance }
+        matches[division]?.sortBy { it.roundType }
     }
 
     suspend fun fetchSkillsRankings() {
