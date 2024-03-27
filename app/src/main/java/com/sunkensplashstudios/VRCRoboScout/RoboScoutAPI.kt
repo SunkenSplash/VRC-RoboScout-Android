@@ -701,16 +701,22 @@ class Team : MutableState<Team> {
         this.registered = team.registered
     }
 
-     fun fetchEvents(season: Int? = null) {
-        var res: List<JsonObject>
-
-        runBlocking {
-            res = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (season ?: 181)))
+    suspend fun matchesAt(event: Event): List<Match> {
+        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/matches", mapOf("event" to event.id))
+        val matches = mutableListOf<Match>()
+        for (match in data) {
+            val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
+            matches.add(fetchedMatch)
         }
+        matches.sortBy { it.instance }
+        matches.sortBy { it.roundType }
+        return matches
+    }
 
+     suspend fun fetchEvents(season: Int? = null) {
+        val data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (season ?: 181)))
         events.clear()
-
-        for (event in res) {
+        for (event in data) {
             val fetchedEvent: Event = jsonWorker.decodeFromJsonElement(event)
             events.add(fetchedEvent)
         }

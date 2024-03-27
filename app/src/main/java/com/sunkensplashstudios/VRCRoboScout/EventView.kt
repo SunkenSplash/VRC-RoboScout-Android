@@ -53,6 +53,7 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventInformationViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventSkillsRankingsViewDestination
+import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamMatchesViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
 
@@ -69,7 +70,7 @@ class EventViewModel: ViewModel() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavController, event: Event) {
+fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavController, event: Event, team: Team? = null) {
 
     fun getEventViewModel() {
         if (eventViewModelStore.getEventViewModel(event) != null) {
@@ -240,6 +241,30 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                     tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                     contentDescription = "Show Event Teams"
                                 )
+                            }
+                            if (team != null) {
+                                HorizontalDivider(
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.clickable {
+                                        navController.navigate(
+                                            EventTeamMatchesViewDestination(eventViewModel.event, team)
+                                        )
+                                    }
+                                ) {
+                                    Text("${team.number} Match List")
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        modifier = Modifier.size(15.dp),
+                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                        contentDescription = "Show ${team.number} Match List"
+                                    )
+                                }
                             }
                         }
                     }

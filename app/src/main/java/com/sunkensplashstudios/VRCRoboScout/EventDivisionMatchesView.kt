@@ -50,11 +50,113 @@ class EventDivisionMatchesViewModel: ViewModel() {
     var division by mutableStateOf(Division())
 }
 
+@Composable
+fun MatchesView(matchList: List<Match>) {
+    val timeFormat = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+        Card(
+            modifier = Modifier.padding(10.dp),
+            colors = CardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                disabledContentColor = Color.Unspecified
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 0.dp)
+            ) {
+                (matchList).forEach { match ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier.width(65.dp),
+                            verticalArrangement = Arrangement.spacedBy((-3).dp)
+                        ) {
+                            Text(
+                                text = match.shortName,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = match.startedDate?.let { timeFormat.format(it) }
+                                    ?: match.scheduledDate?.let { timeFormat.format(it) }
+                                    ?: "",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.width(60.dp),
+                                verticalArrangement = Arrangement.spacedBy((-5).dp)
+                            ) {
+                                match.redAlliance.members.forEach{ member ->
+                                    Text(
+                                        text = member.team.name,
+                                        fontSize = 15.sp,
+                                        color = allianceRed
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(20.dp))
+                            Text(
+                                match.redScore.toString(),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = allianceRed,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier.width(50.dp)
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                match.blueScore.toString(),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = allianceBlue,
+                                textAlign = TextAlign.End,
+                                modifier = Modifier.width(50.dp)
+                            )
+                            Spacer(modifier = Modifier.width(20.dp))
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.width(60.dp),
+                                verticalArrangement = Arrangement.spacedBy((-5).dp)
+                            ) {
+                                match.blueAlliance.members.forEach{ member ->
+                                    Text(
+                                        text = member.team.name,
+                                        fontSize = 15.sp,
+                                        color = allianceBlue
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    if (match != matchList.last()) {
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
 fun EventDivisionMatchesView(event: Event, division: Division, eventDivisionMatchesViewModel: EventDivisionMatchesViewModel = viewModel(), navController: NavController) {
-    val timeFormat = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
 
     var loading by remember { mutableStateOf(event.matches[division] == null) }
 
@@ -113,108 +215,11 @@ fun EventDivisionMatchesView(event: Event, division: Division, eventDivisionMatc
             if (loading) {
                 LoadingView()
             }
-            else if ((event.matches[division] ?: listOf()).isEmpty()) {
+            else if ((event.matches[division] ?: emptyList()).isEmpty()) {
                 NoDataView()
             }
             else {
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                ) {
-                    Card(
-                        modifier = Modifier.padding(10.dp),
-                        colors = CardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
-                            disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContentColor = Color.Unspecified
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 0.dp)
-                        ) {
-                            (event.matches[division] ?: emptyList()).forEach { match ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(
-                                        modifier = Modifier.width(65.dp),
-                                        verticalArrangement = Arrangement.spacedBy((-3).dp)
-                                    ) {
-                                        Text(
-                                            text = match.shortName,
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Text(
-                                            text = match.startedDate?.let { timeFormat.format(it) }
-                                                ?: match.scheduledDate?.let { timeFormat.format(it) }
-                                                ?: "",
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier.width(60.dp),
-                                            verticalArrangement = Arrangement.spacedBy((-5).dp)
-                                        ) {
-                                            match.redAlliance.members.forEach{ member ->
-                                                Text(
-                                                    text = member.team.name,
-                                                    fontSize = 15.sp,
-                                                    color = allianceRed
-                                                )
-                                            }
-                                        }
-                                        Spacer(modifier = Modifier.width(20.dp))
-                                        Text(
-                                            match.redScore.toString(),
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = allianceRed,
-                                            textAlign = TextAlign.Start,
-                                            modifier = Modifier.width(50.dp)
-                                        )
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        Text(
-                                            match.blueScore.toString(),
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = allianceBlue,
-                                            textAlign = TextAlign.End,
-                                            modifier = Modifier.width(50.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(20.dp))
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier.width(60.dp),
-                                            verticalArrangement = Arrangement.spacedBy((-5).dp)
-                                        ) {
-                                            match.blueAlliance.members.forEach{ member ->
-                                                Text(
-                                                    text = member.team.name,
-                                                    fontSize = 15.sp,
-                                                    color = allianceBlue
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                if (match != event.matches[division]?.last()) {
-                                    HorizontalDivider(
-                                        thickness = 0.5.dp,
-                                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                MatchesView(event.matches[division] ?: emptyList())
             }
         }
     }
