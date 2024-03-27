@@ -126,7 +126,7 @@ fun TrueSkillView(navController: NavController) {
                     // link to trueskill page
                     IconButton(
                         onClick = {
-                            // TODO: placeholder for URL
+                            uriHandler.openUri("https://vrc-data-analysis.com/");
                         },
                         modifier = Modifier.padding(horizontal = 5.dp)
                     ) {
@@ -199,7 +199,7 @@ fun TrueSkillView(navController: NavController) {
                 DropdownMenuItem(
                     text = { Text("Region") },
                     children = {
-                        API.regionsMap.toSortedMap().forEach { (name, id) ->
+                        API.regionsMap.toSortedMap().forEach { (name) ->
                             HorizontalDivider(
                                 color = Color.Gray.copy(alpha = 0.1f),
                                 thickness = 0.5.dp,
