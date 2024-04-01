@@ -305,7 +305,7 @@ fun TrueSkillView(navController: NavController) {
                                 Row(
                                     horizontalArrangement = Arrangement.Center,
                                     modifier = Modifier
-                                        .padding(vertical = 12.dp)
+                                        .padding(horizontal = 0.dp)
                                         .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -313,7 +313,22 @@ fun TrueSkillView(navController: NavController) {
                                         modifier = Modifier.width(130.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("#" + vdaEntry.tsRanking.toString(), fontSize = 18.sp)
+                                        Column (
+                                            modifier = Modifier.padding(vertical = 7.dp)
+                                        ) {
+                                            Text(
+                                                "#" + (index + 1),
+                                                fontSize = 18.sp,
+                                                modifier = Modifier.width(130.dp)
+                                            )
+
+                                            Text(
+                                                "(#" + vdaEntry.tsRanking.toString() + ")",
+                                                fontSize = 18.sp,
+                                                modifier = Modifier.width(130.dp)
+                                            )
+                                        }
+
                                         if ((vdaEntry.rankingChange ?: 0.0) != 0.0) {
                                             Icon(
                                                 imageVector = if ((vdaEntry.rankingChange
@@ -395,7 +410,7 @@ fun TrueSkillView(navController: NavController) {
                                 Row(
                                     horizontalArrangement = Arrangement.Center,
                                     modifier = Modifier
-                                        .padding(vertical = 12.dp)
+                                        .padding(horizontal = 0.dp)
                                         .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -403,7 +418,21 @@ fun TrueSkillView(navController: NavController) {
                                         modifier = Modifier.width(130.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("#" + vdaEntry.tsRanking.toString(), fontSize = 18.sp)
+                                        Column (
+                                            modifier = Modifier.padding(vertical = 7.dp)
+                                        ) {
+                                            Text(
+                                                "#" + (index + 1),
+                                                fontSize = 18.sp,
+                                                modifier = Modifier.width(130.dp)
+                                            )
+
+                                            Text(
+                                                "(#" + vdaEntry.tsRanking.toString() + ")",
+                                                fontSize = 18.sp,
+                                                modifier = Modifier.width(130.dp)
+                                            )
+                                        }
                                         if ((vdaEntry.rankingChange ?: 0.0) != 0.0) {
                                             Icon(
                                                 imageVector = if ((vdaEntry.rankingChange
@@ -485,7 +514,7 @@ fun TrueSkillView(navController: NavController) {
                                 Row(
                                     horizontalArrangement = Arrangement.Center,
                                     modifier = Modifier
-                                        .padding(vertical = 12.dp)
+                                        .padding(horizontal = 0.dp)
                                         .fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -493,7 +522,21 @@ fun TrueSkillView(navController: NavController) {
                                         modifier = Modifier.width(130.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("#" + vdaEntry.tsRanking.toString(), fontSize = 18.sp)
+                                        Column (
+                                            modifier = Modifier.padding(vertical = 7.dp)
+                                        ) {
+                                            Text(
+                                                "#" + (index + 1),
+                                                fontSize = 18.sp,
+                                                modifier = Modifier.width(130.dp)
+                                            )
+
+                                            Text(
+                                                "(#" + vdaEntry.tsRanking.toString() + ")",
+                                                fontSize = 18.sp,
+                                                modifier = Modifier.width(130.dp)
+                                            )
+                                        }
                                         if ((vdaEntry.rankingChange ?: 0.0) != 0.0) {
                                             Icon(
                                                 imageVector = if ((vdaEntry.rankingChange
