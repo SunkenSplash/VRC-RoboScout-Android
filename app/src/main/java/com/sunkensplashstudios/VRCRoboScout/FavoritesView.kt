@@ -257,9 +257,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                                     .padding(5.dp)
                                                     .clickable {
                                                         navController.navigate(
-                                                            EventViewDestination(
-                                                                event
-                                                            )
+                                                            EventViewDestination(event)
                                                         )
                                                     }
                                             ) {
