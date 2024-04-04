@@ -4,18 +4,18 @@
     <value>
       <entry key="VRC RoboScout">
         <State>
-          <targetSelectedWithDropDown>
+          <runningDeviceTargetSelectedWithDropDown>
             <Target>
-              <type value="QUICK_BOOT_TARGET" />
+              <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Android\.android\avd\Pixel_6_Pro_API_33.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="adb-R5CR114HKCB-8IO1Xl._adb-tls-connect._tcp" />
                 </Key>
               </deviceKey>
             </Target>
-          </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-01T03:40:35.307599300Z" />
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-04-04T20:00:27.461955800Z" />
         </State>
       </entry>
     </value>

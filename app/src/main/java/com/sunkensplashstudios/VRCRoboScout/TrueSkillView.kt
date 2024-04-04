@@ -319,13 +319,11 @@ fun TrueSkillView(navController: NavController) {
                                             Text(
                                                 "#" + (index + 1),
                                                 fontSize = 18.sp,
-                                                modifier = Modifier.width(130.dp)
                                             )
 
                                             Text(
                                                 "(#" + vdaEntry.tsRanking.toString() + ")",
                                                 fontSize = 18.sp,
-                                                modifier = Modifier.width(130.dp)
                                             )
                                         }
 
@@ -424,13 +422,11 @@ fun TrueSkillView(navController: NavController) {
                                             Text(
                                                 "#" + (index + 1),
                                                 fontSize = 18.sp,
-                                                modifier = Modifier.width(130.dp)
                                             )
 
                                             Text(
                                                 "(#" + vdaEntry.tsRanking.toString() + ")",
                                                 fontSize = 18.sp,
-                                                modifier = Modifier.width(130.dp)
                                             )
                                         }
                                         if ((vdaEntry.rankingChange ?: 0.0) != 0.0) {
@@ -528,13 +524,11 @@ fun TrueSkillView(navController: NavController) {
                                             Text(
                                                 "#" + (index + 1),
                                                 fontSize = 18.sp,
-                                                modifier = Modifier.width(130.dp)
                                             )
 
                                             Text(
                                                 "(#" + vdaEntry.tsRanking.toString() + ")",
                                                 fontSize = 18.sp,
-                                                modifier = Modifier.width(130.dp)
                                             )
                                         }
                                         if ((vdaEntry.rankingChange ?: 0.0) != 0.0) {
