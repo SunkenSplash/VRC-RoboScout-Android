@@ -118,4 +118,5 @@ dependencies {
     implementation("me.saket.cascade:cascade:2.3.0")
     implementation("me.saket.cascade:cascade-compose:2.3.0")
     implementation("io.mhssn:colorpicker:1.0.0")
+    implementation("org.ejml:ejml-simple:0.38")
 }

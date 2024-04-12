@@ -153,18 +153,22 @@ fun EventSkillsRankingsView(navController: NavController, event: Event) {
                                             ) {
                                                 Column {
                                                     Text(
-                                                        "Prog: ${skillsRanking.programmingAttempts}"
+                                                        "Prog: ${skillsRanking.programmingAttempts}",
+                                                        color = Color.Gray
                                                     )
                                                     Text(
-                                                        skillsRanking.programmingScore.toString()
+                                                        skillsRanking.programmingScore.toString(),
+                                                        color = Color.Gray
                                                     )
                                                 }
                                                 Column {
                                                     Text(
-                                                        "Driver: ${skillsRanking.driverAttempts}"
+                                                        "Driver: ${skillsRanking.driverAttempts}",
+                                                        color = Color.Gray
                                                     )
                                                     Text(
-                                                        skillsRanking.driverScore.toString()
+                                                        skillsRanking.driverScore.toString(),
+                                                        color = Color.Gray
                                                     )
                                                 }
                                                 Spacer(modifier = Modifier.width(20.dp))

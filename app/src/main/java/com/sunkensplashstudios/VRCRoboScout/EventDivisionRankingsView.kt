@@ -49,6 +49,7 @@ import kotlinx.coroutines.withContext
 class EventDivisionRankingsViewModel: ViewModel() {
     var event by mutableStateOf(Event())
     var division by mutableStateOf(Division())
+    var teamPerformanceRatings by mutableStateOf(mapOf<Int, TeamPerformanceRatings>())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,14 +57,21 @@ class EventDivisionRankingsViewModel: ViewModel() {
 @Composable
 fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRankingsViewModel: EventDivisionRankingsViewModel = viewModel(), navController: NavController) {
 
-    var loading by remember { mutableStateOf(event.rankings[division] == null) }
+    var loading by remember { mutableStateOf(event.rankings[division] == null || event.teamPerformanceRatings[division] == null) }
 
     fun updateRankings() {
-        if (event.rankings[division] == null) {
+        if (eventDivisionRankingsViewModel.event.rankings[division] == null || eventDivisionRankingsViewModel.event.teamPerformanceRatings[division] == null) {
             loading = true
         }
         CoroutineScope(Dispatchers.Default).launch {
-            event.fetchRankings(division)
+            try {
+                event.calculateTeamPerformanceRatings(division)
+                eventDivisionRankingsViewModel.teamPerformanceRatings = eventDivisionRankingsViewModel.event.teamPerformanceRatings[division] ?: emptyMap()
+                eventDivisionRankingsViewModel.event.rankings[division] = (eventDivisionRankingsViewModel.event.rankings[division] ?: emptyList()).toMutableList()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            // event.fetchRankings(division)
             withContext(Dispatchers.Main) {
                 loading = false
             }
@@ -104,6 +112,9 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                 .fillMaxSize()
         ) {
             var update by remember { mutableStateOf(true) }
+            println("div: ${eventDivisionRankingsViewModel.event.rankings[division]}")
+            println("loading: $loading")
+            println("update: $update")
 
             if (update) {
                 update = false
@@ -113,7 +124,7 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
             if (loading) {
                 LoadingView()
             }
-            else if ((event.rankings[division] ?: listOf()).isEmpty()) {
+            else if ((eventDivisionRankingsViewModel.event.rankings[division] ?: emptyList()).isEmpty()) {
                 NoDataView()
             }
             else {
@@ -133,7 +144,8 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp)
                         ) {
-                            (event.rankings[division] ?: emptyList()).reversed().forEach { ranking ->
+                            eventDivisionRankingsViewModel.event.rankings[division]?.reversed()?.forEach { ranking ->
+                                val performanceRatings = eventDivisionRankingsViewModel.teamPerformanceRatings.get(ranking.team.id)
                                 Row(
                                     modifier = Modifier
                                         .padding(vertical = 10.dp)
@@ -149,7 +161,7 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                 modifier = Modifier.width(80.dp)
                                             )
                                             Text(
-                                                event.getTeam(ranking.team.id)?.name ?: "Unknown",
+                                                eventDivisionRankingsViewModel.event.getTeam(ranking.team.id)?.name ?: "Unknown",
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                                 fontSize = 17.sp
@@ -181,12 +193,12 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                             color = Color.Gray
                                                         )
                                                         Text(
-                                                            "OPR: ",
+                                                            "OPR: ${performanceRatings?.opr.let { "%.1f".format(it) }}",
                                                             fontSize = 13.sp,
                                                             color = Color.Gray
                                                         )
                                                         Text(
-                                                            "HIGH: ",
+                                                            "HIGH: ${ranking.highScore}",
                                                             fontSize = 13.sp,
                                                             color = Color.Gray
                                                         )
@@ -200,12 +212,12 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                             color = Color.Gray
                                                         )
                                                         Text(
-                                                            "DPR: ",
+                                                            "DPR: ${performanceRatings?.dpr.let { "%.1f".format(it) }}",
                                                             fontSize = 13.sp,
                                                             color = Color.Gray
                                                         )
                                                         Text(
-                                                            "AVG: ",
+                                                            "AVG: ${ranking.averagePoints.let { "%.0f".format(it) }}",
                                                             fontSize = 13.sp,
                                                             color = Color.Gray
                                                         )
@@ -219,12 +231,12 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                             color = Color.Gray
                                                         )
                                                         Text(
-                                                            "CCWM: ",
+                                                            "CCWM: ${performanceRatings?.ccwm.let { "%.1f".format(it) }}",
                                                             fontSize = 13.sp,
                                                             color = Color.Gray
                                                         )
                                                         Text(
-                                                            "TTL: ",
+                                                            "TTL: ${ranking.totalPoints}",
                                                             fontSize = 13.sp,
                                                             color = Color.Gray
                                                         )

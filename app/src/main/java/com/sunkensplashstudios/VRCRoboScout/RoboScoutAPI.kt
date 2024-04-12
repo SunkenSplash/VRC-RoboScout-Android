@@ -17,9 +17,12 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.ejml.data.DMatrixRMaj
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import org.ejml.simple.SimpleMatrix
+import org.ejml.dense.row.CommonOps_DDRM
 
 val API = RoboScoutAPI()
 val jsonWorker = Json {
@@ -30,6 +33,14 @@ val jsonWorker = Json {
 val client = HttpClient(CIO) {
     install(ContentNegotiation) {
         jsonWorker
+    }
+}
+
+class RoboScoutAPIError: Throwable() {
+    companion object {
+        fun missingData(message: String): Exception {
+            return Exception("Missing data: $message")
+        }
     }
 }
 
@@ -347,7 +358,11 @@ data class MatchAlliance(
     @kotlinx.serialization.Transient val allianceColor: AllianceColor = if (color == "red") AllianceColor.RED else AllianceColor.BLUE,
     val score: Int,
     @SerialName("teams") val members: List<AllianceMember>
-)
+) {
+    operator fun get(i: Int): AllianceMember {
+        return members[i]
+    }
+}
 
 @Serializable
 data class ShortEvent(
@@ -401,10 +416,34 @@ data class Match(
 }
 
 @Serializable
-class Division {
-    var id: Int = 0
-    var name: String = ""
+data class TeamWinner(
+    val division: Division,
+    val team: ShortTeam
+)
+@Serializable
+data class Award(
+    val id: Int,
+    val event: ShortEvent,
+    val order: Int,
+    var title: String,
+    val qualifications: List<String>,
+    val designation: String?,
+    val classification: String?,
+    val teamWinners: List<TeamWinner>,
+    val individualWinners: List<String>
+) {
+    init {
+        if (!this.title.contains("(WC)")) {
+            this.title = title.replace("\\([^()]*\\)".toRegex(), "")
+        }
+    }
 }
+
+@Serializable
+class Division(
+    var id: Int = 0,
+    var name: String = ""
+)
 
 @Serializable
 data class ShortTeam(
@@ -462,6 +501,14 @@ class TeamSkillsRanking(
     var programmingAttempts: Int = 0
 )
 
+data class TeamPerformanceRatings(
+    val team: Team,
+    val event: Event,
+    val opr: Double,
+    val dpr: Double,
+    val ccwm: Double
+)
+
 @Serializable
 class Event {
 
@@ -478,9 +525,11 @@ class Event {
     var teams: MutableList<Team> = mutableListOf<Team>()
     @kotlinx.serialization.Transient var teamIDs: IntArray = intArrayOf()
     @kotlinx.serialization.Transient var teamObjects = ArrayList<Team>()
+    @kotlinx.serialization.Transient var teamPerformanceRatings: MutableMap<Division, MutableMap<Int, TeamPerformanceRatings>> = mutableMapOf<Division, MutableMap<Int, TeamPerformanceRatings>>()
     var divisions: MutableList<Division> = mutableListOf<Division>()
     var rankings: MutableMap<Division, MutableList<TeamRanking>> = mutableMapOf<Division, MutableList<TeamRanking>>()
     @kotlinx.serialization.Transient var skillsRankings: MutableList<TeamSkillsRanking> = mutableListOf<TeamSkillsRanking>()
+    @kotlinx.serialization.Transient var awards: MutableMap<Division, MutableList<Award>> = mutableMapOf<Division, MutableList<Award>>()
     @kotlinx.serialization.Transient var livestreamLink: String? = null
 
     init {
@@ -572,6 +621,118 @@ class Event {
         matches[division]?.sortBy { it.roundType }
     }
 
+    @Throws(RoboScoutAPIError::class)
+    suspend fun calculateTeamPerformanceRatings(division: Division) {
+        this.teamPerformanceRatings[division] = mutableMapOf<Int, TeamPerformanceRatings>()
+
+        if (this.teams.isEmpty()) {
+            this.fetchTeams()
+        }
+
+        if (this.matches[division] == null || this.matches[division]!!.isEmpty()) {
+            this.fetchMatches(division)
+        }
+
+        var m = arrayOf(doubleArrayOf())
+        var scores = arrayOf(doubleArrayOf())
+        var oppScores = arrayOf(doubleArrayOf())
+
+        val divisionTeams = mutableListOf<Team>()
+
+        if (!this.matches.keys.contains(division)) {
+            this.matches[division] = mutableListOf()
+        }
+
+        if (this.matches[division]!!.isEmpty()) {
+            return
+        }
+
+        val addedTeams = mutableListOf<Int>()
+        for (match in this.matches[division]!!) {
+            val matchTeams = mutableListOf<Team>()
+            matchTeams.addAll(match.redAlliance.members.map { allianceMember ->
+                this.getTeam(allianceMember.team.id) ?: Team()
+            })
+            matchTeams.addAll(match.blueAlliance.members.map { allianceMember ->
+                this.getTeam(allianceMember.team.id) ?: Team()
+            })
+            for (team in matchTeams) {
+                if (!addedTeams.contains(team.id) && this.getTeam(id = team.id) != null) {
+                    divisionTeams.add(this.getTeam(id = team.id)!!)
+                }
+                addedTeams.add(team.id)
+            }
+        }
+
+        for (match in this.matches[division]!!) {
+
+            if (match.round != Round.QUALIFICATION.value) {
+                continue
+            }
+            if (false/* && (UserSettings.getPerformanceRatingsCalculationOption() != "via" && !match.completed())*/) {
+                continue
+            }
+
+            val red = mutableListOf<Double>()
+            val blue = mutableListOf<Double>()
+
+            for (team in divisionTeams) {
+                if (match.redAlliance[0].team.id == team.id || match.redAlliance[1].team.id == team.id) {
+                    red.add(1.0)
+                } else {
+                    red.add(0.0)
+                }
+                if (match.blueAlliance[0].team.id == team.id || match.blueAlliance[1].team.id == team.id) {
+                    blue.add(1.0)
+                } else {
+                    blue.add(0.0)
+                }
+            }
+            m += red.toDoubleArray()
+            m += blue.toDoubleArray()
+            scores += doubleArrayOf(match.redScore.toDouble())
+            scores += doubleArrayOf(match.blueScore.toDouble())
+            oppScores += doubleArrayOf(match.blueScore.toDouble())
+            oppScores += doubleArrayOf(match.redScore.toDouble())
+        }
+
+        if (m.isEmpty() || scores.isEmpty() || oppScores.isEmpty()) {
+            throw RoboScoutAPIError.missingData("matches")
+        }
+
+        m = m.drop(1).toTypedArray()
+        scores = scores.drop(1).toTypedArray()
+        oppScores = oppScores.drop(1).toTypedArray()
+
+        val mM = SimpleMatrix(m)
+        val mScores = SimpleMatrix(scores)
+        val mOppScores = SimpleMatrix(oppScores)
+
+        val result = DMatrixRMaj(mM.numRows(), mM.numCols())
+        CommonOps_DDRM.pinv(mM.ddrm, result)
+        val pinv = SimpleMatrix(result)
+
+        val mOPRs = pinv.mult(mScores)
+        val mDPRs = pinv.mult(mOppScores)
+
+        fun convertToList(matrix: SimpleMatrix): List<Double> {
+            val list = mutableListOf<Double>()
+            for (i in 0 until matrix.numRows()) {
+                list.add(matrix[i, 0])
+            }
+            return list
+        }
+
+        val OPRs = convertToList(mOPRs)
+        val DPRs = convertToList(mDPRs)
+
+        var i = 0
+        for (team in divisionTeams) {
+            this.teamPerformanceRatings[division]!![team.id] = TeamPerformanceRatings(team, this, OPRs[i], DPRs[i], OPRs[i] - DPRs[i])
+            i += 1
+        }
+    }
+
     suspend fun fetchSkillsRankings() {
         val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/skills")
         this.skillsRankings = mutableListOf<TeamSkillsRanking>()
@@ -603,6 +764,17 @@ class Event {
             index++
         }
     }
+
+    suspend fun fetchAwards(division: Division) {
+        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/awards")
+        this.awards[division] = mutableListOf<Award>()
+        for (award in data) {
+            val fetchedAward: Award = jsonWorker.decodeFromJsonElement(award)
+            this.awards[division]!!.add(fetchedAward)
+        }
+        this.awards[division] = this.awards[division]!!.sortedBy { it.order }.toMutableList()
+    }
+
     companion object {
         fun sortTeamsByNumber(teams: List<Team>): List<Team> {
             // Teams can be:
