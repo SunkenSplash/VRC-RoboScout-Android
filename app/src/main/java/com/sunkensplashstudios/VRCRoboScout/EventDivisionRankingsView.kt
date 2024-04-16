@@ -4,14 +4,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -35,10 +38,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.navigate
+import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamMatchesViewDestination
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
 
 import kotlinx.coroutines.CoroutineScope
@@ -46,10 +52,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+//class EventDivisionRankingsViewModel(private val state: SavedStateHandle): ViewModel() {
 class EventDivisionRankingsViewModel: ViewModel() {
     var event by mutableStateOf(Event())
     var division by mutableStateOf(Division())
+    var rankings by mutableStateOf(listOf<TeamRanking>())
     var teamPerformanceRatings by mutableStateOf(mapOf<Int, TeamPerformanceRatings>())
+    /*var event: Event
+        get() = state.get<Event>("event") ?: Event()
+        set(value) = state.set("event", value)
+
+    var division: Division
+        get() = state.get<Division>("division") ?: Division()
+        set(value) = state.set("division", value)
+
+    var rankings: List<TeamRanking>
+        get() = state.get<List<TeamRanking>>("rankings") ?: listOf()
+        set(value) = state.set("rankings", value)
+
+    var teamPerformanceRatings: Map<Int, TeamPerformanceRatings>
+        get() = state.get<Map<Int, TeamPerformanceRatings>>("teamPerformanceRatings") ?: mapOf()
+        set(value) = state.set("teamPerformanceRatings", value)*/
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,21 +80,26 @@ class EventDivisionRankingsViewModel: ViewModel() {
 @Composable
 fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRankingsViewModel: EventDivisionRankingsViewModel = viewModel(), navController: NavController) {
 
-    var loading by remember { mutableStateOf(event.rankings[division] == null || event.teamPerformanceRatings[division] == null) }
+    var loading by remember { mutableStateOf(eventDivisionRankingsViewModel.rankings.isEmpty() || eventDivisionRankingsViewModel.teamPerformanceRatings.isEmpty()) }
 
     fun updateRankings() {
-        if (eventDivisionRankingsViewModel.event.rankings[division] == null || eventDivisionRankingsViewModel.event.teamPerformanceRatings[division] == null) {
-            loading = true
-        }
         CoroutineScope(Dispatchers.Default).launch {
             try {
+                println("updating rankings: $event, $division")
+                /*println("old rankings: ${event.rankings[division]}")
+                println("old rankings event model: ${eventDivisionRankingsViewModel.event.rankings}")
+                println("old rankings model: ${eventDivisionRankingsViewModel.rankings}")
+                println("old ratings: ${event.teamPerformanceRatings[division]}")
+                println("old ratings model: ${eventDivisionRankingsViewModel.teamPerformanceRatings}")*/
+                event.fetchRankings(division)
+                eventDivisionRankingsViewModel.rankings = (event.rankings[division] ?: emptyList()).toMutableList()
                 event.calculateTeamPerformanceRatings(division)
-                eventDivisionRankingsViewModel.teamPerformanceRatings = eventDivisionRankingsViewModel.event.teamPerformanceRatings[division] ?: emptyMap()
-                eventDivisionRankingsViewModel.event.rankings[division] = (eventDivisionRankingsViewModel.event.rankings[division] ?: emptyList()).toMutableList()
+                eventDivisionRankingsViewModel.teamPerformanceRatings = event.teamPerformanceRatings[division] ?: emptyMap()
+                /*println("new rankings: ${eventDivisionRankingsViewModel.rankings}")
+                println("new ratings: ${eventDivisionRankingsViewModel.teamPerformanceRatings}")*/
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            // event.fetchRankings(division)
             withContext(Dispatchers.Main) {
                 loading = false
             }
@@ -112,7 +140,7 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                 .fillMaxSize()
         ) {
             var update by remember { mutableStateOf(true) }
-            println("div: ${eventDivisionRankingsViewModel.event.rankings[division]}")
+            println("div: ${eventDivisionRankingsViewModel.rankings}")
             println("loading: $loading")
             println("update: $update")
 
@@ -123,11 +151,14 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
 
             if (loading) {
                 LoadingView()
+                println("loading")
             }
-            else if ((eventDivisionRankingsViewModel.event.rankings[division] ?: emptyList()).isEmpty()) {
+            else if (eventDivisionRankingsViewModel.rankings.isEmpty()) {
                 NoDataView()
+                println("no data")
             }
             else {
+                println("data")
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
@@ -144,12 +175,17 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp)
                         ) {
-                            eventDivisionRankingsViewModel.event.rankings[division]?.reversed()?.forEach { ranking ->
-                                val performanceRatings = eventDivisionRankingsViewModel.teamPerformanceRatings.get(ranking.team.id)
+                            eventDivisionRankingsViewModel.rankings.reversed().forEach { ranking ->
+                                val performanceRatings = eventDivisionRankingsViewModel.teamPerformanceRatings[ranking.team.id]
                                 Row(
                                     modifier = Modifier
                                         .padding(vertical = 10.dp)
-                                        .fillMaxWidth(),
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            navController.navigate(
+                                                EventTeamMatchesViewDestination(event, eventDivisionRankingsViewModel.event.getTeam(ranking.team.id) ?: Team())
+                                            )
+                                        },
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column {
@@ -184,6 +220,7 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                     modifier = Modifier.fillMaxWidth(),
                                                     horizontalArrangement = Arrangement.SpaceEvenly
                                                 ) {
+                                                    Spacer(modifier = Modifier.weight(1.0f))
                                                     Column(
                                                         verticalArrangement = Arrangement.spacedBy((-10).dp)
                                                     ) {
@@ -203,6 +240,7 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                             color = Color.Gray
                                                         )
                                                     }
+                                                    Spacer(modifier = Modifier.weight(1.0f))
                                                     Column(
                                                         verticalArrangement = Arrangement.spacedBy((-10).dp)
                                                     ) {
@@ -222,6 +260,7 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                             color = Color.Gray
                                                         )
                                                     }
+                                                    Spacer(modifier = Modifier.weight(1.0f))
                                                     Column(
                                                         verticalArrangement = Arrangement.spacedBy((-10).dp)
                                                     ) {
@@ -241,8 +280,22 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                                                             color = Color.Gray
                                                         )
                                                     }
+                                                    Spacer(modifier = Modifier.weight(1.0f))
+                                                    Icon(
+                                                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                                        modifier = Modifier.size(15.dp),
+                                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                                        contentDescription = "Show Match List"
+                                                    )
                                                 }
                                             }
+                                            Spacer(modifier = Modifier.weight(1.0f))
+                                            Icon(
+                                                Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                                modifier = Modifier.size(15.dp),
+                                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                                contentDescription = "Show ${eventDivisionRankingsViewModel.event.getTeam(ranking.team.id)?.number} Match List"
+                                            )
                                         }
                                     }
                                 }

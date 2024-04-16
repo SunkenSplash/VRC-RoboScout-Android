@@ -79,14 +79,9 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
             return
         }
         eventViewModel.loading = true
-        CoroutineScope(Dispatchers.Default).launch {
-            event.fetchTeams()
-            withContext(Dispatchers.Main) {
-                eventViewModel.event = event
-                eventViewModel.loading = false
-                eventViewModelStore.updateEventViewModel(eventViewModel)
-            }
-        }
+        eventViewModel.event = event
+        eventViewModel.loading = false
+        eventViewModelStore.updateEventViewModel(eventViewModel)
     }
 
     LaunchedEffect(Unit) {

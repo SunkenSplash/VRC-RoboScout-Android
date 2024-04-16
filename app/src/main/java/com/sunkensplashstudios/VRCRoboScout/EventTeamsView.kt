@@ -5,14 +5,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -24,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,8 +38,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.navigate
+import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamMatchesViewDestination
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
 
 import kotlinx.coroutines.CoroutineScope
@@ -43,13 +51,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+class EventTeamsViewModel: ViewModel() {
+    var event by mutableStateOf(Event())
+    var division by mutableStateOf(Division())
+    var teams by mutableStateOf(listOf<Team>())
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun EventTeamsView(navController: NavController, event: Event? = null, division: Division? = null) {
+fun EventTeamsView(event: Event, eventTeamsViewModel: EventTeamsViewModel = viewModel(), navController: NavController, division: Division? = null) {
 
-    var teams by remember { mutableStateOf(if (division == null) event!!.teams.toList() else event!!.rankings[division]?.map { event.getTeam(it.team.id) ?: Team() }
-        ?.let { Event.sortTeamsByNumber(it) } ?: emptyList()) }
+    LaunchedEffect(Unit) {
+        eventTeamsViewModel.event = event
+        eventTeamsViewModel.division = division ?: Division()
+    }
 
     Scaffold(
         topBar = {
@@ -74,14 +90,30 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
             )
         }
     ) { padding ->
-        var loading by remember { mutableStateOf(division != null && event!!.rankings[division] == null) }
 
-        fun fetchDivisionalTeamsList() {
+        var loading by remember { mutableStateOf(eventTeamsViewModel.teams.isEmpty()) }
+
+        fun fetchTeamsList() {
             CoroutineScope(Dispatchers.Default).launch {
-                event!!.fetchRankings(division!!)
-                withContext(Dispatchers.Main) {
-                    teams = Event.sortTeamsByNumber(event.rankings[division]!!.map { event.getTeam(it.team.id) ?: Team() }).toMutableList()
-                    loading = false
+                if (division != null) {
+                    event.fetchTeams()
+                    event.fetchRankings(division)
+                    withContext(Dispatchers.Main) {
+                        eventTeamsViewModel.teams =
+                            Event.sortTeamsByNumber(event.rankings[division]!!.map {
+                                event.getTeam(it.team.id) ?: Team()
+                            }).toMutableList()
+                        loading = false
+                    }
+                }
+                else {
+                    if (event.teams.isEmpty()) {
+                        event.fetchTeams()
+                    }
+                    withContext(Dispatchers.Main) {
+                        eventTeamsViewModel.teams = event.teams
+                        loading = false
+                    }
                 }
             }
         }
@@ -92,9 +124,9 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
             ) {
                 LoadingView()
             }
-            fetchDivisionalTeamsList()
+            fetchTeamsList()
         }
-        else if (teams.isEmpty()) {
+        else if (eventTeamsViewModel.teams.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -124,11 +156,16 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                             modifier = Modifier.padding(horizontal = 10.dp)
                         ) {
-                            teams.forEach { team ->
+                            eventTeamsViewModel.teams.forEach { team ->
                                 Row(
                                     modifier = Modifier
                                         .padding(vertical = 10.dp)
-                                        .fillMaxWidth(),
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            navController.navigate(
+                                                EventTeamMatchesViewDestination(event, team)
+                                            )
+                                        },
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
@@ -148,8 +185,15 @@ fun EventTeamsView(navController: NavController, event: Event? = null, division:
                                             fontSize = 12.sp
                                         )
                                     }
+                                    Spacer(modifier = Modifier.weight(1.0f))
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        modifier = Modifier.size(15.dp),
+                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                        contentDescription = "Show Match List"
+                                    )
                                 }
-                                if (teams.indexOf(team) != teams.size - 1) {
+                                if (eventTeamsViewModel.teams.indexOf(team) != eventTeamsViewModel.teams.size - 1) {
                                     HorizontalDivider(
                                         thickness = 0.5.dp,
                                         color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),

@@ -527,7 +527,7 @@ class Event {
     @kotlinx.serialization.Transient var teamObjects = ArrayList<Team>()
     @kotlinx.serialization.Transient var teamPerformanceRatings: MutableMap<Division, MutableMap<Int, TeamPerformanceRatings>> = mutableMapOf<Division, MutableMap<Int, TeamPerformanceRatings>>()
     var divisions: MutableList<Division> = mutableListOf<Division>()
-    var rankings: MutableMap<Division, MutableList<TeamRanking>> = mutableMapOf<Division, MutableList<TeamRanking>>()
+    @kotlinx.serialization.Transient var rankings: MutableMap<Division, MutableList<TeamRanking>> = mutableMapOf<Division, MutableList<TeamRanking>>()
     @kotlinx.serialization.Transient var skillsRankings: MutableList<TeamSkillsRanking> = mutableListOf<TeamSkillsRanking>()
     @kotlinx.serialization.Transient var awards: MutableMap<Division, MutableList<Award>> = mutableMapOf<Division, MutableList<Award>>()
     @kotlinx.serialization.Transient var livestreamLink: String? = null

@@ -98,11 +98,11 @@ fun DivisionTabView(tabBarItems: List<TabBarItem>, navController: NavController,
 @Composable
 fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel(), navController: NavController, event: Event, division: Division) {
 
-    val divisionViewModels = mapOf(
-        "event_division_matches_view" to EventDivisionMatchesViewModel(),
-        "event_division_rankings_view" to EventDivisionRankingsViewModel(),
-        "event_division_awards_view" to EventDivisionAwardsViewModel()
-    )
+    /*val divisionViewModels = mapOf(
+        "event_division_matches_view" to viewModel<EventDivisionMatchesViewModel>(),
+        "event_division_rankings_view" to viewModel<EventDivisionRankingsViewModel>(),
+        "event_division_awards_view" to viewModel<EventDivisionAwardsViewModel>()
+    )*/
 
     // setting up the individual tabs
     val teamsTab = TabBarItem(title = "Teams", direction = EventTeamsViewDestination(eventDivisionViewModel.event, eventDivisionViewModel.division), selectedIcon = Icons.Filled.People, unselectedIcon = Icons.Outlined.PeopleOutline)
@@ -167,7 +167,7 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
                         navController = navController,
                         event = event,
                         division = division,
-                        eventDivisionMatchesViewModel = divisionViewModels["event_division_matches_view"] as EventDivisionMatchesViewModel
+                        //eventDivisionMatchesViewModel = divisionViewModels["event_division_matches_view"] as EventDivisionMatchesViewModel
                     )
                 }
                 2 -> {
@@ -175,7 +175,7 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
                         event = event,
                         division = division,
                         navController = navController,
-                        eventDivisionRankingsViewModel = divisionViewModels["event_division_rankings_view"] as EventDivisionRankingsViewModel
+                        //eventDivisionRankingsViewModel = divisionViewModels["event_division_rankings_view"] as EventDivisionRankingsViewModel
                     )
                 }
                 3 -> {
@@ -183,7 +183,7 @@ fun EventDivisionView(eventDivisionViewModel: EventDivisionViewModel = viewModel
                         event = event,
                         division = division,
                         navController = navController,
-                        eventDivisionAwardsViewModel = divisionViewModels["event_division_awards_view"] as EventDivisionAwardsViewModel
+                        //eventDivisionAwardsViewModel = divisionViewModels["event_division_awards_view"] as EventDivisionAwardsViewModel
                     )
                 }
             }
