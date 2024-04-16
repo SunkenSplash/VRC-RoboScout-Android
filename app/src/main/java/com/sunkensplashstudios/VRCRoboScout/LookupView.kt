@@ -79,6 +79,7 @@ class LookupViewModel : ViewModel() {
     var wsEntry = mutableStateOf(WSEntry())
     var vdaEntry = mutableStateOf(VDAEntry())
     var avgRanking = mutableDoubleStateOf(0.0)
+    var awardCounts = LinkedHashMap<String, Int>()
     var fetched = mutableStateOf(false)
     var loading = mutableStateOf(false)
 
@@ -90,11 +91,17 @@ class LookupViewModel : ViewModel() {
         textColor.value = Color.Unspecified
         CoroutineScope(Dispatchers.Default).launch {
             val fetchedTeam = Team(number.value)
+            fetchedTeam.fetchAwards()
+            val fetchedAwardCounts = LinkedHashMap<String, Int>()
+            for (award in fetchedTeam.awards) {
+                fetchedAwardCounts[award.title] = (fetchedAwardCounts[award.title] ?: 0) + 1
+            }
             withContext(Dispatchers.Main) {
                 team.value = fetchedTeam
                 wsEntry.value = API.worldSkillsFor(fetchedTeam)
                 vdaEntry.value = API.vdaFor(fetchedTeam)
                 avgRanking.doubleValue = fetchedTeam.averageQualifiersRanking()
+                awardCounts = fetchedAwardCounts
                 fetched.value = fetchedTeam.id != 0
                 loading.value = false
             }
@@ -258,7 +265,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     )
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.padding(10.dp)
                     ) {
                         Column {
@@ -438,6 +445,33 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             Spacer(modifier = Modifier.weight(1.0f))
                             Text(
                                 if (lookupViewModel.fetched.value) "${lookupViewModel.vdaEntry.value.totalWins.toInt()}-${lookupViewModel.vdaEntry.value.totalLosses.toInt()}-${lookupViewModel.vdaEntry.value.totalTies.toInt()}" else ""
+                            )
+                        }
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                        )
+
+                        var awardsExpanded by remember { mutableStateOf(false) }
+
+                        Row {
+                            Text("Awards", modifier = Modifier.clickable {
+                                awardsExpanded = !awardsExpanded
+                            }, color = MaterialTheme.colorScheme.button)
+                            DropdownMenu(
+                                expanded = awardsExpanded,
+                                onDismissRequest = { awardsExpanded = false }
+                            ) {
+                                lookupViewModel.awardCounts.forEach { award ->
+                                    DropdownMenuItem(
+                                        text = { Text("${award.value}x ${award.key}") },
+                                        onClick = { }
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Text(
+                                if (lookupViewModel.fetched.value) "${lookupViewModel.team.value.awards.size}" else ""
                             )
                         }
                         HorizontalDivider(

@@ -85,18 +85,10 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
     fun updateRankings() {
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                println("updating rankings: $event, $division")
-                /*println("old rankings: ${event.rankings[division]}")
-                println("old rankings event model: ${eventDivisionRankingsViewModel.event.rankings}")
-                println("old rankings model: ${eventDivisionRankingsViewModel.rankings}")
-                println("old ratings: ${event.teamPerformanceRatings[division]}")
-                println("old ratings model: ${eventDivisionRankingsViewModel.teamPerformanceRatings}")*/
                 event.fetchRankings(division)
                 eventDivisionRankingsViewModel.rankings = (event.rankings[division] ?: emptyList()).toMutableList()
                 event.calculateTeamPerformanceRatings(division)
                 eventDivisionRankingsViewModel.teamPerformanceRatings = event.teamPerformanceRatings[division] ?: emptyMap()
-                /*println("new rankings: ${eventDivisionRankingsViewModel.rankings}")
-                println("new ratings: ${eventDivisionRankingsViewModel.teamPerformanceRatings}")*/
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -140,9 +132,6 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
                 .fillMaxSize()
         ) {
             var update by remember { mutableStateOf(true) }
-            println("div: ${eventDivisionRankingsViewModel.rankings}")
-            println("loading: $loading")
-            println("update: $update")
 
             if (update) {
                 update = false
@@ -151,14 +140,11 @@ fun EventDivisionRankingsView(event: Event, division: Division, eventDivisionRan
 
             if (loading) {
                 LoadingView()
-                println("loading")
             }
             else if (eventDivisionRankingsViewModel.rankings.isEmpty()) {
                 NoDataView()
-                println("no data")
             }
             else {
-                println("data")
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {

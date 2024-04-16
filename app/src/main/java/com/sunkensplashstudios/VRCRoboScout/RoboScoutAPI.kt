@@ -817,6 +817,7 @@ class Team : MutableState<Team> {
     var id: Int = 0
     var events: MutableList<Event> = mutableListOf<Event>()
     var eventCount: Int = 0
+    @kotlinx.serialization.Transient var awards: MutableList<Award> = mutableListOf<Award>()
     @SerialName("team_name") var name: String = ""
     var number: String = ""
     var organization: String = ""
@@ -892,6 +893,16 @@ class Team : MutableState<Team> {
             val fetchedEvent: Event = jsonWorker.decodeFromJsonElement(event)
             events.add(fetchedEvent)
         }
+    }
+
+    suspend fun fetchAwards(season: Int? = null) {
+        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/awards", mapOf("season" to (season ?: 181)))
+        awards.clear()
+        for (award in data) {
+            val fetchedAward: Award = jsonWorker.decodeFromJsonElement(award)
+            awards.add(fetchedAward)
+        }
+        this.awards.sortBy { it.order }
     }
 
     suspend fun averageQualifiersRanking(season: Int? = null): Double {
