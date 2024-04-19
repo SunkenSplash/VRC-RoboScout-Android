@@ -6,6 +6,7 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.headers
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
@@ -18,11 +19,11 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.ejml.data.DMatrixRMaj
+import org.ejml.dense.row.CommonOps_DDRM
+import org.ejml.simple.SimpleMatrix
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import org.ejml.simple.SimpleMatrix
-import org.ejml.dense.row.CommonOps_DDRM
 
 val API = RoboScoutAPI()
 val jsonWorker = Json {
@@ -291,6 +292,9 @@ class RoboScoutAPI {
                         }
                     }
                 }
+                headers {
+                    append("User-Agent", "Bond, James Bond")
+                }
             }
 
             println("RobotEvents Scraper (page ${params["page"] as? Int ?: 0}): $requestUrl")
@@ -301,7 +305,7 @@ class RoboScoutAPI {
             val matches = regex.findAll(response.bodyAsText())
 
             for (match in matches) {
-                skuArray.add(match.value.replace("https://www.robotevents.com/robot-competitions/vex-robotics-competition", "").replace(".html", ""))
+                skuArray.add(match.value.replace("https://www.robotevents.com/robot-competitions/vex-robotics-competition/", "").replace(".html", ""))
             }
 
             return skuArray
