@@ -66,6 +66,7 @@ import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
@@ -112,6 +113,11 @@ class LookupViewModel : ViewModel() {
 @Destination
 @Composable
 fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as LookupViewModel, navController: NavController) {
+
+    runBlocking {
+        println(RoboScoutAPI.roboteventsCompetitionScraper())
+    }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {

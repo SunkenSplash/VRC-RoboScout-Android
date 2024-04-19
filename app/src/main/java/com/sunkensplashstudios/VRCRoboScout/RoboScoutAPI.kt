@@ -252,6 +252,60 @@ class RoboScoutAPI {
             }
             return data
         }
+
+        suspend fun roboteventsCompetitionScraper(params: MutableMap<String, Any> = mutableMapOf()): List<String> {
+            var requestUrl = "https://www.robotevents.com/robot-competitions/vex-robotics-competition"
+            var params = params
+
+            if (!params.containsKey("page")) {
+                params["page"] = 1
+            }
+
+            if (!params.containsKey("country_id")) {
+                params["country_id"] = "*"
+            }
+
+            when (params["level_class_id"] as? Int) {
+                4 -> params["level_class_id"] = 9
+                5 -> params["level_class_id"] = 12
+                6 -> params["level_class_id"] = 13
+            }
+
+            when (params["grade_level_id"] as? Int) {
+                1 -> params["grade_level_id"] = 2
+                2 -> params["grade_level_id"] = 3
+            }
+
+            val skuArray = mutableListOf<String>()
+
+            val response = client.get(requestUrl) {
+                url {
+                    params.forEach { param ->
+                        if (param.value is List<*>) {
+                            for (value in param.value as List<*>) {
+                                parameters.append("${param.key}[]", value.toString())
+                            }
+                        }
+                        else {
+                            parameters.append(param.key, param.value.toString())
+                        }
+                    }
+                }
+            }
+
+            println("RobotEvents Scraper (page ${params["page"] as? Int ?: 0}): $requestUrl")
+            println(response.bodyAsText())
+
+            val pattern = "https://www\\.robotevents\\.com/robot-competitions/vex-robotics-competition/RE-VRC([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?\\.html"
+            val regex = Regex(pattern, RegexOption.IGNORE_CASE)
+            val matches = regex.findAll(response.bodyAsText())
+
+            for (match in matches) {
+                skuArray.add(match.value.replace("https://www.robotevents.com/robot-competitions/vex-robotics-competition", "").replace(".html", ""))
+            }
+
+            return skuArray
+        }
     }
 
      suspend fun updateWorldSkillsCache(season: Int? = null) {
