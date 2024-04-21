@@ -61,17 +61,19 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentText
+import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentedControl
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 class LookupViewModel : ViewModel() {
-    var lookupType = mutableStateOf("team")
+    var lookupType = mutableStateOf("Teams")
 
     // TeamLookup
     var textColor = mutableStateOf(Color.Gray)
@@ -108,24 +110,56 @@ class LookupViewModel : ViewModel() {
             }
         }
     }
-}
 
-@Destination
-@Composable
-fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as LookupViewModel, navController: NavController) {
+    fun fetchEvents(name: String? = null, season: Int? = null, level: Int? = null, grade: Int? = null, region: Int? = null, noLeagues: Boolean = false, page: Int = 1) {
 
-    runBlocking {
-        println(RoboScoutAPI.roboteventsCompetitionScraper())
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        TeamLookup(lookupViewModel = lookupViewModel, navController = navController)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Destination
+@Composable
+fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as LookupViewModel, navController: NavController) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.topContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onTopContainer,
+                    ),
+                    title = {
+                        Text("Lookup", fontWeight = FontWeight.Bold)
+                    }
+                )
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier.padding(padding)
+            ) {
+                SegmentedControl(
+                    listOf("Teams", "Events"),
+                    lookupViewModel.lookupType.value,
+                    onSegmentSelected = { lookupViewModel.lookupType.value = it },
+                    modifier = Modifier.padding(10.dp)
+                ) {
+                    SegmentText(
+                        text = it
+                    )
+                }
+                if (lookupViewModel.lookupType.value == "Teams") {
+                    TeamLookup(lookupViewModel = lookupViewModel, navController = navController)
+                }
+                else {
+                    EventLookup(lookupViewModel = lookupViewModel, navController = navController)
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 
@@ -134,400 +168,793 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
     val localContext = LocalContext.current
     val userSettings = remember { UserSettings(localContext) }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.topContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onTopContainer,
-                ),
-                title = {
-                    Text("Lookup", fontWeight = FontWeight.Bold)
-                }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        var favoriteTeams by remember {
+            mutableStateOf(
+                userSettings.getData("favoriteTeams", "").replace("[", "").replace("]", "")
+                    .split(", ")
             )
         }
-    ) { padding ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(padding).fillMaxSize()
+        Spacer(Modifier.height(20.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .fillMaxWidth()
         ) {
-            var favoriteTeams by remember {
-                mutableStateOf(
-                    userSettings.getData("favoriteTeams", "").replace("[", "").replace("]", "")
-                        .split(", ")
+            Box(
+                modifier = Modifier.width(40.dp)
+            ) {
+                Icon(
+                    Icons.Filled.Star,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .alpha(0F),
+                    contentDescription = "Unfavorite",
                 )
             }
-            Spacer(Modifier.height(20.dp))
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth()
+            Spacer(modifier = Modifier.weight(1.0F))
+            Box(
+                modifier = Modifier.width(200.dp)
             ) {
-                Box(
-                    modifier = Modifier.width(40.dp)
-                ) {
-                    Icon(
-                        Icons.Filled.Star,
-                        modifier = Modifier.size(30.dp).alpha(0F),
-                        contentDescription = "Unfavorite",
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1.0F))
-                Box(
-                    modifier = Modifier.width(200.dp)
-                ) {
-                    TextField(
-                        value = lookupViewModel.number.value,
-                        onValueChange = { lookupViewModel.number.value = it },
-                        singleLine = true,
-                        interactionSource = remember { MutableInteractionSource() }
-                            .also { interactionSource ->
-                                LaunchedEffect(interactionSource) {
-                                    interactionSource.interactions.collect {
-                                        if (it is PressInteraction.Release) {
-                                            lookupViewModel.number.value = ""
-                                            lookupViewModel.fetched.value = false
-                                        }
+                TextField(
+                    value = lookupViewModel.number.value,
+                    onValueChange = { lookupViewModel.number.value = it },
+                    singleLine = true,
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Release) {
+                                        lookupViewModel.number.value = ""
+                                        lookupViewModel.fetched.value = false
                                     }
                                 }
-                            },
-                        textStyle = LocalTextStyle.current.copy(
-                            textAlign = TextAlign.Center,
-                            fontSize = 34.sp
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            disabledContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            unfocusedTextColor = lookupViewModel.textColor.value
-                        ),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                keyboardController?.hide()
-                                lookupViewModel.fetchTeam()
-                            })
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1.0F))
-                Box(
-                    modifier = Modifier.width(40.dp)
-                ) {
-                    IconButton(onClick = {
-                        favoriteTeams = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
-                            return@IconButton
-                        } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.textColor.value != Color.Unspecified) {
-                            userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
-                            userSettings.getData("favoriteTeams", "").replace("[", "")
-                                .replace("]", "")
-                                .split(", ")
-                        } else {
-                            userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
-                            userSettings.getData("favoriteTeams", "").replace("[", "")
-                                .replace("]", "")
-                                .split(", ")
-                        }
-                    }) {
-                        if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.number.value.isNotBlank()) {
-                            Icon(
-                                Icons.Filled.Star,
-                                contentDescription = "Favorite",
-                                modifier = Modifier.size(30.dp),
-                                tint = MaterialTheme.colorScheme.button
-                            )
-                        } else {
-                            Icon(
-                                Icons.Outlined.StarOutline,
-                                contentDescription = "Unfavorite",
-                                modifier = Modifier.size(30.dp),
-                                tint = MaterialTheme.colorScheme.button
-                            )
-                        }
+                            }
+                        },
+                    textStyle = LocalTextStyle.current.copy(
+                        textAlign = TextAlign.Center,
+                        fontSize = 34.sp
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedTextColor = lookupViewModel.textColor.value
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            lookupViewModel.fetchTeam()
+                        })
+                )
+            }
+            Spacer(modifier = Modifier.weight(1.0F))
+            Box(
+                modifier = Modifier.width(40.dp)
+            ) {
+                IconButton(onClick = {
+                    favoriteTeams = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
+                        return@IconButton
+                    } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.textColor.value != Color.Unspecified) {
+                        userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
+                        userSettings.getData("favoriteTeams", "").replace("[", "")
+                            .replace("]", "")
+                            .split(", ")
+                    } else {
+                        userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
+                        userSettings.getData("favoriteTeams", "").replace("[", "")
+                            .replace("]", "")
+                            .split(", ")
+                    }
+                }) {
+                    if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.number.value.isNotBlank()) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = "Favorite",
+                            modifier = Modifier.size(30.dp),
+                            tint = MaterialTheme.colorScheme.button
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.StarOutline,
+                            contentDescription = "Unfavorite",
+                            modifier = Modifier.size(30.dp),
+                            tint = MaterialTheme.colorScheme.button
+                        )
                     }
                 }
             }
-            if (lookupViewModel.loading.value) {
-                Column(
-                    modifier = Modifier.height(60.dp),
-                ) {
-                    LoadingView()
-                }
-            } else {
-                Spacer(Modifier.height(60.dp))
-            }
+        }
+        if (lookupViewModel.loading.value) {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier.height(60.dp),
             ) {
-                Card(
-                    modifier = Modifier.padding(10.dp),
-                    colors = CardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
-                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        disabledContentColor = Color.Unspecified
-                    )
+                LoadingView()
+            }
+        } else {
+            Spacer(Modifier.height(60.dp))
+        }
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            Card(
+                modifier = Modifier.padding(10.dp),
+                colors = CardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                    disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContentColor = Color.Unspecified
+                )
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.padding(10.dp)
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.padding(10.dp)
-                    ) {
-                        Column {
-                            Spacer(modifier = Modifier.height(3.dp))
-                            Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Name")
-                                Spacer(modifier = Modifier.weight(1.0f))
-                                Text(if (lookupViewModel.fetched.value) lookupViewModel.team.value.name else "")
-                            }
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        )
-                        Row {
-                            Text("Robot")
+                    Column {
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Name")
                             Spacer(modifier = Modifier.weight(1.0f))
-                            Text(if (lookupViewModel.fetched.value) (lookupViewModel.team.value.robotName ?: "") else "")
+                            Text(if (lookupViewModel.fetched.value) lookupViewModel.team.value.name else "")
                         }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Robot")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(if (lookupViewModel.fetched.value) (lookupViewModel.team.value.robotName ?: "") else "")
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Organization")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(if (lookupViewModel.fetched.value) lookupViewModel.team.value.organization else "")
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Location")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value && (lookupViewModel.team.value.location.country ?: "").isNotEmpty()
+                            ) lookupViewModel.team.value.location.toString() else ""
                         )
-                        Row {
-                            Text("Organization")
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(if (lookupViewModel.fetched.value) lookupViewModel.team.value.organization else "")
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        )
-                        Row {
-                            Text("Location")
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(
-                                if (lookupViewModel.fetched.value && (lookupViewModel.team.value.location.country ?: "").isNotEmpty()
-                                ) lookupViewModel.team.value.location.toString() else ""
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var tsExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("TrueSkill Ranking", modifier = Modifier.clickable {
+                            tsExpanded = !tsExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = tsExpanded,
+                            onDismissRequest = { tsExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(if (lookupViewModel.fetched.value) "${lookupViewModel.vdaEntry.value.trueskill} TrueSkill" else "No TrueSkill data") },
+                                onClick = { }
                             )
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        )
-
-                        var tsExpanded by remember { mutableStateOf(false) }
-
-                        Row {
-                            Text("TrueSkill Ranking", modifier = Modifier.clickable {
-                                tsExpanded = !tsExpanded
-                            }, color = MaterialTheme.colorScheme.button)
-                            DropdownMenu(
-                                expanded = tsExpanded,
-                                onDismissRequest = { tsExpanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text(if (lookupViewModel.fetched.value) "${lookupViewModel.vdaEntry.value.trueskill} TrueSkill" else "No TrueSkill data") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            "${if ((lookupViewModel.vdaEntry.value.rankingChange ?: 0.0) >= 0.0) "Up" else "Down"} ${
-                                                abs(
-                                                    lookupViewModel.vdaEntry.value.rankingChange ?: 0.0
-                                                ).toInt()
-                                            } places since last update"
-                                        )
-                                    },
-                                    onClick = { }
-                                )
-                            }
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(
-                                if (lookupViewModel.fetched.value) "# ${lookupViewModel.vdaEntry.value.tsRanking} of ${API.vdaCache.size}" else ""
-                            )
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        )
-                        Row {
-                            Text("World Skills Ranking")
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(
-                                if (lookupViewModel.fetched.value) "# ${lookupViewModel.wsEntry.value.rank} of ${API.wsCache.size}" else ""
-                            )
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        )
-
-                        var wsExpanded by remember { mutableStateOf(false) }
-
-                        Row {
-                            Text("World Skills Score", modifier = Modifier.clickable {
-                                wsExpanded = !wsExpanded
-                            }, color = MaterialTheme.colorScheme.button)
-                            DropdownMenu(
-                                expanded = wsExpanded,
-                                onDismissRequest = { wsExpanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("${lookupViewModel.wsEntry.value.scores.programming} Programming") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("${lookupViewModel.wsEntry.value.scores.driver} Driver") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("${lookupViewModel.wsEntry.value.scores.maxProgramming} Highest Programming") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("${lookupViewModel.wsEntry.value.scores.maxDriver} Highest Driver") },
-                                    onClick = { }
-                                )
-                            }
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(
-                                if (lookupViewModel.fetched.value) lookupViewModel.wsEntry.value.scores.score.toString() else ""
-                            )
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        )
-
-                        var msExpanded by remember { mutableStateOf(false) }
-
-                        Row {
-                            Text("Match Statistics", modifier = Modifier.clickable {
-                                msExpanded = !msExpanded
-                            }, color = MaterialTheme.colorScheme.button)
-                            DropdownMenu(
-                                expanded = msExpanded,
-                                onDismissRequest = { msExpanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            String.format(
-                                                "Average Qualifiers Ranking: %.1f",
-                                                lookupViewModel.avgRanking.doubleValue
-                                            )
-                                        )
-                                    },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("CCWM: ${lookupViewModel.vdaEntry.value.ccwm}") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent}%") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Total Matches: ${lookupViewModel.vdaEntry.value.totalMatches.toInt()}") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Total Wins: ${lookupViewModel.vdaEntry.value.totalWins.toInt()}") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Total Losses: ${lookupViewModel.vdaEntry.value.totalLosses.toInt()}") },
-                                    onClick = { }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Total Ties: ${lookupViewModel.vdaEntry.value.totalTies.toInt()}") },
-                                    onClick = { }
-                                )
-                            }
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(
-                                if (lookupViewModel.fetched.value) "${lookupViewModel.vdaEntry.value.totalWins.toInt()}-${lookupViewModel.vdaEntry.value.totalLosses.toInt()}-${lookupViewModel.vdaEntry.value.totalTies.toInt()}" else ""
-                            )
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                        )
-
-                        var awardsExpanded by remember { mutableStateOf(false) }
-
-                        Row {
-                            Text("Awards", modifier = Modifier.clickable {
-                                awardsExpanded = !awardsExpanded
-                            }, color = MaterialTheme.colorScheme.button)
-                            DropdownMenu(
-                                expanded = awardsExpanded,
-                                onDismissRequest = { awardsExpanded = false }
-                            ) {
-                                lookupViewModel.awardCounts.forEach { award ->
-                                    DropdownMenuItem(
-                                        text = { Text("${award.value}x ${award.key}") },
-                                        onClick = { }
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        "${if ((lookupViewModel.vdaEntry.value.rankingChange ?: 0.0) >= 0.0) "Up" else "Down"} ${
+                                            abs(
+                                                lookupViewModel.vdaEntry.value.rankingChange ?: 0.0
+                                            ).toInt()
+                                        } places since last update"
                                     )
+                                },
+                                onClick = { }
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "# ${lookupViewModel.vdaEntry.value.tsRanking} of ${API.vdaCache.size}" else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("World Skills Ranking")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "# ${lookupViewModel.wsEntry.value.rank} of ${API.wsCache.size}" else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var wsExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("World Skills Score", modifier = Modifier.clickable {
+                            wsExpanded = !wsExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = wsExpanded,
+                            onDismissRequest = { wsExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.programming} Programming") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.driver} Driver") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.maxProgramming} Highest Programming") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.maxDriver} Highest Driver") },
+                                onClick = { }
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) lookupViewModel.wsEntry.value.scores.score.toString() else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var msExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("Match Statistics", modifier = Modifier.clickable {
+                            msExpanded = !msExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = msExpanded,
+                            onDismissRequest = { msExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        String.format(
+                                            "Average Qualifiers Ranking: %.1f",
+                                            lookupViewModel.avgRanking.doubleValue
+                                        )
+                                    )
+                                },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("CCWM: ${lookupViewModel.vdaEntry.value.ccwm}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent}%") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Matches: ${lookupViewModel.vdaEntry.value.totalMatches.toInt()}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Wins: ${lookupViewModel.vdaEntry.value.totalWins.toInt()}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Losses: ${lookupViewModel.vdaEntry.value.totalLosses.toInt()}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Ties: ${lookupViewModel.vdaEntry.value.totalTies.toInt()}") },
+                                onClick = { }
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "${lookupViewModel.vdaEntry.value.totalWins.toInt()}-${lookupViewModel.vdaEntry.value.totalLosses.toInt()}-${lookupViewModel.vdaEntry.value.totalTies.toInt()}" else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var awardsExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("Awards", modifier = Modifier.clickable {
+                            awardsExpanded = !awardsExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = awardsExpanded,
+                            onDismissRequest = { awardsExpanded = false }
+                        ) {
+                            lookupViewModel.awardCounts.forEach { award ->
+                                DropdownMenuItem(
+                                    text = { Text("${award.value}x ${award.key}") },
+                                    onClick = { }
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "${lookupViewModel.team.value.awards.size}" else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Qualifications")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) {
+                                listOf(
+                                    if (lookupViewModel.vdaEntry.value.qualifiedForWorlds == 1) "Worlds" else "",
+                                    if (lookupViewModel.vdaEntry.value.qualifiedForRegionals == 1) "Regionals" else ""
+                                )
+                                    .filter { it.isNotEmpty() }
+                                    .joinToString(", ")
+                            } else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Column(modifier = Modifier.clickable {
+                        if (lookupViewModel.fetched.value) {
+                            navController.navigate(
+                                TeamEventsViewDestination(
+                                    lookupViewModel.team.value
+                                )
+                            )
+                        }
+                    }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Events",
+                                color = MaterialTheme.colorScheme.button
+                            )
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .alpha(if (lookupViewModel.fetched.value) 1F else 0F),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                contentDescription = "Show Events"
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(3.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) {
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val localContext = LocalContext.current
+    val userSettings = remember { UserSettings(localContext) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        var favoriteTeams by remember {
+            mutableStateOf(
+                userSettings.getData("favoriteTeams", "").replace("[", "").replace("]", "")
+                    .split(", ")
+            )
+        }
+        Spacer(Modifier.height(20.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier.width(40.dp)
+            ) {
+                Icon(
+                    Icons.Filled.Star,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .alpha(0F),
+                    contentDescription = "Unfavorite",
+                )
+            }
+            Spacer(modifier = Modifier.weight(1.0F))
+            Box(
+                modifier = Modifier.width(200.dp)
+            ) {
+                TextField(
+                    value = lookupViewModel.number.value,
+                    onValueChange = { lookupViewModel.number.value = it },
+                    singleLine = true,
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Release) {
+                                        lookupViewModel.number.value = ""
+                                        lookupViewModel.fetched.value = false
+                                    }
                                 }
                             }
-                            Spacer(modifier = Modifier.weight(1.0f))
-                            Text(
-                                if (lookupViewModel.fetched.value) "${lookupViewModel.team.value.awards.size}" else ""
-                            )
-                        }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                        },
+                    textStyle = LocalTextStyle.current.copy(
+                        textAlign = TextAlign.Center,
+                        fontSize = 34.sp
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedTextColor = lookupViewModel.textColor.value
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            lookupViewModel.fetchTeam()
+                        })
+                )
+            }
+            Spacer(modifier = Modifier.weight(1.0F))
+            Box(
+                modifier = Modifier.width(40.dp)
+            ) {
+                IconButton(onClick = {
+                    favoriteTeams = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
+                        return@IconButton
+                    } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.textColor.value != Color.Unspecified) {
+                        userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
+                        userSettings.getData("favoriteTeams", "").replace("[", "")
+                            .replace("]", "")
+                            .split(", ")
+                    } else {
+                        userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
+                        userSettings.getData("favoriteTeams", "").replace("[", "")
+                            .replace("]", "")
+                            .split(", ")
+                    }
+                }) {
+                    if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.number.value.isNotBlank()) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = "Favorite",
+                            modifier = Modifier.size(30.dp),
+                            tint = MaterialTheme.colorScheme.button
                         )
-                        Row {
-                            Text("Qualifications")
+                    } else {
+                        Icon(
+                            Icons.Outlined.StarOutline,
+                            contentDescription = "Unfavorite",
+                            modifier = Modifier.size(30.dp),
+                            tint = MaterialTheme.colorScheme.button
+                        )
+                    }
+                }
+            }
+        }
+        if (lookupViewModel.loading.value) {
+            Column(
+                modifier = Modifier.height(60.dp),
+            ) {
+                LoadingView()
+            }
+        } else {
+            Spacer(Modifier.height(60.dp))
+        }
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            Card(
+                modifier = Modifier.padding(10.dp),
+                colors = CardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                    disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContentColor = Color.Unspecified
+                )
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.padding(10.dp)
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Name")
                             Spacer(modifier = Modifier.weight(1.0f))
-                            Text(
-                                if (lookupViewModel.fetched.value) {
-                                    listOf(
-                                        if (lookupViewModel.vdaEntry.value.qualifiedForWorlds == 1) "Worlds" else "",
-                                        if (lookupViewModel.vdaEntry.value.qualifiedForRegionals == 1) "Regionals" else ""
+                            Text(if (lookupViewModel.fetched.value) lookupViewModel.team.value.name else "")
+                        }
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Robot")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(if (lookupViewModel.fetched.value) (lookupViewModel.team.value.robotName ?: "") else "")
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Organization")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(if (lookupViewModel.fetched.value) lookupViewModel.team.value.organization else "")
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Location")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value && (lookupViewModel.team.value.location.country ?: "").isNotEmpty()
+                            ) lookupViewModel.team.value.location.toString() else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var tsExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("TrueSkill Ranking", modifier = Modifier.clickable {
+                            tsExpanded = !tsExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = tsExpanded,
+                            onDismissRequest = { tsExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(if (lookupViewModel.fetched.value) "${lookupViewModel.vdaEntry.value.trueskill} TrueSkill" else "No TrueSkill data") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        "${if ((lookupViewModel.vdaEntry.value.rankingChange ?: 0.0) >= 0.0) "Up" else "Down"} ${
+                                            abs(
+                                                lookupViewModel.vdaEntry.value.rankingChange ?: 0.0
+                                            ).toInt()
+                                        } places since last update"
                                     )
-                                        .filter { it.isNotEmpty() }
-                                        .joinToString(", ")
-                                } else ""
+                                },
+                                onClick = { }
                             )
                         }
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "# ${lookupViewModel.vdaEntry.value.tsRanking} of ${API.vdaCache.size}" else ""
                         )
-                        Column(modifier = Modifier.clickable {
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("World Skills Ranking")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "# ${lookupViewModel.wsEntry.value.rank} of ${API.wsCache.size}" else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var wsExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("World Skills Score", modifier = Modifier.clickable {
+                            wsExpanded = !wsExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = wsExpanded,
+                            onDismissRequest = { wsExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.programming} Programming") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.driver} Driver") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.maxProgramming} Highest Programming") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("${lookupViewModel.wsEntry.value.scores.maxDriver} Highest Driver") },
+                                onClick = { }
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) lookupViewModel.wsEntry.value.scores.score.toString() else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var msExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("Match Statistics", modifier = Modifier.clickable {
+                            msExpanded = !msExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = msExpanded,
+                            onDismissRequest = { msExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        String.format(
+                                            "Average Qualifiers Ranking: %.1f",
+                                            lookupViewModel.avgRanking.doubleValue
+                                        )
+                                    )
+                                },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("CCWM: ${lookupViewModel.vdaEntry.value.ccwm}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent}%") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Matches: ${lookupViewModel.vdaEntry.value.totalMatches.toInt()}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Wins: ${lookupViewModel.vdaEntry.value.totalWins.toInt()}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Losses: ${lookupViewModel.vdaEntry.value.totalLosses.toInt()}") },
+                                onClick = { }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Total Ties: ${lookupViewModel.vdaEntry.value.totalTies.toInt()}") },
+                                onClick = { }
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "${lookupViewModel.vdaEntry.value.totalWins.toInt()}-${lookupViewModel.vdaEntry.value.totalLosses.toInt()}-${lookupViewModel.vdaEntry.value.totalTies.toInt()}" else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+
+                    var awardsExpanded by remember { mutableStateOf(false) }
+
+                    Row {
+                        Text("Awards", modifier = Modifier.clickable {
+                            awardsExpanded = !awardsExpanded
+                        }, color = MaterialTheme.colorScheme.button)
+                        DropdownMenu(
+                            expanded = awardsExpanded,
+                            onDismissRequest = { awardsExpanded = false }
+                        ) {
+                            lookupViewModel.awardCounts.forEach { award ->
+                                DropdownMenuItem(
+                                    text = { Text("${award.value}x ${award.key}") },
+                                    onClick = { }
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            if (lookupViewModel.fetched.value) "${lookupViewModel.team.value.awards.size}" else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Row {
+                        Text("Qualifications")
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
                             if (lookupViewModel.fetched.value) {
-                                navController.navigate(
-                                    TeamEventsViewDestination(
-                                        lookupViewModel.team.value
-                                    )
+                                listOf(
+                                    if (lookupViewModel.vdaEntry.value.qualifiedForWorlds == 1) "Worlds" else "",
+                                    if (lookupViewModel.vdaEntry.value.qualifiedForRegionals == 1) "Regionals" else ""
                                 )
-                            }
-                        }) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    "Events",
-                                    color = MaterialTheme.colorScheme.button
+                                    .filter { it.isNotEmpty() }
+                                    .joinToString(", ")
+                            } else ""
+                        )
+                    }
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                    )
+                    Column(modifier = Modifier.clickable {
+                        if (lookupViewModel.fetched.value) {
+                            navController.navigate(
+                                TeamEventsViewDestination(
+                                    lookupViewModel.team.value
                                 )
-                                Spacer(modifier = Modifier.weight(1.0f))
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    modifier = Modifier.size(15.dp).alpha(if (lookupViewModel.fetched.value) 1F else 0F),
-                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                    contentDescription = "Show Events"
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(3.dp))
+                            )
                         }
+                    }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Events",
+                                color = MaterialTheme.colorScheme.button
+                            )
+                            Spacer(modifier = Modifier.weight(1.0f))
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .alpha(if (lookupViewModel.fetched.value) 1F else 0F),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                contentDescription = "Show Events"
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(3.dp))
                     }
                 }
             }
