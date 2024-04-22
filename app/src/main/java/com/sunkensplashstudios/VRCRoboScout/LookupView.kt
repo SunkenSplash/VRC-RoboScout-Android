@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -96,7 +97,7 @@ class LookupViewModel : ViewModel() {
     var eventTextColor = mutableStateOf(Color.Gray)
     var eventName = mutableStateOf("Event Name")
     var events = mutableStateOf(listOf<Event>())
-    var page = mutableStateOf(1)
+    var page = mutableIntStateOf(1)
     var fetchedEvents = mutableStateOf(false)
     var loadingEvents = mutableStateOf(false)
 
@@ -260,7 +261,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     modifier = Modifier
                         .size(30.dp)
                         .alpha(0F),
-                    contentDescription = "Unfavorite",
+                    contentDescription = "Spacer",
                 )
             }
             Spacer(modifier = Modifier.weight(1.0F))
@@ -304,7 +305,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                 modifier = Modifier.width(40.dp)
             ) {
                 IconButton(onClick = {
-                    favoriteTeams = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
+                    favoriteTeams = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B" || !lookupViewModel.fetchedTeams.value) {
                         return@IconButton
                     } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.teamTextColor.value != Color.Unspecified) {
                         userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())

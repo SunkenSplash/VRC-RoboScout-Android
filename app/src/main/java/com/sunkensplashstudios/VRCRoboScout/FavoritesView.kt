@@ -27,6 +27,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -181,6 +182,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                 "Find a team",
                                 modifier = Modifier.padding(vertical = 10.dp, horizontal = 0.dp).fillMaxWidth().clickable {
                                     navController.navigate(LookupViewDestination())
+                                    (viewModels["lookup_view"] as LookupViewModel).lookupType = mutableStateOf("Teams")
                                     onSelectedTabIndexChange(3)
                                 },
                                 color = MaterialTheme.colorScheme.button
@@ -278,6 +280,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                     modifier = Modifier.padding(vertical = 5.dp, horizontal = 5.dp).fillMaxWidth()
                                         .clickable {
                                             navController.navigate(LookupViewDestination())
+                                            (viewModels["lookup_view"] as LookupViewModel).lookupType = mutableStateOf("Events")
                                             onSelectedTabIndexChange(3)
                                         },
                                     color = MaterialTheme.colorScheme.button
