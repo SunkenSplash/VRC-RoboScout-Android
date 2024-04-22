@@ -55,8 +55,8 @@ import com.sunkensplashstudios.VRCRoboScout.destinations.EventInformationViewDes
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventSkillsRankingsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamMatchesViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,9 +79,14 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
             return
         }
         eventViewModel.loading = true
-        eventViewModel.event = event
-        eventViewModel.loading = false
-        eventViewModelStore.updateEventViewModel(eventViewModel)
+        CoroutineScope(Dispatchers.Default).launch {
+            event.fetchTeams()
+            withContext(Dispatchers.Main) {
+                eventViewModel.event = event
+                eventViewModel.loading = false
+                eventViewModelStore.updateEventViewModel(eventViewModel)
+            }
+        }
     }
 
     LaunchedEffect(Unit) {

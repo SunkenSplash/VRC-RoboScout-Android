@@ -40,7 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 
 
 @OptIn(ExperimentalMaterial3Api::class)
