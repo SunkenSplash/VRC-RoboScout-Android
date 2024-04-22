@@ -172,7 +172,25 @@ class RoboScoutAPI {
         }
 
         fun roboteventsAccessKey(): String {
-            return BuildConfig.ROBOTEVENTS_API_KEY
+            if (BuildConfig.DEBUG) {
+                return BuildConfig.ROBOTEVENTS_API_KEY
+            }
+            else {
+                val key = (0..9).random()
+                return when (key) {
+                    0 -> BuildConfig.key0
+                    1 -> BuildConfig.key1
+                    2 -> BuildConfig.key2
+                    3 -> BuildConfig.key3
+                    4 -> BuildConfig.key4
+                    5 -> BuildConfig.key5
+                    6 -> BuildConfig.key6
+                    7 -> BuildConfig.key7
+                    8 -> BuildConfig.key8
+                    9 -> BuildConfig.key9
+                    else -> ""
+                }
+            }
         }
 
         fun roboteventsDate(date: String, localize: Boolean): Date? {

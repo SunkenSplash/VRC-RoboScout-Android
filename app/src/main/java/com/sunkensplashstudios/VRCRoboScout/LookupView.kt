@@ -684,109 +684,111 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
         } else {
             Spacer(Modifier.height(60.dp))
         }
-        Column(
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .weight(1f, false)
-        ) {
-            Card(
-                modifier = Modifier.padding(10.dp),
-                colors = CardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
-                    disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    disabledContentColor = Color.Unspecified
-                )
+        if (lookupViewModel.events.value.isNotEmpty()) {
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .weight(1f, false)
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 5.dp)
+                Card(
+                    modifier = Modifier.padding(10.dp),
+                    colors = CardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = Color.Unspecified
+                    )
                 ) {
-                    lookupViewModel.events.value.forEach { event ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                verticalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .clickable {
-                                        navController.navigate(EventViewDestination(event))
-                                    }
+                    Column(
+                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 5.dp)
+                    ) {
+                        lookupViewModel.events.value.forEach { event ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row {
-                                    Text(
-                                        event.name,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-                                Row {
-                                    Text(
-                                        event.location.toString(),
-                                        fontSize = 13.sp
-                                    )
-                                    Spacer(modifier = Modifier.weight(1.0f))
-                                    Text(
-                                        RoboScoutAPI.formatDate(event.startDate),
-                                        fontSize = 13.sp
-                                    )
+                                Column(
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .clickable {
+                                            navController.navigate(EventViewDestination(event))
+                                        }
+                                ) {
+                                    Row {
+                                        Text(
+                                            event.name,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    Row {
+                                        Text(
+                                            event.location.toString(),
+                                            fontSize = 13.sp
+                                        )
+                                        Spacer(modifier = Modifier.weight(1.0f))
+                                        Text(
+                                            RoboScoutAPI.formatDate(event.startDate),
+                                            fontSize = 13.sp
+                                        )
+                                    }
                                 }
                             }
-                        }
-                        if (lookupViewModel.events.value.indexOf(event) != lookupViewModel.events.value.size - 1) {
-                            HorizontalDivider(
-                                thickness = 0.5.dp,
-                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
-                            )
+                            if (lookupViewModel.events.value.indexOf(event) != lookupViewModel.events.value.size - 1) {
+                                HorizontalDivider(
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(horizontal = 20.dp)
-                .fillMaxWidth()
-        ) {
-            IconButton(
-                enabled = lookupViewModel.page.value != 1,
-                onClick = {
-                    lookupViewModel.page.value -= 1
-                    lookupViewModel.fetchEvents(
-                        name = lookupViewModel.eventName.value,
-                        page = lookupViewModel.page.value
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .fillMaxWidth()
+            ) {
+                IconButton(
+                    enabled = lookupViewModel.page.value != 1,
+                    onClick = {
+                        lookupViewModel.page.value -= 1
+                        lookupViewModel.fetchEvents(
+                            name = lookupViewModel.eventName.value,
+                            page = lookupViewModel.page.value
+                        )
+                    }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBackIos,
+                        contentDescription = "Previous Page",
+                        modifier = Modifier.size(30.dp),
+                        tint = if (lookupViewModel.page.value != 1) MaterialTheme.colorScheme.button else Color.Gray
                     )
-                }) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBackIos,
-                    contentDescription = "Previous Page",
-                    modifier = Modifier.size(30.dp),
-                    tint = if (lookupViewModel.page.value != 1) MaterialTheme.colorScheme.button else Color.Gray
+                }
+                Text(
+                    "${lookupViewModel.page.value}",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    fontSize = 25.sp
                 )
-            }
-            Text(
-                "${lookupViewModel.page.value}",
-                modifier = Modifier.padding(horizontal = 20.dp),
-                fontSize = 25.sp
-            )
-            IconButton(
-                enabled = lookupViewModel.events.value.size == 20,
-                onClick = {
-                    lookupViewModel.page.value += 1
-                    lookupViewModel.fetchEvents(
-                        name = lookupViewModel.eventName.value,
-                        page = lookupViewModel.page.value
+                IconButton(
+                    enabled = lookupViewModel.events.value.size == 20,
+                    onClick = {
+                        lookupViewModel.page.value += 1
+                        lookupViewModel.fetchEvents(
+                            name = lookupViewModel.eventName.value,
+                            page = lookupViewModel.page.value
+                        )
+                    }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = "Next Page",
+                        modifier = Modifier.size(30.dp),
+                        tint = if (lookupViewModel.events.value.size == 20) MaterialTheme.colorScheme.button else Color.Gray
                     )
-                }) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = "Next Page",
-                    modifier = Modifier.size(30.dp),
-                    tint = if (lookupViewModel.events.value.size == 20) MaterialTheme.colorScheme.button else Color.Gray
-                )
+                }
             }
         }
     }

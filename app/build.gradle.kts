@@ -30,11 +30,71 @@ android {
 
         //return empty key in case something goes wrong
         val reAPIKey = properties.getProperty("ROBOTEVENTS_API_KEY") ?: ""
+        val key0 = properties.getProperty("key0") ?: ""
+        val key1 = properties.getProperty("key1") ?: ""
+        val key2 = properties.getProperty("key2") ?: ""
+        val key3 = properties.getProperty("key3") ?: ""
+        val key4 = properties.getProperty("key4") ?: ""
+        val key5 = properties.getProperty("key5") ?: ""
+        val key6 = properties.getProperty("key6") ?: ""
+        val key7 = properties.getProperty("key7") ?: ""
+        val key8 = properties.getProperty("key8") ?: ""
+        val key9 = properties.getProperty("key9") ?: ""
 
         buildConfigField(
             type = "String",
             name = "ROBOTEVENTS_API_KEY",
             value = reAPIKey
+        )
+        buildConfigField(
+            type = "String",
+            name = "key0",
+            value = key0
+        )
+        buildConfigField(
+            type = "String",
+            name = "key1",
+            value = key1
+        )
+        buildConfigField(
+            type = "String",
+            name = "key2",
+            value = key2
+        )
+        buildConfigField(
+            type = "String",
+            name = "key3",
+            value = key3
+        )
+        buildConfigField(
+            type = "String",
+            name = "key4",
+            value = key4
+        )
+        buildConfigField(
+            type = "String",
+            name = "key5",
+            value = key5
+        )
+        buildConfigField(
+            type = "String",
+            name = "key6",
+            value = key6
+        )
+        buildConfigField(
+            type = "String",
+            name = "key7",
+            value = key7
+        )
+        buildConfigField(
+            type = "String",
+            name = "key8",
+            value = key8
+        )
+        buildConfigField(
+            type = "String",
+            name = "key9",
+            value = key9
         )
     }
 

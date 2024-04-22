@@ -41,8 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import io.mhssn.colorpicker.ColorPickerDialog
 import io.mhssn.colorpicker.ColorPickerType
 
@@ -92,7 +93,6 @@ fun SettingsView(navController: NavController) {
                         val localContext = LocalContext.current
                         val userSettings = UserSettings(localContext)
 
-                        // Top Bar Color (MaterialTheme.colorScheme.topContainer)
                         Row(
                             modifier = Modifier.padding(vertical = 10.dp)
                         ) {
@@ -330,6 +330,41 @@ fun SettingsView(navController: NavController) {
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    "DEVELOPER",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    fontSize = 13.sp,
+                    color = Color.Gray
+                )
+                Card(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                    colors = CardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f),
+                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = Color.Unspecified
+                    )
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(vertical = 10.dp)
+                        ) {
+                            Text("Version", modifier = Modifier.weight(1f))
+                            Text("${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})${if (BuildConfig.DEBUG) " (DEBUG)" else ""}")
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    "DEVELOPED BY TEAMS ACE 229V AND JELLY 2733J",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    fontSize = 13.sp,
+                    color = Color.Gray
+                )
             }
         }
     }
