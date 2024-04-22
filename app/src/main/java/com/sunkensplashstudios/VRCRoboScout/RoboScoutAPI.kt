@@ -517,7 +517,7 @@ data class Award(
 
 @Serializable
 class Division(
-    var id: Int = 0,
+    var id: Int? = 0,
     var name: String = ""
 )
 
