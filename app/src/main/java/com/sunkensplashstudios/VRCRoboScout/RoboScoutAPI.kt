@@ -297,8 +297,8 @@ class RoboScoutAPI {
                 }
             }
 
-            println("RobotEvents Scraper (page ${params["page"] as? Int ?: 0}): $requestUrl")
-            println(response.bodyAsText())
+            println("RobotEvents Scraper (page ${params["page"] as? Int ?: 0}): ${response.call.request.url}")
+            //println(response.bodyAsText())
 
             val pattern = "https://www\\.robotevents\\.com/robot-competitions/vex-robotics-competition/RE-VRC([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?\\.html"
             val regex = Regex(pattern, RegexOption.IGNORE_CASE)
@@ -860,7 +860,7 @@ class Location {
     var country: String? = ""
 
     override fun toString(): String {
-        return "${this.city}, ${this.region}, ${
+        return "${this.city}, ${if (this.region != null) this.region + ", " else ""}${
             this.country?.replace(
                 "United States",
                 "USA"

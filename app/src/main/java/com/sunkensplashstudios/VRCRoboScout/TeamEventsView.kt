@@ -39,8 +39,8 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -153,7 +153,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                                         }
                                     }
                                 }
-                                if (teamEventsViewModel.events.indexOf(event) != 0) {
+                                if (teamEventsViewModel.events.reversed().indexOf(event) != 0) {
                                     HorizontalDivider(
                                         thickness = 0.5.dp,
                                         color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
