@@ -55,15 +55,14 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
+import com.sunkensplashstudios.VRCRoboScout.helperviews.EventRow
 import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentText
 import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentedControl
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
@@ -707,33 +706,7 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column(
-                                    verticalArrangement = Arrangement.SpaceBetween,
-                                    modifier = Modifier
-                                        .padding(5.dp)
-                                        .clickable {
-                                            navController.navigate(EventViewDestination(event))
-                                        }
-                                ) {
-                                    Row {
-                                        Text(
-                                            event.name,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                    Row {
-                                        Text(
-                                            event.location.toString(),
-                                            fontSize = 13.sp
-                                        )
-                                        Spacer(modifier = Modifier.weight(1.0f))
-                                        Text(
-                                            RoboScoutAPI.formatDate(event.startDate),
-                                            fontSize = 13.sp
-                                        )
-                                    }
-                                }
+                                EventRow(navController, event)
                             }
                             if (lookupViewModel.events.value.indexOf(event) != lookupViewModel.events.value.size - 1) {
                                 HorizontalDivider(
@@ -771,7 +744,8 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                 Text(
                     "${lookupViewModel.page.value}",
                     modifier = Modifier.padding(horizontal = 20.dp),
-                    fontSize = 25.sp
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center
                 )
                 IconButton(
                     enabled = lookupViewModel.events.value.size == 20,

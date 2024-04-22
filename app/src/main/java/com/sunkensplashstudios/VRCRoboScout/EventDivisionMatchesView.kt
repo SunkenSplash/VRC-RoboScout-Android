@@ -33,13 +33,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceBlue
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceRed
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -108,23 +112,36 @@ fun MatchesView(matchList: List<Match>) {
                                 }
                             }
                             Spacer(modifier = Modifier.width(20.dp))
-                            Text(
-                                match.redScore.toString(),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = allianceRed,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier.width(50.dp)
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                match.blueScore.toString(),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = allianceBlue,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.width(50.dp)
-                            )
+                            if (match.completed()) {
+                                Text(
+                                    match.redScore.toString(),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = allianceRed,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier.width(50.dp)
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    match.blueScore.toString(),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = allianceBlue,
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.width(50.dp)
+                                )
+                            }
+                            else {
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    match.field ?: "",
+                                    fontSize = 14.sp,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = Color.Gray,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                             Spacer(modifier = Modifier.width(20.dp))
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,

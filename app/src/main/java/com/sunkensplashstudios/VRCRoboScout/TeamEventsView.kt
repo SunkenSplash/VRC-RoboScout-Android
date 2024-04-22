@@ -1,10 +1,8 @@
 package com.sunkensplashstudios.VRCRoboScout
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -30,15 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.navigate
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
+import com.sunkensplashstudios.VRCRoboScout.helperviews.EventRow
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
@@ -125,33 +120,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column(
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .padding(5.dp)
-                                            .clickable {
-                                                navController.navigate(EventViewDestination(event, team))
-                                            }
-                                    ) {
-                                        Row {
-                                            Text(
-                                                event.name,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
-                                        Row {
-                                            Text(
-                                                event.location.toString(),
-                                                fontSize = 13.sp
-                                            )
-                                            Spacer(modifier = Modifier.weight(1.0f))
-                                            Text(
-                                                RoboScoutAPI.formatDate(event.startDate),
-                                                fontSize = 13.sp
-                                            )
-                                        }
-                                    }
+                                    EventRow(navController, event, team)
                                 }
                                 if (teamEventsViewModel.events.reversed().indexOf(event) != 0) {
                                     HorizontalDivider(

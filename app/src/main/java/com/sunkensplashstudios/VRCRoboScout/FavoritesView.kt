@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -44,8 +43,10 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.LookupViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.helperviews.EventRow
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -251,35 +252,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Column(
-                                                verticalArrangement = Arrangement.SpaceBetween,
-                                                modifier = Modifier
-                                                    .padding(5.dp)
-                                                    .clickable {
-                                                        navController.navigate(
-                                                            EventViewDestination(event)
-                                                        )
-                                                    }
-                                            ) {
-                                                Row {
-                                                    Text(
-                                                        event.name,
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
-                                                Row {
-                                                    Text(
-                                                        event.location.toString(),
-                                                        fontSize = 13.sp
-                                                    )
-                                                    Spacer(modifier = Modifier.weight(1.0f))
-                                                    Text(
-                                                        RoboScoutAPI.formatDate(event.startDate),
-                                                        fontSize = 13.sp
-                                                    )
-                                                }
-                                            }
+                                            EventRow(navController, event)
                                         }
                                         Spacer(modifier = Modifier.weight(1.0f))
                                         Icon(
