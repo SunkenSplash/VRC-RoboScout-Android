@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -253,19 +254,19 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                 .padding(horizontal = 20.dp)
                 .fillMaxWidth()
         ) {
-            Box(
-                modifier = Modifier.width(40.dp)
-            ) {
-                Icon(
-                    Icons.Filled.Star,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .alpha(0F),
-                    contentDescription = "Spacer",
-                )
-            }
-            Spacer(modifier = Modifier.weight(1.0F))
+            Spacer(Modifier.width(10.dp)) // Thank you Android for making spacing weird
+            Icon(
+                Icons.Filled.Star,
+                modifier = Modifier
+                    .size(30.dp)
+                    .alpha(0F),
+                contentDescription = "Spacer",
+            )
+            Spacer(modifier = Modifier.weight(1.0f))
             TextField(
+                modifier = Modifier.sizeIn(
+                    maxWidth = 200.dp,
+                ),
                 value = lookupViewModel.number.value,
                 onValueChange = { lookupViewModel.number.value = it },
                 singleLine = true,
@@ -300,36 +301,35 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                         lookupViewModel.fetchTeam()
                     })
             )
-            Spacer(modifier = Modifier.weight(1.0F))
-            Box(
-                modifier = Modifier.width(40.dp)
-            ) {
+            Spacer(modifier = Modifier.weight(1.0f))
+            Box {
                 IconButton(onClick = {
-                    favoriteTeams = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B" || !lookupViewModel.fetchedTeams.value) {
-                        return@IconButton
-                    } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.teamTextColor.value != Color.Unspecified) {
-                        userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
-                        userSettings.getData("favoriteTeams", "").replace("[", "")
-                            .replace("]", "")
-                            .split(", ")
-                    } else {
-                        userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
-                        userSettings.getData("favoriteTeams", "").replace("[", "")
-                            .replace("]", "")
-                            .split(", ")
-                    }
+                    favoriteTeams =
+                        if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B" || !lookupViewModel.fetchedTeams.value) {
+                            return@IconButton
+                        } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.teamTextColor.value != Color.Unspecified) {
+                            userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
+                            userSettings.getData("favoriteTeams", "").replace("[", "")
+                                .replace("]", "")
+                                .split(", ")
+                        } else {
+                            userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
+                            userSettings.getData("favoriteTeams", "").replace("[", "")
+                                .replace("]", "")
+                                .split(", ")
+                        }
                 }) {
                     if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.number.value.isNotBlank()) {
                         Icon(
                             Icons.Filled.Star,
-                            contentDescription = "Favorite",
+                            contentDescription = "Unfavorite",
                             modifier = Modifier.size(30.dp),
                             tint = MaterialTheme.colorScheme.button
                         )
                     } else {
                         Icon(
                             Icons.Outlined.StarOutline,
-                            contentDescription = "Unfavorite",
+                            contentDescription = "Favorite",
                             modifier = Modifier.size(30.dp),
                             tint = MaterialTheme.colorScheme.button
                         )
