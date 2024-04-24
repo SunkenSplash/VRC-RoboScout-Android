@@ -202,6 +202,56 @@ fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as L
                         Text("Lookup", fontWeight = FontWeight.Bold)
                     }
                 )
+            },
+            bottomBar = {
+                if (lookupViewModel.lookupType.value != "Teams") {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                            .fillMaxWidth()
+                    ) {
+                        IconButton(
+                            enabled = lookupViewModel.page.intValue != 1,
+                            onClick = {
+                                lookupViewModel.page.intValue -= 1
+                                lookupViewModel.fetchEvents(
+                                    name = lookupViewModel.eventName.value,
+                                    page = lookupViewModel.page.intValue
+                                )
+                            }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBackIos,
+                                contentDescription = "Previous Page",
+                                modifier = Modifier.width(30.dp),
+                                tint = if (lookupViewModel.page.intValue != 1) MaterialTheme.colorScheme.button else Color.Gray
+                            )
+                        }
+                        Text(
+                            "${lookupViewModel.page.intValue}",
+                            modifier = Modifier.padding(horizontal = 20.dp),
+                            fontSize = 25.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        IconButton(
+                            enabled = lookupViewModel.events.value.size == 20,
+                            onClick = {
+                                lookupViewModel.page.intValue += 1
+                                lookupViewModel.fetchEvents(
+                                    name = lookupViewModel.eventName.value,
+                                    page = lookupViewModel.page.intValue
+                                )
+                            }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                contentDescription = "Next Page",
+                                modifier = Modifier.width(30.dp),
+                                tint = if (lookupViewModel.events.value.size == 20) MaterialTheme.colorScheme.button else Color.Gray
+                            )
+                        }
+                    }
+                }
             }
         ) { padding ->
             Column(
@@ -718,52 +768,6 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                             }
                         }
                     }
-                }
-            }
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxWidth()
-            ) {
-                IconButton(
-                    enabled = lookupViewModel.page.intValue != 1,
-                    onClick = {
-                        lookupViewModel.page.intValue -= 1
-                        lookupViewModel.fetchEvents(
-                            name = lookupViewModel.eventName.value,
-                            page = lookupViewModel.page.intValue
-                        )
-                    }) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBackIos,
-                        contentDescription = "Previous Page",
-                        modifier = Modifier.size(30.dp),
-                        tint = if (lookupViewModel.page.intValue != 1) MaterialTheme.colorScheme.button else Color.Gray
-                    )
-                }
-                Text(
-                    "${lookupViewModel.page.intValue}",
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    fontSize = 25.sp,
-                    textAlign = TextAlign.Center
-                )
-                IconButton(
-                    enabled = lookupViewModel.events.value.size == 20,
-                    onClick = {
-                        lookupViewModel.page.intValue += 1
-                        lookupViewModel.fetchEvents(
-                            name = lookupViewModel.eventName.value,
-                            page = lookupViewModel.page.intValue
-                        )
-                    }) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowForwardIos,
-                        contentDescription = "Next Page",
-                        modifier = Modifier.size(30.dp),
-                        tint = if (lookupViewModel.events.value.size == 20) MaterialTheme.colorScheme.button else Color.Gray
-                    )
                 }
             }
         }

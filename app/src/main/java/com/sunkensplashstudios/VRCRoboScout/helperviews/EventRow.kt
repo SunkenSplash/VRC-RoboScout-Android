@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,47 +26,59 @@ import com.sunkensplashstudios.VRCRoboScout.Team
 
 @Composable
 fun EventRow(navController: NavController, event: Event, team: Team? = null, ) {
-    Column(
-        verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .padding(5.dp)
-            .clickable {
-                navController.navigate(
-                    if (team != null) com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination(event, team)
-                    else com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination(event)
-                )
-            }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1.0f)
-            ) {
-                Text(
-                    event.name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Row {
-                    Text(
-                        event.location.toString(),
-                        fontSize = 13.sp
-                    )
-                    Spacer(modifier = Modifier.weight(1.0f))
-                    Text(
-                        RoboScoutAPI.formatDate(event.startDate),
-                        fontSize = 13.sp
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .padding(5.dp)
+                .clickable {
+                    navController.navigate(
+                        if (team != null) com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination(event, team)
+                        else com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination(event)
                     )
                 }
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1.0f)
+                ) {
+                    Text(
+                        event.name,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Row {
+                        Text(
+                            event.location.toString(),
+                            fontSize = 11.sp
+                        )
+                        Spacer(modifier = Modifier.weight(1.0f))
+                        Text(
+                            RoboScoutAPI.formatDate(event.startDate),
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    modifier = Modifier.size(15.dp),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                    contentDescription = "Show Events"
+                )
             }
-            Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-            Icon(
-                Icons.AutoMirrored.Filled.ArrowForwardIos,
-                modifier = Modifier.size(15.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                contentDescription = "Show Events"
-            )
         }
+        Spacer(modifier = Modifier.weight(1.0f))
+        Icon(
+            Icons.AutoMirrored.Filled.ArrowForwardIos,
+            modifier = Modifier.size(15.dp),
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+            contentDescription = "Show Event"
+        )
     }
 }

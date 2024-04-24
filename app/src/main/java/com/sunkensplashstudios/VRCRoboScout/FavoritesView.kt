@@ -251,18 +251,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
                                         }
                                     ) {
                                         val event = favoritesViewModel.eventSKUMap[sku] ?: Event(sku, false)
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            EventRow(navController, event)
-                                        }
-                                        Spacer(modifier = Modifier.weight(1.0f))
-                                        Icon(
-                                            Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                            modifier = Modifier.size(15.dp),
-                                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                            contentDescription = "Show Event"
-                                        )
+                                        EventRow(navController, event)
                                     }
                                     if (favoriteEvents.sortedBy {
                                             favoritesViewModel.eventSKUMap[it]?.startDate
