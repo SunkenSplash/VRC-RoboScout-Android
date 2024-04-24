@@ -194,9 +194,8 @@ class RoboScoutAPI {
         }
 
         fun roboteventsDate(date: String, localize: Boolean): Date? {
-            val formatter = SimpleDateFormat()
-
             try {
+                val formatter = SimpleDateFormat()
                 // Example date: "2023-04-26T11:54:40-04:00"
                 return if (localize) {
                     formatter.applyPattern("yyyy-MM-dd'T'HH:mm:ssZ")
@@ -211,14 +210,21 @@ class RoboScoutAPI {
                 }
             }
             catch (e: java.text.ParseException) {
+                println("Could not parse date: $e")
                 return null
             }
         }
 
         fun formatDate(date: Date?): String {
-            if (date == null) return ""
-            val outputFormat = SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH)
-            return outputFormat.format(date)
+            try {
+                if (date == null) return ""
+                val outputFormat = SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH)
+                return outputFormat.format(date)
+            }
+            catch (e: java.text.ParseException) {
+                println("Could not format date: $e")
+                return ""
+            }
         }
 
         suspend fun roboteventsRequest(requestUrl: String, params: Map<String, Any> = emptyMap<String, Any>()): List<JsonObject> {
@@ -325,6 +331,7 @@ class RoboScoutAPI {
             for (match in matches) {
                 skuArray.add(match.value.replace("https://www.robotevents.com/robot-competitions/vex-robotics-competition/", "").replace(".html", ""))
             }
+            println("Matches: $skuArray")
 
             return skuArray
         }
@@ -487,7 +494,7 @@ data class Match(
     }
 
     fun completed(): Boolean {
-        return !(started == null || (startedDate ?: Date()).time > Date().time - 300000) && redScore != 0 && blueScore != 0
+        return (this.redScore != 0 || this.blueScore != 0) || (this.startedDate != null && (startedDate.time < Date().time - 300000) && this.redScore == 0 && this.blueScore == 0)
     }
 }
 

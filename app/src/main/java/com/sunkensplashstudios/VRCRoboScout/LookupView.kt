@@ -254,7 +254,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                 .padding(horizontal = 20.dp)
                 .fillMaxWidth()
         ) {
-            Spacer(Modifier.width(10.dp)) // Thank you Android for making spacing weird
+            Spacer(Modifier.width(14.dp)) // Thank you Android for making spacing weird
             Icon(
                 Icons.Filled.Star,
                 modifier = Modifier
