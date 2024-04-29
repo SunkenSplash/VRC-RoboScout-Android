@@ -373,7 +373,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             Box {
                 IconButton(onClick = {
                     favoriteTeams =
-                        if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B" || !lookupViewModel.fetchedTeams.value) {
+                        if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
                             return@IconButton
                         } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && !lookupViewModel.loadingTeams.value) {
                             userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
@@ -381,10 +381,17 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                                 .replace("]", "")
                                 .split(", ")
                         } else {
-                            userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
-                            userSettings.getData("favoriteTeams", "").replace("[", "")
-                                .replace("]", "")
-                                .split(", ")
+                            // allow adding to favorites only after fetching team data
+                            if (!lookupViewModel.fetchedTeams.value) {
+                                return@IconButton
+                            }
+
+                            else {
+                                userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
+                                userSettings.getData("favoriteTeams", "").replace("[", "")
+                                    .replace("]", "")
+                                    .split(", ")
+                            }
                         }
                 }) {
                     if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.number.value.isNotBlank()) {
