@@ -97,7 +97,7 @@ class LookupViewModel : ViewModel() {
 
     // EventLookup
     var eventTextColor = mutableStateOf(Color.Gray)
-    var eventName = mutableStateOf("Event Name")
+    var eventName = mutableStateOf("Event Name\u200B")
     var events = mutableStateOf(listOf<Event>())
     var page = mutableIntStateOf(1)
     var fetchedEvents = mutableStateOf(false)
@@ -701,6 +701,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isFocused = remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -722,16 +723,21 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                     .also { interactionSource ->
                         LaunchedEffect(interactionSource) {
                             interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    lookupViewModel.eventName.value = ""
-                                    lookupViewModel.fetchedEvents.value = false
+                                when (it) {
+                                    is FocusInteraction.Focus -> isFocused.value = true
+                                    is FocusInteraction.Unfocus -> isFocused.value = false
+                                    is PressInteraction.Release -> {
+                                        lookupViewModel.eventName.value = ""
+                                        lookupViewModel.fetchedEvents.value = false
+                                    }
                                 }
                             }
                         }
                     },
                 textStyle = LocalTextStyle.current.copy(
                     textAlign = TextAlign.Center,
-                    fontSize = 34.sp
+                    fontSize = 34.sp,
+                    color = if (lookupViewModel.eventName.value.isEmpty() || lookupViewModel.eventName.value == "Event Name\u200B") Color.Gray else MaterialTheme.colorScheme.onSurface
                 ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -748,7 +754,20 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                         keyboardController?.hide()
                         lookupViewModel.fetchEvents(name = lookupViewModel.eventName.value, page = 1)
                         lookupViewModel.page.intValue = 1
-                    })
+                    }),
+                placeholder = {
+                    if (!isFocused.value && lookupViewModel.eventName.value.isEmpty()) {
+                        Text(
+                            "Event Name\u200B",
+                            modifier = Modifier.fillMaxWidth(),
+                            style = LocalTextStyle.current.copy(
+                                color = Color.Gray,
+                                fontSize = 34.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+                }
             )
         }
         if (lookupViewModel.loadingEvents.value) {
