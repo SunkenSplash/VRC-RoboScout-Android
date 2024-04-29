@@ -395,8 +395,10 @@ class RoboScoutAPI {
 
      fun worldSkillsFor(team: Team): WSEntry {
         return try {
-            this.wsCache.first {
-                it.team.id == team.id
+            synchronized(this.wsCache) {
+                this.wsCache.first {
+                    it.team.id == team.id
+                }
             }
         } catch (e: NoSuchElementException) {
             WSEntry()
@@ -405,8 +407,10 @@ class RoboScoutAPI {
 
      fun vdaFor(team: Team): VDAEntry {
         return try {
-            this.vdaCache.first {
-                it.teamNumber == team.number
+            synchronized(this.vdaCache) {
+                this.vdaCache.first {
+                    it.teamNumber == team.number
+                }
             }
         } catch (e: NoSuchElementException) {
             VDAEntry()
