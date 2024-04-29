@@ -1,6 +1,7 @@
 package com.sunkensplashstudios.VRCRoboScout
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -285,6 +286,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 
     val localContext = LocalContext.current
     val userSettings = remember { UserSettings(localContext) }
+    val isFocused = remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -314,9 +316,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             )
             Spacer(modifier = Modifier.weight(1.0f))
             TextField(
-                modifier = Modifier.sizeIn(
-                    maxWidth = 200.dp,
-                ),
+                modifier = Modifier.sizeIn(maxWidth = 200.dp),
                 value = lookupViewModel.number.value,
                 onValueChange = { lookupViewModel.number.value = it },
                 singleLine = true,
@@ -324,16 +324,21 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     .also { interactionSource ->
                         LaunchedEffect(interactionSource) {
                             interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    lookupViewModel.number.value = ""
-                                    lookupViewModel.fetchedTeams.value = false
+                                when (it) {
+                                    is FocusInteraction.Focus -> isFocused.value = true
+                                    is FocusInteraction.Unfocus -> isFocused.value = false
+                                    is PressInteraction.Release -> {
+                                        lookupViewModel.number.value = ""
+                                        lookupViewModel.fetchedTeams.value = false
+                                    }
                                 }
                             }
                         }
                     },
                 textStyle = LocalTextStyle.current.copy(
                     textAlign = TextAlign.Center,
-                    fontSize = 34.sp
+                    fontSize = 34.sp,
+                    color = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") Color.Gray else MaterialTheme.colorScheme.onSurface
                 ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -342,14 +347,27 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
-                    unfocusedTextColor = lookupViewModel.teamTextColor.value
+                    unfocusedTextColor = lookupViewModel.teamTextColor.value,
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         keyboardController?.hide()
                         lookupViewModel.fetchTeam()
-                    })
+                    }),
+                placeholder = {
+                    if (!isFocused.value && lookupViewModel.number.value.isEmpty()) {
+                        Text(
+                            "229V\u200B",
+                            modifier = Modifier.fillMaxWidth(),
+                            style = LocalTextStyle.current.copy(
+                                color = Color.Gray,
+                                fontSize = 34.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.weight(1.0f))
             Box {
