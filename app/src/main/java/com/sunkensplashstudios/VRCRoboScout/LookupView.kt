@@ -318,7 +318,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             TextField(
                 modifier = Modifier.sizeIn(maxWidth = 200.dp),
                 value = lookupViewModel.number.value,
-                onValueChange = { lookupViewModel.number.value = it },
+                onValueChange = { lookupViewModel.number.value = it.trim() },
                 singleLine = true,
                 interactionSource = remember { MutableInteractionSource() }
                     .also { interactionSource ->
