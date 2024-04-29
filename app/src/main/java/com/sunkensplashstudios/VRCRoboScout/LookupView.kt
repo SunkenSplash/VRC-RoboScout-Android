@@ -357,7 +357,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     favoriteTeams =
                         if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B" || !lookupViewModel.fetchedTeams.value) {
                             return@IconButton
-                        } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.teamTextColor.value != Color.Unspecified) {
+                        } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && !lookupViewModel.loadingTeams.value) {
                             userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
                             userSettings.getData("favoriteTeams", "").replace("[", "")
                                 .replace("]", "")
