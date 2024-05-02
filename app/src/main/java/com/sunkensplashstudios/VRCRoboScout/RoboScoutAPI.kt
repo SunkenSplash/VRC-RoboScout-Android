@@ -24,6 +24,7 @@ import org.ejml.simple.SimpleMatrix
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.CopyOnWriteArrayList
 
 val API = RoboScoutAPI()
 val jsonWorker = Json {
@@ -159,8 +160,8 @@ class VDAEntry : MutableState<VDAEntry> {
 
 class RoboScoutAPI {
 
-    var wsCache: MutableList<WSEntry> = mutableListOf<WSEntry>()
-    var vdaCache: MutableList<VDAEntry> = mutableListOf<VDAEntry>()
+    var wsCache: CopyOnWriteArrayList<WSEntry> = CopyOnWriteArrayList<WSEntry>()
+    var vdaCache: CopyOnWriteArrayList<VDAEntry> = CopyOnWriteArrayList<VDAEntry>()
     var regionsMap: MutableMap<String, Int> = mutableMapOf<String, Int>()
     var importedWS: Boolean = false
     var importedVDA: Boolean = false

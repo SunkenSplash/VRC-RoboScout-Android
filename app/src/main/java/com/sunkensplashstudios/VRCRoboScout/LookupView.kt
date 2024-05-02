@@ -1,6 +1,7 @@
 package com.sunkensplashstudios.VRCRoboScout
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -96,7 +97,7 @@ class LookupViewModel : ViewModel() {
 
     // EventLookup
     var eventTextColor = mutableStateOf(Color.Gray)
-    var eventName = mutableStateOf("Event Name")
+    var eventName = mutableStateOf("Event Name\u200B")
     var events = mutableStateOf(listOf<Event>())
     var page = mutableIntStateOf(1)
     var fetchedEvents = mutableStateOf(false)
@@ -285,6 +286,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 
     val localContext = LocalContext.current
     val userSettings = remember { UserSettings(localContext) }
+    val isFocused = remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -314,26 +316,29 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             )
             Spacer(modifier = Modifier.weight(1.0f))
             TextField(
-                modifier = Modifier.sizeIn(
-                    maxWidth = 200.dp,
-                ),
+                modifier = Modifier.sizeIn(maxWidth = 200.dp),
                 value = lookupViewModel.number.value,
-                onValueChange = { lookupViewModel.number.value = it },
+                onValueChange = { lookupViewModel.number.value = it.trim() },
                 singleLine = true,
                 interactionSource = remember { MutableInteractionSource() }
                     .also { interactionSource ->
                         LaunchedEffect(interactionSource) {
                             interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    lookupViewModel.number.value = ""
-                                    lookupViewModel.fetchedTeams.value = false
+                                when (it) {
+                                    is FocusInteraction.Focus -> isFocused.value = true
+                                    is FocusInteraction.Unfocus -> isFocused.value = false
+                                    is PressInteraction.Release -> {
+                                        lookupViewModel.number.value = ""
+                                        lookupViewModel.fetchedTeams.value = false
+                                    }
                                 }
                             }
                         }
                     },
                 textStyle = LocalTextStyle.current.copy(
                     textAlign = TextAlign.Center,
-                    fontSize = 34.sp
+                    fontSize = 34.sp,
+                    color = if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") Color.Gray else MaterialTheme.colorScheme.onSurface
                 ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -342,31 +347,51 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
-                    unfocusedTextColor = lookupViewModel.teamTextColor.value
+                    unfocusedTextColor = lookupViewModel.teamTextColor.value,
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         keyboardController?.hide()
                         lookupViewModel.fetchTeam()
-                    })
+                    }),
+                placeholder = {
+                    if (!isFocused.value && lookupViewModel.number.value.isEmpty()) {
+                        Text(
+                            "229V\u200B",
+                            modifier = Modifier.fillMaxWidth(),
+                            style = LocalTextStyle.current.copy(
+                                color = Color.Gray,
+                                fontSize = 34.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.weight(1.0f))
             Box {
                 IconButton(onClick = {
                     favoriteTeams =
-                        if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B" || !lookupViewModel.fetchedTeams.value) {
+                        if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
                             return@IconButton
-                        } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.teamTextColor.value != Color.Unspecified) {
+                        } else if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && !lookupViewModel.loadingTeams.value) {
                             userSettings.removeFavoriteTeam(lookupViewModel.number.value.uppercase())
                             userSettings.getData("favoriteTeams", "").replace("[", "")
                                 .replace("]", "")
                                 .split(", ")
                         } else {
-                            userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
-                            userSettings.getData("favoriteTeams", "").replace("[", "")
-                                .replace("]", "")
-                                .split(", ")
+                            // allow adding to favorites only after fetching team data
+                            if (!lookupViewModel.fetchedTeams.value) {
+                                return@IconButton
+                            }
+
+                            else {
+                                userSettings.addFavoriteTeam(lookupViewModel.number.value.uppercase())
+                                userSettings.getData("favoriteTeams", "").replace("[", "")
+                                    .replace("]", "")
+                                    .split(", ")
+                            }
                         }
                 }) {
                     if (favoriteTeams.contains(lookupViewModel.number.value.uppercase()) && lookupViewModel.number.value.isNotBlank()) {
@@ -676,6 +701,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isFocused = remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -697,16 +723,21 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                     .also { interactionSource ->
                         LaunchedEffect(interactionSource) {
                             interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    lookupViewModel.eventName.value = ""
-                                    lookupViewModel.fetchedEvents.value = false
+                                when (it) {
+                                    is FocusInteraction.Focus -> isFocused.value = true
+                                    is FocusInteraction.Unfocus -> isFocused.value = false
+                                    is PressInteraction.Release -> {
+                                        lookupViewModel.eventName.value = ""
+                                        lookupViewModel.fetchedEvents.value = false
+                                    }
                                 }
                             }
                         }
                     },
                 textStyle = LocalTextStyle.current.copy(
                     textAlign = TextAlign.Center,
-                    fontSize = 34.sp
+                    fontSize = 34.sp,
+                    color = if (lookupViewModel.eventName.value.isEmpty() || lookupViewModel.eventName.value == "Event Name\u200B") Color.Gray else MaterialTheme.colorScheme.onSurface
                 ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -723,7 +754,20 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                         keyboardController?.hide()
                         lookupViewModel.fetchEvents(name = lookupViewModel.eventName.value, page = 1)
                         lookupViewModel.page.intValue = 1
-                    })
+                    }),
+                placeholder = {
+                    if (!isFocused.value && lookupViewModel.eventName.value.isEmpty()) {
+                        Text(
+                            "Event Name\u200B",
+                            modifier = Modifier.fillMaxWidth(),
+                            style = LocalTextStyle.current.copy(
+                                color = Color.Gray,
+                                fontSize = 34.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+                }
             )
         }
         if (lookupViewModel.loadingEvents.value) {

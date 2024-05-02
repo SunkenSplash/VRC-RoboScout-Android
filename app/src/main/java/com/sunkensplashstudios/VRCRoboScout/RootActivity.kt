@@ -399,6 +399,16 @@ class RootActivity : ComponentActivity() {
 
 @Composable
 fun TabView(tabBarItems: List<TabBarItem>, navController: NavController, selectedTabIndex: Int, onSelectedTabIndexChange: (Int) -> Unit) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    LaunchedEffect(currentRoute) {
+        val index = tabBarItems.indexOfFirst { it.direction.route == currentRoute }
+        if (index != -1 && index != selectedTabIndex) {
+            onSelectedTabIndexChange(index)
+        }
+    }
+
     val localContext = LocalContext.current
     val userSettings = UserSettings(localContext)
     NavigationBar(
