@@ -64,6 +64,8 @@ fun SettingsView(navController: NavController) {
             )
         }
     ) { padding ->
+        var update by remember { mutableStateOf(false) }
+
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
@@ -242,8 +244,6 @@ fun SettingsView(navController: NavController) {
                         Row(
                             modifier = Modifier.padding(vertical = 10.dp)
                         ) {
-                            var update by remember { mutableStateOf(false) }
-
                             if (minimalistic && update) {
                                 val background = MaterialTheme.colorScheme.background
                                 MaterialTheme.colorScheme.topContainer = background
@@ -325,6 +325,7 @@ fun SettingsView(navController: NavController) {
                                     userSettings.setMinimalisticMode(true)
                                     minimalistic = true
                                     reset = true
+                                    update = true
                                 }
                             )
                         }
