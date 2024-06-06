@@ -168,7 +168,6 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            getEventViewModel()
             if (eventViewModel.loading) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -228,8 +227,9 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable {
+                                    eventDataTransferManager.putEvent(eventViewModel.event)
                                     navController.navigate(
-                                        EventTeamsViewDestination(eventViewModel.event)
+                                        EventTeamsViewDestination(eventViewModel.event.id)
                                     )
                                 }
                             ) {
@@ -331,8 +331,9 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.clickable {
+                                        eventDataTransferManager.putEvent(eventViewModel.event)
                                         navController.navigate(
-                                            EventDivisionViewDestination(eventViewModel.event, division)
+                                            EventDivisionViewDestination(eventViewModel.event.id, division)
                                         )
                                     }
                                 ) {

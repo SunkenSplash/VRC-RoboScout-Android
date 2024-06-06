@@ -44,15 +44,14 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamMatchesViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class EventTeamsViewModel: ViewModel() {
-    var event by mutableStateOf(Event())
     var division by mutableStateOf(Division())
     var teams by mutableStateOf(listOf<Team>())
 }
@@ -60,10 +59,9 @@ class EventTeamsViewModel: ViewModel() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun EventTeamsView(event: Event, eventTeamsViewModel: EventTeamsViewModel = viewModel(), navController: NavController, division: Division? = null) {
+fun EventTeamsView(eventId: Int, eventTeamsViewModel: EventTeamsViewModel = viewModel(), navController: NavController, division: Division? = null) {
 
     LaunchedEffect(Unit) {
-        eventTeamsViewModel.event = event
         eventTeamsViewModel.division = division ?: Division()
     }
 
@@ -95,6 +93,7 @@ fun EventTeamsView(event: Event, eventTeamsViewModel: EventTeamsViewModel = view
 
         fun fetchTeamsList() {
             CoroutineScope(Dispatchers.Default).launch {
+                val event = eventDataTransferManager.getEvent(eventId) ?: Event(eventId, false)
                 if (division != null) {
                     event.fetchTeams()
                     event.fetchRankings(division)
@@ -163,7 +162,7 @@ fun EventTeamsView(event: Event, eventTeamsViewModel: EventTeamsViewModel = view
                                         .fillMaxWidth()
                                         .clickable {
                                             navController.navigate(
-                                                EventTeamMatchesViewDestination(event, team)
+                                                EventTeamMatchesViewDestination(Event(eventId, false), team)
                                             )
                                         },
                                     verticalAlignment = Alignment.CenterVertically

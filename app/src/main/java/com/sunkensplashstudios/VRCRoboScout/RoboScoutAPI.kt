@@ -211,7 +211,6 @@ class RoboScoutAPI {
                 }
             }
             catch (e: java.text.ParseException) {
-                println("Could not parse date: $e")
                 return null
             }
         }

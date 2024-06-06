@@ -58,7 +58,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.navigate
@@ -69,8 +68,9 @@ import com.sunkensplashstudios.VRCRoboScout.destinations.SettingsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.TrueSkillViewDestination
 import com.sunkensplashstudios.VRCRoboScout.destinations.WorldSkillsViewDestination
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -168,6 +168,20 @@ class UserSettings(context: Context) {
     }
 }
 
+class EventDataTransferManager {
+    private var events: MutableMap<Int, Event> = mutableMapOf()
+
+    fun putEvent(event: Event) {
+        events[event.id] = event
+    }
+
+    fun getEvent(id: Int): Event? {
+        val event = events[id]
+        events.remove(id)
+        return event
+    }
+}
+
 class EventViewModelStore {
     val eventViewModels = mutableMapOf<String, EventViewModel>()
 
@@ -186,6 +200,7 @@ class EventViewModelStore {
 }
 
 val eventViewModelStore = EventViewModelStore()
+val eventDataTransferManager = EventDataTransferManager()
 
 data class TabBarItem(
     val title: String,
