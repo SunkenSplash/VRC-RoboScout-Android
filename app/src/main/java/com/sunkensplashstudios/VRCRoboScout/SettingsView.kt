@@ -7,16 +7,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CardGiftcard
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -35,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -73,6 +78,44 @@ fun SettingsView(navController: NavController) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(padding)
             ) {
+                Card(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                    colors = CardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        disabledContainerColor = Color.Unspecified.copy(alpha = 0.3f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = Color.Unspecified
+                    ),
+                    // set radius
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    val uriHandler = LocalUriHandler.current
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp).clickable{
+                            uriHandler.openUri("https://www.paypal.com/donate/?business=FGDW39F77H6PW&no_recurring=0&item_name=Donations+allow+me+to+bring+new+features+and+functionality+to+VRC+RoboScout.+Thank+you+for+your+support%21&currency_code=USD")
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(vertical = 15.dp).fillMaxWidth(),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CardGiftcard,
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.button,
+                                modifier = Modifier.size(55.dp).padding(4.dp)
+                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy((-1).dp)
+                            ) {
+                                Text("Donate to VRC RoboScout", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = MaterialTheme.colorScheme.button, textAlign = androidx.compose.ui.text.style.TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                                Text("Donations support development. Thank you <3", fontSize = 15.sp, color = Color.Gray, textAlign = androidx.compose.ui.text.style.TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), lineHeight = 19.sp)
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     "APPEARANCE",
                     modifier = Modifier.padding(horizontal = 20.dp),
