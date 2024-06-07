@@ -16,7 +16,7 @@ android {
         minSdk = 30
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.2"
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -41,6 +41,19 @@ android {
         val key8 = properties.getProperty("key8") ?: ""
         val key9 = properties.getProperty("key9") ?: ""
 
+        // Default season IDs
+        buildConfigField(
+            type = "int",
+            name = "DEFAULT_V5_SEASON_ID",
+            value = "190"
+        )
+        buildConfigField(
+            type = "int",
+            name = "DEFAULT_VU_SEASON_ID",
+            value = "191"
+        )
+
+        // API keys
         buildConfigField(
             type = "String",
             name = "ROBOTEVENTS_API_KEY",

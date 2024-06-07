@@ -165,6 +165,9 @@ class RoboScoutAPI {
     var regionsMap: MutableMap<String, Int> = mutableMapOf<String, Int>()
     var importedWS: Boolean = false
     var importedVDA: Boolean = false
+    var seasonIdMap: List<MutableList<Season>> = listOf()
+    var selectedSeasonId: Int = BuildConfig.DEFAULT_V5_SEASON_ID
+    var gradeLevel: String = "High School"
 
     companion object {
 
@@ -337,13 +340,70 @@ class RoboScoutAPI {
         }
     }
 
-     suspend fun updateWorldSkillsCache(season: Int? = null) {
+    suspend fun generateSeasonIdMap() {
+        this.seasonIdMap = listOf(mutableListOf(), mutableListOf())
+        val data = roboteventsRequest("/seasons/")
+
+        for (seasonData in data) {
+            val season = jsonWorker.decodeFromJsonElement<Season>(seasonData)
+            val gradeLevelIndex = if (season.program.id == 1) 0 else if (season.program.id == 4) 1 else -1
+            if (gradeLevelIndex != -1) {
+                this.seasonIdMap[gradeLevelIndex].add(season)
+            }
+        }
+
+        println("Season ID map generated")
+        /*for (gradeLevel in this.seasonIdMap) {
+            for (season in gradeLevel) {
+                println("ID: ${season.id}, Name: ${season.name}")
+            }
+        }*/
+    }
+
+    fun selectedProgramId(): Int {
+        return if (this.gradeLevel == "College") 4 else 1
+    }
+
+    fun selectedSeasonId(): Int {
+        return this.selectedSeasonId
+    }
+
+    fun activeSeasonId(): Int {
+        return if (this.seasonIdMap.isNotEmpty()) {
+            if (this.gradeLevel != "College") {
+                try {
+                    this.seasonIdMap[0].first().id
+                }
+                catch (e: NoSuchElementException) {
+                    BuildConfig.DEFAULT_V5_SEASON_ID
+                }
+            }
+            else {
+                try {
+                    this.seasonIdMap[1].first().id
+                }
+                catch (e: NoSuchElementException) {
+                    BuildConfig.DEFAULT_VU_SEASON_ID
+                }
+            }
+        }
+        else {
+            if (this.gradeLevel != "College") {
+                BuildConfig.DEFAULT_V5_SEASON_ID
+            }
+            else {
+                BuildConfig.DEFAULT_VU_SEASON_ID
+            }
+        }
+    }
+
+    suspend fun updateWorldSkillsCache(season: Int? = null) {
 
         this.importedWS = false
         this.wsCache.clear()
 
         try {
-            val response = client.get("https://www.robotevents.com/api/seasons/${season ?: 181}/skills") {
+            val response = client.get("https://www.robotevents.com/api/seasons/${season ?: API.selectedSeasonId()}/skills") {
                 url {
                     parameters.append("grade_level", "High School")
                 }
@@ -416,7 +476,25 @@ class RoboScoutAPI {
 }
 
 @Serializable
+class Program {
+    var id: Int = 0
+    var name: String = ""
+}
+
+@Serializable
 class Season {
+    var id: Int = 0
+    var name: String = ""
+    @kotlinx.serialization.Transient var shortName: String = name.replace("VRC ", "").replace("V5RC ", "").replace("VEXU ", "").replace("VURC ", "")
+    var program: Program = Program()
+    var start: String = ""
+    var end: String = ""
+    @kotlinx.serialization.Transient var startDate: Date? = RoboScoutAPI.roboteventsDate(start, true)
+    @kotlinx.serialization.Transient var endDate: Date? = RoboScoutAPI.roboteventsDate(end, true)
+}
+
+@Serializable
+class ShortSeason {
     var id: Int = 0
     var name: String = ""
 }
@@ -602,7 +680,7 @@ class Event {
     @kotlinx.serialization.Transient var startDate: Date? = null
     var end: String = ""
     @kotlinx.serialization.Transient var endDate: Date? = null
-    var season: Season = Season()
+    var season: ShortSeason = ShortSeason()
     var location: Location = Location()
     @kotlinx.serialization.Transient var matches: MutableMap<Division, MutableList<Match>> = mutableMapOf<Division, MutableList<Match>>()
     var teams: MutableList<Team> = mutableListOf<Team>()
@@ -970,7 +1048,7 @@ class Team : MutableState<Team> {
     }
 
      suspend fun fetchEvents(season: Int? = null) {
-        val data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (season ?: 181)))
+        val data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (season ?: API.selectedSeasonId())))
         events.clear()
         for (event in data) {
             val fetchedEvent: Event = jsonWorker.decodeFromJsonElement(event)
@@ -979,7 +1057,7 @@ class Team : MutableState<Team> {
     }
 
     suspend fun fetchAwards(season: Int? = null) {
-        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/awards", mapOf("season" to (season ?: 181)))
+        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/awards", mapOf("season" to (season ?: API.selectedSeasonId())))
         awards.clear()
         for (award in data) {
             val fetchedAward: Award = jsonWorker.decodeFromJsonElement(award)
@@ -989,7 +1067,7 @@ class Team : MutableState<Team> {
     }
 
     suspend fun averageQualifiersRanking(season: Int? = null): Double {
-        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/rankings/", mapOf("season" to (season ?: 181)))
+        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/rankings/", mapOf("season" to (season ?: API.selectedSeasonId())))
         var total = 0
         for (comp in data) {
             total += comp["rank"]!!.jsonPrimitive.int

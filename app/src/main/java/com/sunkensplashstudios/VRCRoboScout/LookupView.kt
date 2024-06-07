@@ -1,5 +1,6 @@
 package com.sunkensplashstudios.VRCRoboScout
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -83,6 +84,7 @@ import kotlin.math.abs
 
 class LookupViewModel : ViewModel() {
     var lookupType = mutableStateOf("Teams")
+    var applicationContext: Context? = null
 
     // TeamLookup
     var teamTextColor = mutableStateOf(Color.Gray)
@@ -168,7 +170,7 @@ class LookupViewModel : ViewModel() {
                 return@launch
             }
             val data = RoboScoutAPI.roboteventsRequest(
-                requestUrl = "/seasons/${season ?: 181}/events",
+                requestUrl = "/seasons/${season ?: UserSettings(applicationContext!!)}/events",
                 params = mapOf("sku" to skuArray)
             )
             withContext(Dispatchers.Main) {
@@ -189,9 +191,11 @@ class LookupViewModel : ViewModel() {
 @Destination
 @Composable
 fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as LookupViewModel, navController: NavController) {
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        lookupViewModel.applicationContext = LocalContext.current.applicationContext
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(

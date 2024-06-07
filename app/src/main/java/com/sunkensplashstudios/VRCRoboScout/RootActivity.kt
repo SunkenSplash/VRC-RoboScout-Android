@@ -166,6 +166,24 @@ class UserSettings(context: Context) {
         this.saveData("onTopContainerColor", Color.Unspecified.toArgb().toString())
         this.saveData("buttonColor", Color.Unspecified.toArgb().toString())
     }
+
+    fun setSelectedSeasonId(seasonId: Int) {
+        this.saveData("selectedSeasonId", seasonId.toString())
+        API.selectedSeasonId = seasonId
+    }
+
+    fun getSelectedSeasonId(): Int {
+        return this.getData("selectedSeasonId", BuildConfig.DEFAULT_V5_SEASON_ID.toString()).toInt()
+    }
+
+    fun setGradeLevel(gradeLevel: String) {
+        this.saveData("gradeLevel", gradeLevel)
+        API.gradeLevel = gradeLevel
+    }
+
+    fun getGradeLevel(): String {
+        return this.getData("gradeLevel", "High School")
+    }
 }
 
 class EventDataTransferManager {
@@ -267,13 +285,19 @@ val viewModels = mapOf(
 
 class RootActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class,
+    @OptIn(
+        ExperimentalMaterialNavigationApi::class,
         ExperimentalAnimationApi::class
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             LaunchedEffect(Unit) {
+                if (API.seasonIdMap.isEmpty()) {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        API.generateSeasonIdMap()
+                    }
+                }
                 if (!API.importedWS) {
                     CoroutineScope(Dispatchers.Default).launch {
                         API.updateWorldSkillsCache()
