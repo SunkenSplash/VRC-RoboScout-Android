@@ -251,6 +251,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.clickable {
+                                        println("Team ID: ${team.id}, Number: ${team.number}")
                                         navController.navigate(
                                             EventTeamMatchesViewDestination(eventViewModel.event, team)
                                         )

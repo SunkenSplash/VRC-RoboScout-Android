@@ -165,7 +165,7 @@ class RoboScoutAPI {
     var regionsMap: MutableMap<String, Int> = mutableMapOf<String, Int>()
     var importedWS: Boolean = false
     var importedVDA: Boolean = false
-    var seasonIdMap: List<MutableList<Season>> = listOf()
+    var seasonsCache: List<MutableList<Season>> = listOf()
     var selectedSeasonId: Int = BuildConfig.DEFAULT_V5_SEASON_ID
     var gradeLevel: String = "High School"
 
@@ -300,7 +300,7 @@ class RoboScoutAPI {
                 6 -> params["level_class_id"] = 13
             }
 
-            val competition = if (API.seasonIdMap[0].find { it.id == params["seasonId"]} != null) "vex-robotics-competition" else "college-competition"
+            val competition = if (API.seasonsCache[0].find { it.id == params["seasonId"]} != null) "vex-robotics-competition" else "college-competition"
 
             val requestUrl = "https://www.robotevents.com/robot-competitions/$competition"
 
@@ -340,20 +340,20 @@ class RoboScoutAPI {
         }
     }
 
-    suspend fun generateSeasonIdMap() {
-        this.seasonIdMap = listOf(mutableListOf(), mutableListOf())
+    suspend fun generateseasonsCache() {
+        this.seasonsCache = listOf(mutableListOf(), mutableListOf())
         val data = roboteventsRequest("/seasons/")
 
         for (seasonData in data) {
             val season = jsonWorker.decodeFromJsonElement<Season>(seasonData)
             val gradeLevelIndex = if (season.program.id == 1) 0 else if (season.program.id == 4) 1 else -1
             if (gradeLevelIndex != -1) {
-                this.seasonIdMap[gradeLevelIndex].add(season)
+                this.seasonsCache[gradeLevelIndex].add(season)
             }
         }
 
         println("Season ID map generated")
-        /*for (gradeLevel in this.seasonIdMap) {
+        /*for (gradeLevel in this.seasonsCache) {
             for (season in gradeLevel) {
                 println("ID: ${season.id}, Name: ${season.name}")
             }
@@ -369,10 +369,10 @@ class RoboScoutAPI {
     }
 
     fun activeSeasonId(): Int {
-        return if (this.seasonIdMap.isNotEmpty()) {
+        return if (this.seasonsCache.isNotEmpty()) {
             if (this.gradeLevel != "College") {
                 try {
-                    this.seasonIdMap[0].first().id
+                    this.seasonsCache[0].first().id
                 }
                 catch (e: NoSuchElementException) {
                     BuildConfig.DEFAULT_V5_SEASON_ID
@@ -380,7 +380,7 @@ class RoboScoutAPI {
             }
             else {
                 try {
-                    this.seasonIdMap[1].first().id
+                    this.seasonsCache[1].first().id
                 }
                 catch (e: NoSuchElementException) {
                     BuildConfig.DEFAULT_VU_SEASON_ID
@@ -477,8 +477,8 @@ class RoboScoutAPI {
             var totalAP = 0
             var totalWP = 0
 
-            val seasonIndex = API.seasonIdMap[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
-            val season = API.seasonIdMap[if (team.grade == "College") 1 else 0][seasonIndex]
+            val seasonIndex = API.seasonsCache[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
+            val season = API.seasonsCache[if (team.grade == "College") 1 else 0][seasonIndex]
 
             val reRankingsData = roboteventsRequest("/teams/${team.id}/rankings", mapOf("season" to season.id))
             val reRankings = reRankingsData.map { jsonWorker.decodeFromJsonElement<TeamRanking>(it) }
@@ -1122,8 +1122,8 @@ class Team : MutableState<Team> {
     suspend fun fetchEvents(season: Int? = null) {
         val data: List<JsonObject>
         if (season == null) {
-            val seasonIndex = API.seasonIdMap[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
-            data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (API.seasonIdMap[if (this.grade == "College") 1 else 0][seasonIndex].id)))
+            val seasonIndex = API.seasonsCache[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
+            data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (API.seasonsCache[if (this.grade == "College") 1 else 0][seasonIndex].id)))
         }
         else {
             data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to season))

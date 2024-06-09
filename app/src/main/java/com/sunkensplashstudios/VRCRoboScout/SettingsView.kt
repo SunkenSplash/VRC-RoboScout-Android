@@ -181,25 +181,25 @@ fun SettingsView(navController: NavController) {
                                         userSettings.setGradeLevel(gradeLevelMap.entries.first { entry -> entry.value == it }.key)
                                         selectedGradeLevel = userSettings.getGradeLevel()
                                         val seasonIndex =
-                                            API.seasonIdMap[if (prevGradeLevel == "College") 1 else 0].indexOfFirst { it.id == userSettings.getSelectedSeasonId() }
+                                            API.seasonsCache[if (prevGradeLevel == "College") 1 else 0].indexOfFirst { it.id == userSettings.getSelectedSeasonId() }
                                         if (seasonIndex == -1) {
                                             userSettings.setSelectedSeasonId(if (selectedGradeLevel == "College") BuildConfig.DEFAULT_VU_SEASON_ID else BuildConfig.DEFAULT_V5_SEASON_ID)
                                         } else {
-                                            userSettings.setSelectedSeasonId(API.seasonIdMap[if (selectedGradeLevel == "College") 1 else 0][seasonIndex].id)
+                                            userSettings.setSelectedSeasonId(API.seasonsCache[if (selectedGradeLevel == "College") 1 else 0][seasonIndex].id)
                                         }
                                         API.importedWS = false
                                         CoroutineScope(Dispatchers.Default).launch {
                                             API.updateWorldSkillsCache()
                                         }
                                     },
-                                    modifier = Modifier.padding(10.dp)
+                                    modifier = Modifier.padding(7.dp)
                                 ) {
                                     SegmentText(
                                         text = it
                                     )
                                 }
                             }
-                            if (API.seasonIdMap[0].isNotEmpty()) {
+                            if (API.seasonsCache[0].isNotEmpty()) {
                                 HorizontalDivider(
                                     thickness = 0.5.dp,
                                     color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
@@ -215,7 +215,7 @@ fun SettingsView(navController: NavController) {
                                             expanded = expanded,
                                             onDismissRequest = { expanded = false }
                                         ) {
-                                            API.seasonIdMap[if (userSettings.getGradeLevel() != "College") 0 else 1].forEach { entry ->
+                                            API.seasonsCache[if (userSettings.getGradeLevel() != "College") 0 else 1].forEach { entry ->
                                                 DropdownMenuItem(
                                                     text = {
                                                         Text(
@@ -234,7 +234,7 @@ fun SettingsView(navController: NavController) {
                                             }
                                         }
                                         Text(
-                                            (API.seasonIdMap[0] + API.seasonIdMap[1]).first { it.id == API.selectedSeasonId() }.shortName,
+                                            (API.seasonsCache[0] + API.seasonsCache[1]).first { it.id == API.selectedSeasonId() }.shortName,
                                             color = MaterialTheme.colorScheme.button,
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded

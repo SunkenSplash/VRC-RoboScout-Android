@@ -43,6 +43,7 @@ import kotlinx.coroutines.withContext
 
 class TeamEventsViewModel: ViewModel() {
     var events by mutableStateOf(listOf<Event>())
+    var team by mutableStateOf(Team())
     var loading by mutableStateOf(true)
 }
 
@@ -63,6 +64,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
             withContext(Dispatchers.Main) {
                 teamEventsViewModel.loading = false
                 teamEventsViewModel.events = team.events
+                teamEventsViewModel.team = team
             }
         }
     }
@@ -75,7 +77,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                     titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
-                    Text("${team.number} Events", fontWeight = FontWeight.Bold)
+                    Text("${teamEventsViewModel.team.number} Events", fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     Icon(
@@ -121,7 +123,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    EventRow(navController, event, team)
+                                    EventRow(navController, event, teamEventsViewModel.team)
                                 }
                                 if (teamEventsViewModel.events.indexOf(event) != 0) {
                                     HorizontalDivider(

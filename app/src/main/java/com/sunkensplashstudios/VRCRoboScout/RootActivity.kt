@@ -349,9 +349,9 @@ class RootActivity : ComponentActivity() {
                 ) {
 
                     LaunchedEffect(Unit) {
-                        if (API.seasonIdMap.isEmpty()) {
+                        if (API.seasonsCache.isEmpty()) {
                             CoroutineScope(Dispatchers.Default).launch {
-                                API.generateSeasonIdMap()
+                                API.generateseasonsCache()
                             }
                         }
                         if (!API.importedWS) {
