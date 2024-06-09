@@ -52,6 +52,7 @@ class TeamEventsViewModel: ViewModel() {
 fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navController: NavController, team: Team) {
 
     LaunchedEffect(Unit) {
+        eventDataTransferManager.clearEvents()
         if (teamEventsViewModel.events.isNotEmpty()) {
             return@LaunchedEffect
         }

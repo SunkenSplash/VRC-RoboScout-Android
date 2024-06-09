@@ -90,8 +90,11 @@ fun EventTeamsView(eventId: Int, eventTeamsViewModel: EventTeamsViewModel = view
     ) { padding ->
 
         var loading by remember { mutableStateOf(eventTeamsViewModel.teams.isEmpty()) }
+        var fetching by remember { mutableStateOf(false) }
 
         fun fetchTeamsList() {
+            if (fetching) return
+            fetching = true
             CoroutineScope(Dispatchers.Default).launch {
                 if (eventTeamsViewModel.teams.isNotEmpty()) {
                     return@launch
@@ -106,6 +109,7 @@ fun EventTeamsView(eventId: Int, eventTeamsViewModel: EventTeamsViewModel = view
                                 event.getTeam(it.team.id) ?: Team()
                             }, if (event.program.id == 4) "College" else "Not College").toMutableList()
                         loading = false
+                        fetching = false
                     }
                 }
                 else {
@@ -115,6 +119,7 @@ fun EventTeamsView(eventId: Int, eventTeamsViewModel: EventTeamsViewModel = view
                     withContext(Dispatchers.Main) {
                         eventTeamsViewModel.teams = event.teams
                         loading = false
+                        fetching = false
                     }
                 }
             }

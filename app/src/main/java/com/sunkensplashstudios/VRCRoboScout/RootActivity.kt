@@ -202,8 +202,12 @@ class EventDataTransferManager {
 
     fun getEvent(id: Int): Event? {
         val event = events[id]
-        events.remove(id)
+        //events.remove(id)
         return event
+    }
+
+    fun clearEvents() {
+        events.clear()
     }
 }
 
