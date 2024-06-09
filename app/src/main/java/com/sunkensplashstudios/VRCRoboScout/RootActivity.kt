@@ -74,6 +74,13 @@ import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.round
+
+fun Double.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
+}
 
 class UserSettings(context: Context) {
     private val userSettings: SharedPreferences =
@@ -292,23 +299,6 @@ class RootActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LaunchedEffect(Unit) {
-                if (API.seasonIdMap.isEmpty()) {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        API.generateSeasonIdMap()
-                    }
-                }
-                if (!API.importedWS) {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        API.updateWorldSkillsCache()
-                    }
-                }
-                if (!API.importedVDA) {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        API.updateVDACache()
-                    }
-                }
-            }
 
             // setting up the individual tabs
             val favoritesTab = TabBarItem(title = "Favorites", direction = FavoritesViewDestination(), selectedIcon = Icons.Filled.Star, unselectedIcon = Icons.Outlined.StarOutline)
@@ -342,14 +332,35 @@ class RootActivity : ComponentActivity() {
                 "settings_view" to "Settings"
             )
 
+            val userSettings = UserSettings(LocalContext.current)
+
+            API.selectedSeasonId = userSettings.getSelectedSeasonId()
+            API.gradeLevel = userSettings.getGradeLevel()
+
             VRCRoboScoutTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val localContext = LocalContext.current
-                    val userSettings = UserSettings(localContext)
+
+                    LaunchedEffect(Unit) {
+                        if (API.seasonIdMap.isEmpty()) {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                API.generateSeasonIdMap()
+                            }
+                        }
+                        if (!API.importedWS) {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                API.updateWorldSkillsCache()
+                            }
+                        }
+                        if (!API.importedVDA) {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                API.updateVDACache()
+                            }
+                        }
+                    }
 
                     MaterialTheme.colorScheme.onTopContainer = if (userSettings.getOnTopContainerColor().isSpecified) userSettings.getOnTopContainerColor() else MaterialTheme.colorScheme.onPrimaryContainer
                     MaterialTheme.colorScheme.topContainer = if (userSettings.getMinimalisticMode()) MaterialTheme.colorScheme.background else ( if (userSettings.getTopContainerColor().isSpecified) userSettings.getTopContainerColor() else MaterialTheme.colorScheme.primaryContainer )

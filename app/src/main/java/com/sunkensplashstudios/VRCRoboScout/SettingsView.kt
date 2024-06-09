@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
+import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentText
+import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentedControl
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
@@ -159,41 +161,82 @@ fun SettingsView(navController: NavController) {
                     modifier = Modifier.padding(horizontal = 10.dp)
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                        modifier = Modifier.padding(vertical = 10.dp)
                     ) {
-                        Box {
-                            var expanded by remember { mutableStateOf(false) }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                API.seasonIdMap[if (userSettings.getGradeLevel() != "College") 0 else 1 ].forEach { entry ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                entry.shortName
-                                            )
-                                        },
-                                        onClick = {
-                                            expanded = false
-                                            userSettings.setSelectedSeasonId(entry.id)
-                                            API.importedWS = false
-                                            CoroutineScope(Dispatchers.Default).launch {
-                                                API.updateWorldSkillsCache()
-                                            }
-                                        }
-                                    )
+                        var selectedGradeLevel by remember { mutableStateOf(userSettings.getGradeLevel()) }
+                        val gradeLevelMap = mapOf(
+                            "Middle School" to "V5RC MS",
+                            "High School" to "V5RC HS",
+                            "College" to "VURC"
+                        )
+                        SegmentedControl(
+                            gradeLevelMap.values.toList(),
+                            gradeLevelMap[selectedGradeLevel] ?: "Unknown",
+                            onSegmentSelected = {
+                                val prevGradeLevel = selectedGradeLevel
+                                userSettings.setGradeLevel(gradeLevelMap.entries.first { entry -> entry.value == it }.key)
+                                selectedGradeLevel = userSettings.getGradeLevel()
+                                val seasonIndex = API.seasonIdMap[if (prevGradeLevel == "College") 1 else 0].indexOfFirst { it.id == userSettings.getSelectedSeasonId() }
+                                if (seasonIndex == -1) {
+                                    userSettings.setSelectedSeasonId(if (selectedGradeLevel == "College") BuildConfig.DEFAULT_VU_SEASON_ID else BuildConfig.DEFAULT_V5_SEASON_ID)
                                 }
-                            }
-                            Text(
-                                (API.seasonIdMap[0] + API.seasonIdMap[1]).first{ it.id == API.selectedSeasonId() }.shortName,
-                                color = MaterialTheme.colorScheme.button,
-                                modifier = Modifier.clickable {
-                                    expanded = !expanded
+                                else {
+                                    userSettings.setSelectedSeasonId(API.seasonIdMap[if (selectedGradeLevel == "College") 1 else 0][seasonIndex].id)
                                 }
+                                API.importedWS = false
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    API.updateWorldSkillsCache()
+                                }
+                            },
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            SegmentText(
+                                text = it
                             )
+                        }
+                    }
+                    if (API.seasonIdMap[0].isNotEmpty()) {
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                        ) {
+                            Box {
+                                var expanded by remember { mutableStateOf(false) }
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    API.seasonIdMap[if (userSettings.getGradeLevel() != "College") 0 else 1].forEach { entry ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    entry.shortName
+                                                )
+                                            },
+                                            onClick = {
+                                                expanded = false
+                                                userSettings.setSelectedSeasonId(entry.id)
+                                                API.importedWS = false
+                                                CoroutineScope(Dispatchers.Default).launch {
+                                                    API.updateWorldSkillsCache()
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                                Text(
+                                    (API.seasonIdMap[0] + API.seasonIdMap[1]).first { it.id == API.selectedSeasonId() }.shortName,
+                                    color = MaterialTheme.colorScheme.button,
+                                    modifier = Modifier.clickable {
+                                        expanded = !expanded
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -218,9 +261,6 @@ fun SettingsView(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(0.dp),
                     modifier = Modifier.padding(horizontal = 10.dp)
                 ) {
-                    val localContext = LocalContext.current
-                    val userSettings = UserSettings(localContext)
-
                     Row(
                         modifier = Modifier.padding(vertical = 10.dp)
                     ) {

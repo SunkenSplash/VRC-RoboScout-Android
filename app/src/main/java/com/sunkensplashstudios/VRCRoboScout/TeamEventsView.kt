@@ -122,7 +122,7 @@ fun TeamEventsView(teamEventsViewModel: TeamEventsViewModel = viewModel(), navCo
                                 ) {
                                     EventRow(navController, event, team)
                                 }
-                                if (teamEventsViewModel.events.reversed().indexOf(event) != 0) {
+                                if (teamEventsViewModel.events.indexOf(event) != 0) {
                                     HorizontalDivider(
                                         thickness = 0.5.dp,
                                         color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),

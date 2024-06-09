@@ -118,7 +118,7 @@ class LookupViewModel : ViewModel() {
             withContext(Dispatchers.Main) {
                 team.value = fetchedTeam
                 wsEntry.value = API.worldSkillsFor(fetchedTeam)
-                vdaEntry.value = API.vdaFor(fetchedTeam)
+                vdaEntry.value = API.vdaFor(fetchedTeam, true)
                 avgRanking.doubleValue = fetchedTeam.averageQualifiersRanking()
                 awardCounts = fetchedAwardCounts
                 fetchedTeams.value = fetchedTeam.id != 0
@@ -155,6 +155,8 @@ class LookupViewModel : ViewModel() {
 
         scraperParams["page"] = page
 
+        scraperParams["seasonId"] = UserSettings(applicationContext!!).getSelectedSeasonId()
+
         val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH)
 
         scraperParams["from_date"] = if (name.isNullOrEmpty()) formatter.format(Date()) else "01-Jan-1970"
@@ -170,7 +172,7 @@ class LookupViewModel : ViewModel() {
                 return@launch
             }
             val data = RoboScoutAPI.roboteventsRequest(
-                requestUrl = "/seasons/${season ?: UserSettings(applicationContext!!)}/events",
+                requestUrl = "/seasons/${season ?: UserSettings(applicationContext!!).getSelectedSeasonId()}/events",
                 params = mapOf("sku" to skuArray)
             )
             withContext(Dispatchers.Main) {
@@ -191,6 +193,8 @@ class LookupViewModel : ViewModel() {
 @Destination
 @Composable
 fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as LookupViewModel, navController: NavController) {
+
+    val userSettings = UserSettings(LocalContext.current)
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -223,7 +227,8 @@ fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as L
                                 lookupViewModel.page.intValue -= 1
                                 lookupViewModel.fetchEvents(
                                     name = lookupViewModel.eventName.value,
-                                    page = lookupViewModel.page.intValue
+                                    page = lookupViewModel.page.intValue,
+                                    grade = if (userSettings.getGradeLevel() == "Middle School") 2 else if (userSettings.getGradeLevel() == "High School") 3 else null
                                 )
                             }) {
                             Icon(
@@ -245,7 +250,8 @@ fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as L
                                 lookupViewModel.page.intValue += 1
                                 lookupViewModel.fetchEvents(
                                     name = lookupViewModel.eventName.value,
-                                    page = lookupViewModel.page.intValue
+                                    page = lookupViewModel.page.intValue,
+                                    grade = if (userSettings.getGradeLevel() == "Middle School") 2 else if (userSettings.getGradeLevel() == "High School") 3 else null
                                 )
                             }) {
                             Icon(
@@ -594,7 +600,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                                 onClick = { }
                             )
                             DropdownMenuItem(
-                                text = { Text("Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent}%") },
+                                text = { Text("Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent.round(1)}%") },
                                 onClick = { }
                             )
                             DropdownMenuItem(
@@ -703,9 +709,19 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
 
 @Composable
 fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) {
+    val userSettings = UserSettings(LocalContext.current)
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val isFocused = remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (lookupViewModel.events.value.isEmpty()) {
+            lookupViewModel.fetchEvents(
+                grade = if (userSettings.getGradeLevel() == "Middle School") 2 else if (userSettings.getGradeLevel() == "High School") 3 else null
+            )
+            lookupViewModel.page.intValue = 1
+        }
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -756,7 +772,7 @@ fun EventLookup(lookupViewModel: LookupViewModel, navController: NavController) 
                 keyboardActions = KeyboardActions(
                     onDone = {
                         keyboardController?.hide()
-                        lookupViewModel.fetchEvents(name = lookupViewModel.eventName.value, page = 1)
+                        lookupViewModel.fetchEvents(name = lookupViewModel.eventName.value, page = 1, grade = if (userSettings.getGradeLevel() == "Middle School") 2 else if (userSettings.getGradeLevel() == "High School") 3 else null)
                         lookupViewModel.page.intValue = 1
                     }),
                 placeholder = {

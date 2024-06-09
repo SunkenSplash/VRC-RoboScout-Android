@@ -282,8 +282,9 @@ class RoboScoutAPI {
         }
 
         suspend fun roboteventsCompetitionScraper(params: MutableMap<String, Any> = mutableMapOf()): List<String> {
-            var requestUrl = "https://www.robotevents.com/robot-competitions/vex-robotics-competition"
             var params = params
+
+            println(params)
 
             if (!params.containsKey("page")) {
                 params["page"] = 1
@@ -299,10 +300,9 @@ class RoboScoutAPI {
                 6 -> params["level_class_id"] = 13
             }
 
-            when (params["grade_level_id"] as? Int) {
-                1 -> params["grade_level_id"] = 2
-                2 -> params["grade_level_id"] = 3
-            }
+            val competition = if (API.seasonIdMap[0].find { it.id == params["seasonId"]} != null) "vex-robotics-competition" else "college-competition"
+
+            val requestUrl = "https://www.robotevents.com/robot-competitions/$competition"
 
             val skuArray = mutableListOf<String>()
 
@@ -327,12 +327,12 @@ class RoboScoutAPI {
             println("RobotEvents Scraper (page ${params["page"] as? Int ?: 0}): ${response.call.request.url}")
             //println(response.bodyAsText())
 
-            val pattern = "https://www\\.robotevents\\.com/robot-competitions/vex-robotics-competition/RE-VRC([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[Ee]([+-]?\\d+))?\\.html"
+            val pattern = "$requestUrl/RE-[A-Z0-9]*([+-]?(?=\\.\\d|\\d)(?:\\d+)?\\.?\\d*)(?:[Ee]([+-]?\\d+))?([+-]?(?=\\.\\d|\\d)(?:\\d+)?\\.?\\d*)(?:[Ee]([+-]?\\d+))?\\.html"
             val regex = Regex(pattern, RegexOption.IGNORE_CASE)
             val matches = regex.findAll(response.bodyAsText())
 
             for (match in matches) {
-                skuArray.add(match.value.replace("https://www.robotevents.com/robot-competitions/vex-robotics-competition/", "").replace(".html", ""))
+                skuArray.add(match.value.replace("$requestUrl/", "").replace(".html", ""))
             }
             println("Matches: $skuArray")
 
@@ -405,7 +405,7 @@ class RoboScoutAPI {
         try {
             val response = client.get("https://www.robotevents.com/api/seasons/${season ?: API.selectedSeasonId()}/skills") {
                 url {
-                    parameters.append("grade_level", "High School")
+                    parameters.append("grade_level", gradeLevel)
                 }
             }
 
@@ -440,7 +440,6 @@ class RoboScoutAPI {
             val json = Json.parseToJsonElement(response.bodyAsText())
 
             json.jsonArray.forEach { element ->
-                //println("Element: $element")
                 val vdaEntry: VDAEntry = jsonWorker.decodeFromJsonElement(element)
                 this.vdaCache.add(vdaEntry)
             }
@@ -463,14 +462,56 @@ class RoboScoutAPI {
         }
     }
 
-     fun vdaFor(team: Team): VDAEntry {
-        return try {
+    suspend fun vdaFor(team: Team, fetchRobotEventsMatchStatistics: Boolean = false): VDAEntry {
+        val vda = try {
             this.vdaCache.first {
                 it.teamNumber == team.number
             }
         } catch (e: NoSuchElementException) {
             VDAEntry()
         }
+        if (fetchRobotEventsMatchStatistics) {
+            var totalWins = 0
+            var totalLosses = 0
+            var totalTies = 0
+            var totalAP = 0
+            var totalWP = 0
+
+            val seasonIndex = API.seasonIdMap[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
+            val season = API.seasonIdMap[if (team.grade == "College") 1 else 0][seasonIndex]
+
+            val reRankingsData = roboteventsRequest("/teams/${team.id}/rankings", mapOf("season" to season.id))
+            val reRankings = reRankingsData.map { jsonWorker.decodeFromJsonElement<TeamRanking>(it) }
+            for (eventRankings in reRankings) {
+                println("${eventRankings.event.name}: ${eventRankings.wins} wins, ${eventRankings.losses} losses, ${eventRankings.ties} ties, ${eventRankings.ap} AP, ${eventRankings.wp} WP")
+                totalWins += eventRankings.wins
+                totalLosses += eventRankings.losses
+                totalTies += eventRankings.ties
+                totalAP += eventRankings.ap
+                totalWP += eventRankings.wp
+            }
+
+            val matches = team.matchesForSeason(season.id)
+            for (match in matches.filterNot { listOf(Round.PRACTICE, Round.QUALIFICATION).contains(it.roundType) }) {
+                if (match.winningAlliance() == match.allianceFor(team)) {
+                    totalWins += 1
+                } else if (match.winningAlliance() != null) {
+                    totalLosses += 1
+                } else {
+                    totalTies += 1
+                }
+            }
+
+            vda.totalWins = totalWins.toDouble()
+            vda.totalLosses = totalLosses.toDouble()
+            vda.totalTies = totalTies.toDouble()
+            vda.totalMatches = (totalWins + totalLosses + totalTies).toDouble()
+            vda.totalWinningPercent = (totalWins / vda.totalMatches) * 100
+            vda.apPerMatch = totalAP / vda.totalMatches
+            vda.wpPerMatch = totalWP / vda.totalMatches
+            vda.awpPerMatch = (totalWP - 2 * totalWins - totalTies) / vda.totalMatches
+        }
+        return vda
     }
 
 }
@@ -479,6 +520,7 @@ class RoboScoutAPI {
 class Program {
     var id: Int = 0
     var name: String = ""
+    var code: String = ""
 }
 
 @Serializable
@@ -681,6 +723,7 @@ class Event {
     var end: String = ""
     @kotlinx.serialization.Transient var endDate: Date? = null
     var season: ShortSeason = ShortSeason()
+    var program: Program = Program()
     var location: Location = Location()
     @kotlinx.serialization.Transient var matches: MutableMap<Division, MutableList<Match>> = mutableMapOf<Division, MutableList<Match>>()
     var teams: MutableList<Team> = mutableListOf<Team>()
@@ -694,8 +737,11 @@ class Event {
     @kotlinx.serialization.Transient var livestreamLink: String? = null
 
     init {
-        this.startDate = RoboScoutAPI.roboteventsDate(this.start, true)
-        this.endDate = RoboScoutAPI.roboteventsDate(this.end, true)
+        try {
+            this.startDate = RoboScoutAPI.roboteventsDate(this.start, true)
+            this.endDate = RoboScoutAPI.roboteventsDate(this.end, true)
+        }
+        catch (_: java.text.ParseException) { }
     }
 
     constructor(id: Int = 0, fetch: Boolean = true) {
@@ -937,16 +983,30 @@ class Event {
     }
 
     companion object {
-        fun sortTeamsByNumber(teams: List<Team>): List<Team> {
-            // Teams can be:
-            // 229V, 4082B, 10C, 2775V, 9364C, 9364A
-            // These teams are first sorted by the letter part of their team.number, then by the number part
-            // The sorted list for the above teams:
-            // 10C, 229V, 2775V, 4082B, 9364A, 9364C
-            // Sort by letter part (remove all non-letter characters and sort)
-            val sortedTeams = teams.sortedBy { it.number.replace(Regex("[^A-Za-z]"), "") }
-            // Sort by number part (remove all non-number characters and sort)
-            return sortedTeams.sortedBy { it.number.replace(Regex("[^0-9]"), "").toInt() }
+        fun sortTeamsByNumber(teams: List<Team>, gradeLevel: String): List<Team> {
+            if (gradeLevel != "College") {
+                // Teams can be:
+                // 229V, 4082B, 10C, 2775V, 9364C, 9364A
+                // These teams are first sorted by the letter part of their team.number, then by the number part
+                // The sorted list for the above teams:
+                // 10C, 229V, 2775V, 4082B, 9364A, 9364C
+                // Sort by letter part (remove all non-letter characters and sort)
+                val sortedTeams = teams.sortedBy { it.number.replace(Regex("[^A-Za-z]"), "") }
+                // Sort by number part (remove all non-number characters and sort)
+                return sortedTeams.sortedBy { it.number.replace(Regex("[^0-9]"), "").toIntOrNull() }
+            }
+            else {
+                // Teams can be:
+                // UCF, GATR1, GATR2, BLRS2, PYRO
+                // These teams are first sorted by the number part of their team.number, then by the letter part
+                // The sorted list for the above teams:
+                // BLRS2, GATR1, GATR2, PYRO, UCF
+                // Sort by number part (remove all non-number characters and sort)
+                // If there is no number part, the team should go above all teams with the same letter part that have a number part
+                val sortedTeams = teams.sortedBy { it.number.replace(Regex("[^0-9]"), "").toIntOrNull() }
+                // Sort by letter part (remove all non-letter characters and sort)
+                return sortedTeams.sortedBy { it.number.replace(Regex("[^A-Za-z]"), "") }
+            }
         }
     }
 
@@ -1007,12 +1067,12 @@ class Team : MutableState<Team> {
 
         if (this.id != 0) {
             runBlocking {
-                res = RoboScoutAPI.roboteventsRequest("/teams/$id", mapOf("program" to 1))
+                res = RoboScoutAPI.roboteventsRequest("/teams/$id")
             }
         }
         else if (this.number.isNotEmpty()) {
             runBlocking {
-                res = RoboScoutAPI.roboteventsRequest("/teams", mapOf("number" to number, "program" to 1))
+                res = RoboScoutAPI.roboteventsRequest("/teams", mapOf("number" to number, "grade" to listOf("Middle School", "High School", "College")))
             }
         }
         else {
@@ -1047,8 +1107,27 @@ class Team : MutableState<Team> {
         return matches
     }
 
-     suspend fun fetchEvents(season: Int? = null) {
-        val data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (season ?: API.selectedSeasonId())))
+    suspend fun matchesForSeason(season: Int): List<Match> {
+        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/matches", mapOf("season" to season))
+        val matches = mutableListOf<Match>()
+        for (match in data) {
+            val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
+            matches.add(fetchedMatch)
+        }
+        matches.sortBy { it.instance }
+        matches.sortBy { it.roundType }
+        return matches
+    }
+
+    suspend fun fetchEvents(season: Int? = null) {
+        val data: List<JsonObject>
+        if (season == null) {
+            val seasonIndex = API.seasonIdMap[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
+            data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (API.seasonIdMap[if (this.grade == "College") 1 else 0][seasonIndex].id)))
+        }
+        else {
+            data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to season))
+        }
         events.clear()
         for (event in data) {
             val fetchedEvent: Event = jsonWorker.decodeFromJsonElement(event)

@@ -93,7 +93,10 @@ fun EventTeamsView(eventId: Int, eventTeamsViewModel: EventTeamsViewModel = view
 
         fun fetchTeamsList() {
             CoroutineScope(Dispatchers.Default).launch {
-                val event = eventDataTransferManager.getEvent(eventId) ?: Event(eventId, false)
+                if (eventTeamsViewModel.teams.isNotEmpty()) {
+                    return@launch
+                }
+                val event = eventDataTransferManager.getEvent(eventId) ?: return@launch
                 if (division != null) {
                     event.fetchTeams()
                     event.fetchRankings(division)
@@ -101,7 +104,7 @@ fun EventTeamsView(eventId: Int, eventTeamsViewModel: EventTeamsViewModel = view
                         eventTeamsViewModel.teams =
                             Event.sortTeamsByNumber(event.rankings[division]!!.map {
                                 event.getTeam(it.team.id) ?: Team()
-                            }).toMutableList()
+                            }, if (event.program.id == 4) "College" else "Not College").toMutableList()
                         loading = false
                     }
                 }
