@@ -19,15 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sunkensplashstudios.VRCRoboScout.Match
+import com.sunkensplashstudios.VRCRoboScout.Team
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceBlue
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceRed
 
 @Composable
-fun MatchesView(matchList: List<Match>) {
+fun MatchesView(matchList: List<Match>, team: Team? = null) {
     val timeFormat = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
@@ -79,7 +81,8 @@ fun MatchesView(matchList: List<Match>) {
                                     Text(
                                         text = member.team.name,
                                         fontSize = 15.sp,
-                                        color = allianceRed
+                                        color = allianceRed,
+                                        textDecoration = if (team != null && member.team.id == team.id) TextDecoration.Underline else TextDecoration.None
                                     )
                                 }
                             }
@@ -91,7 +94,8 @@ fun MatchesView(matchList: List<Match>) {
                                     fontWeight = FontWeight.Bold,
                                     color = allianceRed,
                                     textAlign = TextAlign.Start,
-                                    modifier = Modifier.width(50.dp)
+                                    modifier = Modifier.width(50.dp),
+                                    textDecoration = if (team != null && match.redAlliance.members.find { member -> member.team.id == team.id } != null ) TextDecoration.Underline else TextDecoration.None
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
@@ -100,7 +104,8 @@ fun MatchesView(matchList: List<Match>) {
                                     fontWeight = FontWeight.Bold,
                                     color = allianceBlue,
                                     textAlign = TextAlign.End,
-                                    modifier = Modifier.width(50.dp)
+                                    modifier = Modifier.width(50.dp),
+                                    textDecoration = if (team != null && match.blueAlliance.members.find { member -> member.team.id == team.id } != null ) TextDecoration.Underline else TextDecoration.None
                                 )
                             }
                             else {
@@ -126,7 +131,8 @@ fun MatchesView(matchList: List<Match>) {
                                     Text(
                                         text = member.team.name,
                                         fontSize = 15.sp,
-                                        color = allianceBlue
+                                        color = allianceBlue,
+                                        textDecoration = if (team != null && member.team.id == team.id) TextDecoration.Underline else TextDecoration.None
                                     )
                                 }
                             }

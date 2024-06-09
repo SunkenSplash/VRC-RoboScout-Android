@@ -105,7 +105,7 @@ fun EventTeamMatchesView(event: Event, team: Team, eventTeamMatchesViewModel: Ev
                 NoDataView()
             }
             else {
-                MatchesView(eventTeamMatchesViewModel.matches)
+                MatchesView(eventTeamMatchesViewModel.matches, eventTeamMatchesViewModel.team)
             }
         }
     }
