@@ -242,6 +242,7 @@ class RoboScoutAPI {
                     val response = client.get(requestUrl) {
                         header("Authorization", "Bearer ${RoboScoutAPI.roboteventsAccessKey()}")
                         url {
+                            params["program"] = listOf(1, 4)
                             params.forEach { param ->
                                 if (param.value is List<*>) {
                                     for (value in param.value as List<*>) {
