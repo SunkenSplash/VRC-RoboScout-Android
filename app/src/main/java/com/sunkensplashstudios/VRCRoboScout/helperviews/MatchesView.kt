@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sunkensplashstudios.VRCRoboScout.AllianceColor
 import com.sunkensplashstudios.VRCRoboScout.Match
 import com.sunkensplashstudios.VRCRoboScout.Team
 import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceBlue
@@ -30,7 +31,30 @@ import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceRed
 
 @Composable
 fun MatchesView(matchList: List<Match>, team: Team? = null) {
+
     val timeFormat = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
+
+    fun determineColor(match: Match, team: Team?, defaultColor: Color): Color {
+        if (match.completed()) {
+            return if (team != null) {
+                if (match.winningAlliance() == null) {
+                    Color.Yellow
+                } else if (match.winningAlliance() == AllianceColor.RED && match.redAlliance.members.find { member -> member.team.id == team.id } != null) {
+                    Color.Green
+                } else if (match.winningAlliance() == AllianceColor.BLUE && match.blueAlliance.members.find { member -> member.team.id == team.id } != null) {
+                    Color.Green
+                } else {
+                    Color.Red
+                }
+            } else {
+                defaultColor
+            }
+        }
+        else {
+            return defaultColor
+        }
+    }
+
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
@@ -58,7 +82,7 @@ fun MatchesView(matchList: List<Match>, team: Team? = null) {
                                 text = match.shortName,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = determineColor(match, team, MaterialTheme.colorScheme.onSurface)
                             )
                             Text(
                                 text = match.startedDate?.let { timeFormat.format(it) }
