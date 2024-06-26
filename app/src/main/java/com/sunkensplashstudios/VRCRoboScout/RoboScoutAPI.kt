@@ -676,9 +676,9 @@ data class TeamRanking(
     val wp: Int,
     val ap: Int,
     val sp: Int,
-    @SerialName("high_score") val highScore: Int,
-    @SerialName("average_points") val averagePoints: Double,
-    @SerialName("total_points") val totalPoints: Int
+    @SerialName("high_score") val highScore: Int?,
+    @SerialName("average_points") val averagePoints: Double?,
+    @SerialName("total_points") val totalPoints: Int?
 )
 
 @Serializable
