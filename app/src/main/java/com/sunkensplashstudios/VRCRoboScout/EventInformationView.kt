@@ -63,9 +63,11 @@ fun EventInformationView(event: Event, navController: NavController) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBackIos,
                         contentDescription = "Back",
-                        modifier = Modifier.padding(10.dp).clickable {
-                            navController.navigateUp()
-                        },
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .clickable {
+                                navController.navigateUp()
+                            },
                         tint = MaterialTheme.colorScheme.onTopContainer
                     )
                 }
@@ -73,7 +75,9 @@ fun EventInformationView(event: Event, navController: NavController) {
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
             Text(
                 event.name,
@@ -85,7 +89,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
                 ) {
                     Card(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
@@ -103,7 +109,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
                             ) {
                                 Text(
                                     "Teams",
@@ -122,7 +130,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 10.dp)
                                 ) {
                                     Text(
                                         "Divisions",
@@ -147,7 +157,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                                                     division.name
                                                 )
                                             },
-                                            onClick = { }
+                                            onClick = { },
+                                            enabled = false,
+                                            colors = disabledMenuItemColors(MaterialTheme)
                                         )
                                     }
                                 }
@@ -159,7 +171,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
                             ) {
                                 Text(
                                     "City",
@@ -176,7 +190,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
                             ) {
                                 Text(
                                     "Region",
@@ -193,7 +209,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
                             ) {
                                 Text(
                                     "Country",
@@ -210,7 +228,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
                             ) {
                                 Text(
                                     "Date",
@@ -227,7 +247,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
                             ) {
                                 Text(
                                     "Season",
@@ -244,7 +266,9 @@ fun EventInformationView(event: Event, navController: NavController) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
                             ) {
                                 Text(
                                     "Developer",

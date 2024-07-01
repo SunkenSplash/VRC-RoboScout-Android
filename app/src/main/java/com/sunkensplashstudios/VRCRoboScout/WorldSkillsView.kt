@@ -51,8 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -346,23 +347,33 @@ fun WorldSkillsView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -432,23 +443,33 @@ fun WorldSkillsView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -518,23 +539,33 @@ fun WorldSkillsView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -596,23 +627,33 @@ fun WorldSkillsView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))

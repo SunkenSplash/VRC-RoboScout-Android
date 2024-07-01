@@ -30,6 +30,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -287,6 +288,18 @@ fun ImportingDataView() {
         )
         Text("Importing Data", color = Color.Gray)
     }
+}
+
+@Composable
+fun disabledMenuItemColors(mt: MaterialTheme): MenuItemColors {
+    return MenuItemColors(
+        textColor = Color.Unspecified,
+        leadingIconColor = Color.Unspecified,
+        trailingIconColor = Color.Unspecified,
+        disabledTextColor = mt.colorScheme.onSurface,
+        disabledLeadingIconColor = Color.Unspecified,
+        disabledTrailingIconColor = Color.Unspecified
+    )
 }
 
 val viewModels = mapOf(

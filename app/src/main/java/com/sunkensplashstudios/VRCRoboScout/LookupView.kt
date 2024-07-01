@@ -492,16 +492,26 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     var tsExpanded by remember { mutableStateOf(false) }
 
                     Row {
-                        Text("TrueSkill Ranking", modifier = Modifier.clickable {
-                            tsExpanded = !tsExpanded
-                        }, color = MaterialTheme.colorScheme.button)
+                        Text(
+                            "TrueSkill Ranking",
+                            modifier =  if (lookupViewModel.fetchedTeams.value) {
+                                Modifier.clickable {
+                                    tsExpanded = !tsExpanded
+                                }
+                            } else {
+                                Modifier
+                            },
+                            color = MaterialTheme.colorScheme.button,
+                        )
                         DropdownMenu(
                             expanded = tsExpanded,
                             onDismissRequest = { tsExpanded = false }
                         ) {
                             DropdownMenuItem(
                                 text = { Text(if (lookupViewModel.fetchedTeams.value) "${lookupViewModel.vdaEntry.value.trueskill} TrueSkill" else "No TrueSkill data") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = {
@@ -513,7 +523,9 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                                         } places since last update"
                                     )
                                 },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                         }
                         Spacer(modifier = Modifier.weight(1.0f))
@@ -540,28 +552,44 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     var wsExpanded by remember { mutableStateOf(false) }
 
                     Row {
-                        Text("World Skills Score", modifier = Modifier.clickable {
-                            wsExpanded = !wsExpanded
-                        }, color = MaterialTheme.colorScheme.button)
+                        Text(
+                            "World Skills Score",
+                            modifier =  if (lookupViewModel.fetchedTeams.value) {
+                                Modifier.clickable {
+                                    wsExpanded = !wsExpanded
+                                }
+                            } else {
+                                Modifier
+                            },
+                            color = MaterialTheme.colorScheme.button
+                        )
                         DropdownMenu(
                             expanded = wsExpanded,
                             onDismissRequest = { wsExpanded = false }
                         ) {
                             DropdownMenuItem(
                                 text = { Text("${lookupViewModel.wsEntry.value.scores.programming} Programming") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("${lookupViewModel.wsEntry.value.scores.driver} Driver") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("${lookupViewModel.wsEntry.value.scores.maxProgramming} Highest Programming") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("${lookupViewModel.wsEntry.value.scores.maxDriver} Highest Driver") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                         }
                         Spacer(modifier = Modifier.weight(1.0f))
@@ -577,47 +605,62 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     var msExpanded by remember { mutableStateOf(false) }
 
                     Row {
-                        Text("Match Statistics", modifier = Modifier.clickable {
-                            msExpanded = !msExpanded
-                        }, color = MaterialTheme.colorScheme.button)
+                        Text(
+                            "Match Statistics",
+                            modifier =  if (lookupViewModel.fetchedTeams.value) {
+                                Modifier.clickable {
+                                    msExpanded = !msExpanded
+                                }
+                            } else {
+                                Modifier
+                            },
+                            color = MaterialTheme.colorScheme.button
+                        )
                         DropdownMenu(
                             expanded = msExpanded,
                             onDismissRequest = { msExpanded = false }
                         ) {
                             DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        String.format(
-                                            "Average Qualifiers Ranking: %.1f",
-                                            lookupViewModel.avgRanking.doubleValue
-                                        )
-                                    )
-                                },
-                                onClick = { }
+                                text = { Text("Average Qualifiers Ranking: ${lookupViewModel.avgRanking.doubleValue.round(1)}") },
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("CCWM: ${lookupViewModel.vdaEntry.value.ccwm}") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent.round(1)}%") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("Total Matches: ${lookupViewModel.vdaEntry.value.totalMatches.toInt()}") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("Total Wins: ${lookupViewModel.vdaEntry.value.totalWins.toInt()}") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("Total Losses: ${lookupViewModel.vdaEntry.value.totalLosses.toInt()}") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                             DropdownMenuItem(
                                 text = { Text("Total Ties: ${lookupViewModel.vdaEntry.value.totalTies.toInt()}") },
-                                onClick = { }
+                                onClick = { },
+                                enabled = false,
+                                colors = disabledMenuItemColors(MaterialTheme)
                             )
                         }
                         Spacer(modifier = Modifier.weight(1.0f))
@@ -633,9 +676,17 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     var awardsExpanded by remember { mutableStateOf(false) }
 
                     Row {
-                        Text("Awards", modifier = Modifier.clickable {
-                            awardsExpanded = !awardsExpanded
-                        }, color = MaterialTheme.colorScheme.button)
+                        Text(
+                            "Awards",
+                            modifier =  if (lookupViewModel.fetchedTeams.value) {
+                                Modifier.clickable {
+                                    awardsExpanded = !awardsExpanded
+                                }
+                            } else {
+                                Modifier
+                            },
+                            color = MaterialTheme.colorScheme.button
+                        )
                         DropdownMenu(
                             expanded = awardsExpanded,
                             onDismissRequest = { awardsExpanded = false }
@@ -643,7 +694,9 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             lookupViewModel.awardCounts.forEach { award ->
                                 DropdownMenuItem(
                                     text = { Text("${award.value}x ${award.key}") },
-                                    onClick = { }
+                                    onClick = { },
+                                    enabled = false,
+                                    colors = disabledMenuItemColors(MaterialTheme)
                                 )
                             }
                         }
@@ -674,15 +727,21 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                         thickness = 0.5.dp,
                         color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                     )
-                    Column(modifier = Modifier.clickable {
-                        if (lookupViewModel.fetchedTeams.value) {
-                            navController.navigate(
-                                TeamEventsViewDestination(
-                                    lookupViewModel.team.value
-                                )
-                            )
+                    Column(
+                        modifier = if (lookupViewModel.fetchedTeams.value) {
+                            Modifier.clickable {
+                                if (lookupViewModel.fetchedTeams.value) {
+                                    navController.navigate(
+                                        TeamEventsViewDestination(
+                                            lookupViewModel.team.value
+                                        )
+                                    )
+                                }
+                            }
+                        } else {
+                            Modifier
                         }
-                    }) {
+                    ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {

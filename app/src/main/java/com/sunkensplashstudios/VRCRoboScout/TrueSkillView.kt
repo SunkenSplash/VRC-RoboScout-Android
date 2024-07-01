@@ -37,7 +37,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,8 +52,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.*
-
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
+import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -374,19 +374,27 @@ fun TrueSkillView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                     }
@@ -476,19 +484,27 @@ fun TrueSkillView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                     }
@@ -578,19 +594,27 @@ fun TrueSkillView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                     }
@@ -669,19 +693,27 @@ fun TrueSkillView(navController: NavController) {
                                         ) {
                                             DropdownMenuItem(
                                                 text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                             DropdownMenuItem(
                                                 text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { }
+                                                onClick = { },
+                                                enabled = false,
+                                                colors = disabledMenuItemColors(MaterialTheme)
                                             )
                                         }
                                     }
