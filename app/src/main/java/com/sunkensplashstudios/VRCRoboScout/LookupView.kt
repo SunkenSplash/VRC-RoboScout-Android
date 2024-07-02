@@ -381,7 +381,9 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             )
             Spacer(modifier = Modifier.weight(1.0f))
             Box {
-                IconButton(onClick = {
+                IconButton(
+                    enabled = favoriteTeams.contains(lookupViewModel.number.value.uppercase()) || lookupViewModel.fetchedTeams.value,
+                    onClick = {
                     favoriteTeams =
                         if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
                             return@IconButton
