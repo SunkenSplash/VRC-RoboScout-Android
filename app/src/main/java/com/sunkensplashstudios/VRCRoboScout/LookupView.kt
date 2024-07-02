@@ -382,7 +382,7 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             Spacer(modifier = Modifier.weight(1.0f))
             Box {
                 IconButton(
-                    enabled = favoriteTeams.contains(lookupViewModel.number.value.uppercase()) || lookupViewModel.fetchedTeams.value,
+                    enabled = lookupViewModel.number.value != "229V\u200B",
                     onClick = {
                     favoriteTeams =
                         if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {
@@ -395,6 +395,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                         } else {
                             // allow adding to favorites only after fetching team data
                             if (!lookupViewModel.fetchedTeams.value) {
+                                keyboardController?.hide()
+                                lookupViewModel.fetchTeam()
                                 return@IconButton
                             }
 
