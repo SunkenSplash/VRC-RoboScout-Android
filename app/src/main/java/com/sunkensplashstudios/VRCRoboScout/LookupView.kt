@@ -382,7 +382,8 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
             Spacer(modifier = Modifier.weight(1.0f))
             Box {
                 IconButton(
-                    enabled = lookupViewModel.number.value != "229V\u200B",
+                    enabled = lookupViewModel.number.value != "229V\u200B" && lookupViewModel.number.value.isNotBlank(),
+                    modifier = Modifier.alpha(if (lookupViewModel.number.value != "229V\u200B" && lookupViewModel.number.value.isNotBlank()) 1F else 0F),
                     onClick = {
                     favoriteTeams =
                         if (lookupViewModel.number.value.isEmpty() || lookupViewModel.number.value == "229V\u200B") {

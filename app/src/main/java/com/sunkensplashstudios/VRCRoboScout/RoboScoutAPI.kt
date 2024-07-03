@@ -484,7 +484,6 @@ class RoboScoutAPI {
             val reRankingsData = roboteventsRequest("/teams/${team.id}/rankings", mapOf("season" to season.id))
             val reRankings = reRankingsData.map { jsonWorker.decodeFromJsonElement<TeamRanking>(it) }
             for (eventRankings in reRankings) {
-                println("${eventRankings.event.name}: ${eventRankings.wins} wins, ${eventRankings.losses} losses, ${eventRankings.ties} ties, ${eventRankings.ap} AP, ${eventRankings.wp} WP")
                 totalWins += eventRankings.wins
                 totalLosses += eventRankings.losses
                 totalTies += eventRankings.ties
