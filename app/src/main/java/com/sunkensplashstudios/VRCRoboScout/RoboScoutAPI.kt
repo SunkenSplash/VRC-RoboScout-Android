@@ -588,7 +588,6 @@ data class Match(
     val started: String?,
     @kotlinx.serialization.Transient val startedDate: Date? = RoboScoutAPI.roboteventsDate(started ?: "", true),
     val field: String?,
-    val session: Int,
     val scored: Boolean,
     val name: String,
     @kotlinx.serialization.Transient val shortName: String = name.replace("Qualifier", "Q").replace("Practice", "P").replace("Final", "F").replace("#", ""),
