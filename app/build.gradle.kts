@@ -15,8 +15,8 @@ android {
         applicationId = "com.sunkensplashstudios.VRCRoboScout"
         minSdk = 30
         targetSdk = 34
-        versionCode = 9
-        versionName = "1.1.5"
+        versionCode = 10
+        versionName = "1.1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

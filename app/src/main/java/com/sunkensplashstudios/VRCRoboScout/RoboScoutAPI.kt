@@ -115,7 +115,7 @@ class VDAEntry : MutableState<VDAEntry> {
     @SerialName("ts_ranking_region") var tsRankingRegion: Int = 0
     @SerialName("team_link") var teamLink: String = ""
     @SerialName("team_number") var teamNumber: String = ""
-    @SerialName("team_name") var teamName: String = ""
+    @SerialName("team_name") var teamName: String? = ""
     var id: Double = 0.0
     var grade: String? = ""
     @SerialName("event_region") var eventRegion: String = ""
@@ -441,6 +441,12 @@ class RoboScoutAPI {
             val json = Json.parseToJsonElement(response.bodyAsText())
 
             json.jsonArray.forEach { element ->
+
+                // Skip teams with no data
+                if (element.jsonObject["ts_ranking"]?.jsonPrimitive?.int == 99999) {
+                    return@forEach
+                }
+
                 val vdaEntry: VDAEntry = jsonWorker.decodeFromJsonElement(element)
                 this.vdaCache.add(vdaEntry)
             }
@@ -527,7 +533,7 @@ class Program {
 class Season {
     var id: Int = 0
     var name: String = ""
-    @kotlinx.serialization.Transient var shortName: String = name.replace("VRC ", "").replace("V5RC ", "").replace("VEXU ", "").replace("VURC ", "")
+    @kotlinx.serialization.Transient var shortName: String = name.replace("VRC ", "").replace("V5RC ", "").replace("VEX V5 ", "").replace("VEXU ", "").replace("VURC ", "").replace("VEX U ", "").replace("Robotics Competition ", "")
     var program: Program = Program()
     var start: String = ""
     var end: String = ""
@@ -777,6 +783,7 @@ class Event {
 
          this.id = event.id
          this.sku = event.sku
+         this.name = event.name
          this.name = event.name
          this.start = event.start
          this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
