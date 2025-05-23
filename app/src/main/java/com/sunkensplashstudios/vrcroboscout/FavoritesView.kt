@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,13 +41,13 @@ import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.navigate
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.LookupViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.TeamEventsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.helperviews.EventRow
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
+import com.sunkensplashstudios.vrcroboscout.destinations.EventViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.LookupViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.TeamEventsViewDestination
+import com.sunkensplashstudios.vrcroboscout.helperviews.EventRow
+import com.sunkensplashstudios.vrcroboscout.ui.theme.button
+import com.sunkensplashstudios.vrcroboscout.ui.theme.onTopContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,9 +70,14 @@ class FavoritesViewModel : ViewModel() {
                 ignoreUnknownKeys = true
             }
             val fetchedEventSKUMap = mutableMapOf<String, Event>()
-            events.forEach { eventData ->
-                val event: Event = jsonWorker.decodeFromJsonElement(eventData)
-                fetchedEventSKUMap[event.sku] = event
+            try {
+                events.forEach { eventData ->
+                    val event: Event = jsonWorker.decodeFromJsonElement(eventData)
+                    fetchedEventSKUMap[event.sku] = event
+                }
+            }
+            catch (e: Exception) {
+                println("Error fetching event data: ${e.message}")
             }
             withContext(Dispatchers.Main) {
                 eventSKUMap.clear()

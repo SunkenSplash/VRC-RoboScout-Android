@@ -8,15 +8,15 @@ plugins {
 }
 
 android {
-    namespace = "com.sunkensplashstudios.VRCRoboScout"
+    namespace = "com.sunkensplashstudios.vrcroboscout"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.sunkensplashstudios.VRCRoboScout"
+        applicationId = "com.sunkensplashstudios.vrcroboscout"
         minSdk = 30
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.1.6"
+        versionCode = 11
+        versionName = "1.1.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

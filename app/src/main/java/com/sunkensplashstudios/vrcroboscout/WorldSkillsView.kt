@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,9 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.button
+import com.sunkensplashstudios.vrcroboscout.ui.theme.onTopContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -114,6 +114,8 @@ fun WorldSkillsView(navController: NavController) {
 
     var filterDropdownExpanded by remember { mutableStateOf(false) }
 
+    var importing by rememberSaveable { mutableStateOf(!API.importedWS) }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -141,25 +143,25 @@ fun WorldSkillsView(navController: NavController) {
                     }
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            filterDropdownExpanded = true
-                        },
-                        modifier = Modifier.padding(horizontal = 5.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FilterList,
-                            contentDescription = "Filter",
-                            tint = MaterialTheme.colorScheme.onTopContainer,
-                            modifier = Modifier.size(26.dp)
-                        )
+                    if (!importing) {
+                        IconButton(
+                            onClick = {
+                                filterDropdownExpanded = true
+                            },
+                            modifier = Modifier.padding(horizontal = 5.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FilterList,
+                                contentDescription = "Filter",
+                                tint = MaterialTheme.colorScheme.onTopContainer,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
                     }
                 }
             )
         }
     ) { padding ->
-
-        var importing by rememberSaveable { mutableStateOf(!API.importedWS) }
 
         LaunchedEffect(Unit) {
             CoroutineScope(Dispatchers.Default).launch {

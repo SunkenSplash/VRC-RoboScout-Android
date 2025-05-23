@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import androidx.compose.runtime.MutableState
 import io.ktor.client.HttpClient
@@ -345,15 +345,21 @@ class RoboScoutAPI {
         this.seasonsCache = listOf(mutableListOf(), mutableListOf())
         val data = roboteventsRequest("/seasons/")
 
-        for (seasonData in data) {
-            val season = jsonWorker.decodeFromJsonElement<Season>(seasonData)
-            val gradeLevelIndex = if (season.program.id == 1) 0 else if (season.program.id == 4) 1 else -1
-            if (gradeLevelIndex != -1) {
-                this.seasonsCache[gradeLevelIndex].add(season)
+        try {
+            for (seasonData in data) {
+                val season = jsonWorker.decodeFromJsonElement<Season>(seasonData)
+                val gradeLevelIndex =
+                    if (season.program.id == 1) 0 else if (season.program.id == 4) 1 else -1
+                if (gradeLevelIndex != -1) {
+                    this.seasonsCache[gradeLevelIndex].add(season)
+                }
             }
+            println("Season ID map generated")
         }
-
-        println("Season ID map generated")
+        catch (e: Exception) {
+            println("Failed to generate season ID map, error: $e")
+            e.printStackTrace()
+        }
         /*for (gradeLevel in this.seasonsCache) {
             for (season in gradeLevel) {
                 println("ID: ${season.id}, Name: ${season.name}")
@@ -420,14 +426,13 @@ class RoboScoutAPI {
             for (item in this.wsCache) {
                 regionsMap[item.team.eventRegion.replace("Chinese Taipei", "Taiwan")] = item.team.eventRegionId
             }
-
-            this.importedWS = true
             println("Updated world skills cache")
         }
         catch (e: Exception) {
             println("Failed to update world skills cache, error: $e")
             e.printStackTrace()
         }
+        this.importedWS = true
     }
 
      suspend fun updateVDACache(season: Int? = null) {
@@ -437,6 +442,10 @@ class RoboScoutAPI {
 
         try {
             val response = client.get("https://vrc-data-analysis.com/v1/allteams")
+
+            if (response.status.value != 200) {
+                throw RoboScoutAPIError.missingData("VRC Data Analysis Bad Response")
+            }
 
             val json = Json.parseToJsonElement(response.bodyAsText())
 
@@ -450,13 +459,13 @@ class RoboScoutAPI {
                 val vdaEntry: VDAEntry = jsonWorker.decodeFromJsonElement(element)
                 this.vdaCache.add(vdaEntry)
             }
-            this.importedVDA = true
             println("Updated VDA cache")
         }
         catch (e: Exception) {
             println("Failed to update VDA cache, error: $e")
             e.printStackTrace()
         }
+         this.importedVDA = true
     }
 
      fun worldSkillsFor(team: Team): WSEntry {
@@ -488,34 +497,46 @@ class RoboScoutAPI {
             val season = API.seasonsCache[if (team.grade == "College") 1 else 0][seasonIndex]
 
             val reRankingsData = roboteventsRequest("/teams/${team.id}/rankings", mapOf("season" to season.id))
-            val reRankings = reRankingsData.map { jsonWorker.decodeFromJsonElement<TeamRanking>(it) }
-            for (eventRankings in reRankings) {
-                totalWins += eventRankings.wins
-                totalLosses += eventRankings.losses
-                totalTies += eventRankings.ties
-                totalAP += eventRankings.ap
-                totalWP += eventRankings.wp
-            }
-
-            val matches = team.matchesForSeason(season.id)
-            for (match in matches.filterNot { listOf(Round.PRACTICE, Round.QUALIFICATION).contains(it.roundType) }) {
-                if (match.winningAlliance() == match.allianceFor(team)) {
-                    totalWins += 1
-                } else if (match.winningAlliance() != null) {
-                    totalLosses += 1
-                } else {
-                    totalTies += 1
+            try {
+                val reRankings =
+                    reRankingsData.map { jsonWorker.decodeFromJsonElement<TeamRanking>(it) }
+                for (eventRankings in reRankings) {
+                    totalWins += eventRankings.wins
+                    totalLosses += eventRankings.losses
+                    totalTies += eventRankings.ties
+                    totalAP += eventRankings.ap
+                    totalWP += eventRankings.wp
                 }
-            }
 
-            vda.totalWins = totalWins.toDouble()
-            vda.totalLosses = totalLosses.toDouble()
-            vda.totalTies = totalTies.toDouble()
-            vda.totalMatches = (totalWins + totalLosses + totalTies).toDouble()
-            vda.totalWinningPercent = (totalWins / vda.totalMatches) * 100
-            vda.apPerMatch = totalAP / vda.totalMatches
-            vda.wpPerMatch = totalWP / vda.totalMatches
-            vda.awpPerMatch = (totalWP - 2 * totalWins - totalTies) / vda.totalMatches
+                val matches = team.matchesForSeason(season.id)
+                for (match in matches.filterNot {
+                    listOf(
+                        Round.PRACTICE,
+                        Round.QUALIFICATION
+                    ).contains(it.roundType)
+                }) {
+                    if (match.winningAlliance() == match.allianceFor(team)) {
+                        totalWins += 1
+                    } else if (match.winningAlliance() != null) {
+                        totalLosses += 1
+                    } else {
+                        totalTies += 1
+                    }
+                }
+
+                vda.totalWins = totalWins.toDouble()
+                vda.totalLosses = totalLosses.toDouble()
+                vda.totalTies = totalTies.toDouble()
+                vda.totalMatches = (totalWins + totalLosses + totalTies).toDouble()
+                vda.totalWinningPercent = (totalWins / vda.totalMatches) * 100
+                vda.apPerMatch = totalAP / vda.totalMatches
+                vda.wpPerMatch = totalWP / vda.totalMatches
+                vda.awpPerMatch = (totalWP - 2 * totalWins - totalTies) / vda.totalMatches
+            }
+            catch (e: Exception) {
+                println("Failed to fetch RobotEvents match statistics for ${team.number}, error: $e")
+                e.printStackTrace()
+            }
         }
         return vda
     }
@@ -638,7 +659,7 @@ data class Award(
     val designation: String?,
     val classification: String?,
     val teamWinners: List<TeamWinner>,
-    val individualWinners: List<String>
+    //val individualWinners: List<String> <-- For some reason this actually isn't always a list of strings from the RobotEvents API...
 ) {
     init {
         if (!this.title.contains("(WC)")) {
@@ -779,35 +800,47 @@ class Event {
              return
          }
 
-         val event: Event = jsonWorker.decodeFromJsonElement(res[0])
+         try {
+             val event: Event = jsonWorker.decodeFromJsonElement(res[0])
 
-         this.id = event.id
-         this.sku = event.sku
-         this.name = event.name
-         this.name = event.name
-         this.start = event.start
-         this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
-         this.end = event.end
-         this.endDate = RoboScoutAPI.roboteventsDate(event.end, true)
-         this.season = event.season
-         this.location = event.location
-         this.teams = event.teams
-         this.teamIDs = event.teamIDs
-         this.teamObjects = event.teamObjects
-         this.divisions = event.divisions
-         // TODO: Add livestream link
+             this.id = event.id
+             this.sku = event.sku
+             this.name = event.name
+             this.name = event.name
+             this.start = event.start
+             this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
+             this.end = event.end
+             this.endDate = RoboScoutAPI.roboteventsDate(event.end, true)
+             this.season = event.season
+             this.location = event.location
+             this.teams = event.teams
+             this.teamIDs = event.teamIDs
+             this.teamObjects = event.teamObjects
+             this.divisions = event.divisions
+             // TODO: Add livestream link
+         }
+         catch (e: Exception) {
+             println("Failed to fetch event info, error: $e")
+             e.printStackTrace()
+         }
     }
 
     suspend fun fetchTeams() {
         val teams = mutableListOf<Team>()
         val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/teams")
-        for (team in data) {
-            val cachedTeam: Team = jsonWorker.decodeFromJsonElement(team)
-            teams.add(cachedTeam)
-            this.teamIDs += cachedTeam.id
-            this.teamObjects.add(cachedTeam)
+        try {
+            for (team in data) {
+                val cachedTeam: Team = jsonWorker.decodeFromJsonElement(team)
+                teams.add(cachedTeam)
+                this.teamIDs += cachedTeam.id
+                this.teamObjects.add(cachedTeam)
+            }
+            this.teams = teams
         }
-        this.teams = teams
+        catch (e: Exception) {
+            println("Failed to fetch teams, error: $e")
+            e.printStackTrace()
+        }
     }
 
     fun getTeam(id: Int): Team? {
@@ -817,21 +850,33 @@ class Event {
     suspend fun fetchRankings(division: Division) {
         val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/divisions/${division.id}/rankings")
         this.rankings[division] = mutableListOf<TeamRanking>()
-        for (ranking in data) {
-            val teamRanking: TeamRanking = jsonWorker.decodeFromJsonElement(ranking)
-            this.rankings[division]!!.add(teamRanking)
+        try {
+            for (ranking in data) {
+                val teamRanking: TeamRanking = jsonWorker.decodeFromJsonElement(ranking)
+                this.rankings[division]!!.add(teamRanking)
+            }
+        }
+        catch (e: Exception) {
+            println("Failed to fetch rankings, error: $e")
+            e.printStackTrace()
         }
     }
 
     suspend fun fetchMatches(division: Division) {
         val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/divisions/${division.id}/matches")
         this.matches[division] = mutableListOf<Match>()
-        for (match in data) {
-            val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
-            this.matches[division]!!.add(fetchedMatch)
+        try {
+            for (match in data) {
+                val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
+                this.matches[division]!!.add(fetchedMatch)
+            }
+            matches[division]?.sortBy { it.instance }
+            matches[division]?.sortBy { it.roundType }
         }
-        matches[division]?.sortBy { it.instance }
-        matches[division]?.sortBy { it.roundType }
+        catch (e: Exception) {
+            println("Failed to fetch matches, error: $e")
+            e.printStackTrace()
+        }
     }
 
     @Throws(RoboScoutAPIError::class)
@@ -949,43 +994,57 @@ class Event {
     suspend fun fetchSkillsRankings() {
         val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/skills")
         this.skillsRankings = mutableListOf<TeamSkillsRanking>()
-        var index = 0
-        while (index < data.size) {
-            val teamSkillsEntry1 = jsonWorker.decodeFromString<TeamSkillsEntry>(data[index].toString())
-            val bundle = mutableListOf(teamSkillsEntry1)
-            if (index + 1 < data.size) {
-                val teamSkillsEntry2 = jsonWorker.decodeFromString<TeamSkillsEntry>(data[index + 1].toString())
-                if (teamSkillsEntry1.team.id == teamSkillsEntry2.team.id) {
-                    bundle.add(teamSkillsEntry2)
-                    index++
+        try {
+            var index = 0
+            while (index < data.size) {
+                val teamSkillsEntry1 =
+                    jsonWorker.decodeFromString<TeamSkillsEntry>(data[index].toString())
+                val bundle = mutableListOf(teamSkillsEntry1)
+                if (index + 1 < data.size) {
+                    val teamSkillsEntry2 =
+                        jsonWorker.decodeFromString<TeamSkillsEntry>(data[index + 1].toString())
+                    if (teamSkillsEntry1.team.id == teamSkillsEntry2.team.id) {
+                        bundle.add(teamSkillsEntry2)
+                        index++
+                    }
                 }
+                val teamSkillsEntry2 = bundle[1]
+                val teamSkillsRanking = TeamSkillsRanking(
+                    driverId = teamSkillsEntry1.id,
+                    programmingId = teamSkillsEntry2.id,
+                    team = teamSkillsEntry1.team,
+                    event = teamSkillsEntry1.event,
+                    rank = teamSkillsEntry1.rank,
+                    combinedScore = teamSkillsEntry1.score + teamSkillsEntry2.score,
+                    driverScore = teamSkillsEntry1.score,
+                    programmingScore = teamSkillsEntry2.score,
+                    driverAttempts = teamSkillsEntry1.attempts ?: 0,
+                    programmingAttempts = teamSkillsEntry2.attempts ?: 0
+                )
+                this.skillsRankings.add(teamSkillsRanking)
+                index++
             }
-            val teamSkillsEntry2 = bundle[1]
-            val teamSkillsRanking = TeamSkillsRanking(
-                driverId = teamSkillsEntry1.id,
-                programmingId = teamSkillsEntry2.id,
-                team = teamSkillsEntry1.team,
-                event = teamSkillsEntry1.event,
-                rank = teamSkillsEntry1.rank,
-                combinedScore = teamSkillsEntry1.score + teamSkillsEntry2.score,
-                driverScore = teamSkillsEntry1.score,
-                programmingScore = teamSkillsEntry2.score,
-                driverAttempts = teamSkillsEntry1.attempts ?: 0,
-                programmingAttempts = teamSkillsEntry2.attempts ?: 0
-            )
-            this.skillsRankings.add(teamSkillsRanking)
-            index++
+        }
+        catch (e: Exception) {
+            println("Failed to fetch skills rankings, error: $e")
+            e.printStackTrace()
         }
     }
 
     suspend fun fetchAwards(division: Division) {
         val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/awards")
         this.awards[division] = mutableListOf<Award>()
-        for (award in data) {
-            val fetchedAward: Award = jsonWorker.decodeFromJsonElement(award)
-            this.awards[division]!!.add(fetchedAward)
+        try {
+            for (award in data) {
+                val fetchedAward: Award = jsonWorker.decodeFromJsonElement(award)
+                this.awards[division]!!.add(fetchedAward)
+            }
+            this.awards[division] = this.awards[division]!!.sortedBy { it.order }.toMutableList()
         }
-        this.awards[division] = this.awards[division]!!.sortedBy { it.order }.toMutableList()
+        catch (e: Exception) {
+            println("Failed to fetch awards, error: $e")
+            e.printStackTrace()
+        }
     }
 
     companion object {
@@ -1069,59 +1128,77 @@ class Team : MutableState<Team> {
 
      fun fetchInfo() {
 
-        var res: List<JsonObject>
+         var res: List<JsonObject>
 
-        if (this.id != 0) {
-            runBlocking {
-                res = RoboScoutAPI.roboteventsRequest("/teams/$id")
-            }
-        }
-        else if (this.number.isNotEmpty()) {
-            runBlocking {
-                res = RoboScoutAPI.roboteventsRequest("/teams", mapOf("number" to number, "grade" to listOf("Middle School", "High School", "College")))
-            }
-        }
-        else {
-            return
-        }
+         if (this.id != 0) {
+             runBlocking {
+                 res = RoboScoutAPI.roboteventsRequest("/teams/$id")
+             }
+         }
+         else if (this.number.isNotEmpty()) {
+             runBlocking {
+                 res = RoboScoutAPI.roboteventsRequest("/teams", mapOf("number" to number, "grade" to listOf("Middle School", "High School", "College")))
+             }
+         }
+         else {
+             return
+         }
 
-        if (res.isEmpty()) {
-            return
-        }
+         if (res.isEmpty()) {
+             return
+         }
 
-        val team: Team = jsonWorker.decodeFromJsonElement(res[0])
+         try {
+             val team: Team = jsonWorker.decodeFromJsonElement(res[0])
 
-        this.id = team.id
-        this.name = team.name
-        this.number = team.number
-        this.organization = team.organization
-        this.robotName = team.robotName
-        this.location = team.location
-        this.grade = team.grade
-        this.registered = team.registered
+             this.id = team.id
+             this.name = team.name
+             this.number = team.number
+             this.organization = team.organization
+             this.robotName = team.robotName
+             this.location = team.location
+             this.grade = team.grade
+             this.registered = team.registered
+         }
+         catch (e: Exception) {
+             println("Failed to fetch team info, error: $e")
+             e.printStackTrace()
+         }
     }
 
     suspend fun matchesAt(event: Event): List<Match> {
         val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/matches", mapOf("event" to event.id))
         val matches = mutableListOf<Match>()
-        for (match in data) {
-            val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
-            matches.add(fetchedMatch)
+        try {
+            for (match in data) {
+                val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
+                matches.add(fetchedMatch)
+            }
+            matches.sortBy { it.instance }
+            matches.sortBy { it.roundType }
         }
-        matches.sortBy { it.instance }
-        matches.sortBy { it.roundType }
+        catch (e: Exception) {
+            println("Failed to fetch matches, error: $e")
+            e.printStackTrace()
+        }
         return matches
     }
 
     suspend fun matchesForSeason(season: Int): List<Match> {
         val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/matches", mapOf("season" to season))
         val matches = mutableListOf<Match>()
-        for (match in data) {
-            val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
-            matches.add(fetchedMatch)
+        try {
+            for (match in data) {
+                val fetchedMatch: Match = jsonWorker.decodeFromJsonElement(match)
+                matches.add(fetchedMatch)
+            }
+            matches.sortBy { it.instance }
+            matches.sortBy { it.roundType }
         }
-        matches.sortBy { it.instance }
-        matches.sortBy { it.roundType }
+        catch (e: Exception) {
+            println("Failed to fetch matches, error: $e")
+            e.printStackTrace()
+        }
         return matches
     }
 
@@ -1135,20 +1212,32 @@ class Team : MutableState<Team> {
             data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to season))
         }
         events.clear()
-        for (event in data) {
-            val fetchedEvent: Event = jsonWorker.decodeFromJsonElement(event)
-            events.add(fetchedEvent)
+        try {
+            for (event in data) {
+                val fetchedEvent: Event = jsonWorker.decodeFromJsonElement(event)
+                events.add(fetchedEvent)
+            }
+        }
+        catch (e: Exception) {
+            println("Failed to fetch events, error: $e")
+            e.printStackTrace()
         }
     }
 
     suspend fun fetchAwards(season: Int? = null) {
         val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/awards", mapOf("season" to (season ?: API.selectedSeasonId())))
         awards.clear()
-        for (award in data) {
-            val fetchedAward: Award = jsonWorker.decodeFromJsonElement(award)
-            awards.add(fetchedAward)
+        try {
+            for (award in data) {
+                val fetchedAward: Award = jsonWorker.decodeFromJsonElement(award)
+                awards.add(fetchedAward)
+            }
+            this.awards.sortBy { it.order }
         }
-        this.awards.sortBy { it.order }
+        catch (e: Exception) {
+            println("Failed to fetch awards, error: $e")
+            e.printStackTrace()
+        }
     }
 
     suspend fun averageQualifiersRanking(season: Int? = null): Double {

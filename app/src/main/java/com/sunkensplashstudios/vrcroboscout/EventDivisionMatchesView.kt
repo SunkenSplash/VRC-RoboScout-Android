@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -26,41 +26,41 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.helperviews.MatchesView
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
+import com.sunkensplashstudios.vrcroboscout.helperviews.MatchesView
+import com.sunkensplashstudios.vrcroboscout.ui.theme.onTopContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class EventTeamMatchesViewModel: ViewModel() {
+class EventDivisionMatchesViewModel: ViewModel() {
     var event by mutableStateOf(Event())
-    var team by mutableStateOf(Team())
-    var loading by mutableStateOf(true)
-    var matches by mutableStateOf(listOf<Match>())
+    var division by mutableStateOf(Division())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun EventTeamMatchesView(event: Event, team: Team, eventTeamMatchesViewModel: EventTeamMatchesViewModel = viewModel(), navController: NavController) {
+fun EventDivisionMatchesView(event: Event, division: Division, eventDivisionMatchesViewModel: EventDivisionMatchesViewModel = viewModel(), navController: NavController) {
+
+    var loading by remember { mutableStateOf(event.matches[division] == null) }
 
     fun updateMatches() {
-        if (eventTeamMatchesViewModel.matches.isEmpty()) {
-            eventTeamMatchesViewModel.loading = true
+        if (event.matches[division] == null) {
+            loading = true
         }
         CoroutineScope(Dispatchers.Default).launch {
-            eventTeamMatchesViewModel.matches = team.matchesAt(event)
+            event.fetchMatches(division)
             withContext(Dispatchers.Main) {
-                eventTeamMatchesViewModel.loading = false
+                loading = false
             }
         }
     }
 
     LaunchedEffect(Unit) {
-        eventTeamMatchesViewModel.event = event
-        eventTeamMatchesViewModel.team = team
+        eventDivisionMatchesViewModel.event = event
+        eventDivisionMatchesViewModel.division = division
     }
 
     Scaffold(
@@ -71,7 +71,7 @@ fun EventTeamMatchesView(event: Event, team: Team, eventTeamMatchesViewModel: Ev
                     titleContentColor = MaterialTheme.colorScheme.onTopContainer,
                 ),
                 title = {
-                    Text("${eventTeamMatchesViewModel.team.number} Match List", fontWeight = FontWeight.Bold)
+                    Text("${division.name} Match List", fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     Icon(
@@ -98,14 +98,14 @@ fun EventTeamMatchesView(event: Event, team: Team, eventTeamMatchesViewModel: Ev
                 updateMatches()
             }
 
-            if (eventTeamMatchesViewModel.loading) {
+            if (loading) {
                 LoadingView()
             }
-            else if ((eventTeamMatchesViewModel.matches).isEmpty()) {
+            else if ((event.matches[division] ?: emptyList()).isEmpty()) {
                 NoDataView()
             }
             else {
-                MatchesView(eventTeamMatchesViewModel.matches, eventTeamMatchesViewModel.team)
+                MatchesView(event.matches[division] ?: emptyList())
             }
         }
     }

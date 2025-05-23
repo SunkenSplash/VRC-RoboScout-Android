@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,9 +43,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamMatchesViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
+import com.sunkensplashstudios.vrcroboscout.destinations.EventTeamMatchesViewDestination
+import com.sunkensplashstudios.vrcroboscout.ui.theme.onTopContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import android.app.Activity
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -38,10 +38,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionAwardsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionMatchesViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionRankingsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventDivisionAwardsViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventDivisionMatchesViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventDivisionRankingsViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventTeamsViewDestination
 
 class EventDivisionViewModel: ViewModel() {
     var event by mutableStateOf(Event())

@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout.helperviews
+package com.sunkensplashstudios.vrcroboscout.helperviews
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState

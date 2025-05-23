@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout.helperviews
+package com.sunkensplashstudios.vrcroboscout.helperviews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,11 +23,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sunkensplashstudios.VRCRoboScout.AllianceColor
-import com.sunkensplashstudios.VRCRoboScout.Match
-import com.sunkensplashstudios.VRCRoboScout.Team
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceBlue
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.allianceRed
+import com.sunkensplashstudios.vrcroboscout.AllianceColor
+import com.sunkensplashstudios.vrcroboscout.Match
+import com.sunkensplashstudios.vrcroboscout.Team
+import com.sunkensplashstudios.vrcroboscout.ui.theme.allianceBlue
+import com.sunkensplashstudios.vrcroboscout.ui.theme.allianceRed
 
 @Composable
 fun MatchesView(matchList: List<Match>, team: Team? = null) {
@@ -92,13 +92,12 @@ fun MatchesView(matchList: List<Match>, team: Team? = null) {
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.width(60.dp),
+                                modifier = Modifier.width(90.dp),
                                 verticalArrangement = Arrangement.spacedBy((-5).dp)
                             ) {
                                 match.redAlliance.members.forEach{ member ->
@@ -148,7 +147,7 @@ fun MatchesView(matchList: List<Match>, team: Team? = null) {
                             Spacer(modifier = Modifier.width(10.dp))
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.width(60.dp),
+                                modifier = Modifier.width(90.dp),
                                 verticalArrangement = Arrangement.spacedBy((-5).dp)
                             ) {
                                 match.blueAlliance.members.forEach{ member ->

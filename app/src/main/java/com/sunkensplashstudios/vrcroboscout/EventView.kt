@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import android.app.Activity
 import androidx.compose.foundation.clickable
@@ -50,13 +50,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventDivisionViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventInformationViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventSkillsRankingsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamMatchesViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.EventTeamsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
+import com.sunkensplashstudios.vrcroboscout.destinations.EventDivisionViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventInformationViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventSkillsRankingsViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventTeamMatchesViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.EventTeamsViewDestination
+import com.sunkensplashstudios.vrcroboscout.ui.theme.onTopContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -93,6 +93,8 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
         getEventViewModel()
     }
 
+    var showFavoritesDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -124,6 +126,7 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                     }
                     IconButton(
                         onClick = {
+                            showFavoritesDialog = true
                             favoriteEvents = if (favoriteEvents.contains(event.sku)) {
                                 userSettings.removeFavoriteEvent(event.sku)
                                 userSettings.getData("favoriteEvents", "").replace("[", "")
@@ -168,6 +171,10 @@ fun EventView(eventViewModel: EventViewModel = viewModel(), navController: NavCo
                 .padding(padding)
                 .fillMaxSize()
         ) {
+            if (showFavoritesDialog) {
+                FavoritesDialog(onDismissRequest = { showFavoritesDialog = false })
+            }
+
             if (eventViewModel.loading) {
                 Column(
                     modifier = Modifier.fillMaxSize(),

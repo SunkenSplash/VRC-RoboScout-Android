@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import android.app.Activity
 import android.content.Context
@@ -63,15 +63,15 @@ import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.Direction
-import com.sunkensplashstudios.VRCRoboScout.destinations.FavoritesViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.LookupViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.SettingsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.TrueSkillViewDestination
-import com.sunkensplashstudios.VRCRoboScout.destinations.WorldSkillsViewDestination
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.VRCRoboScoutTheme
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
+import com.sunkensplashstudios.vrcroboscout.destinations.FavoritesViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.LookupViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.SettingsViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.TrueSkillViewDestination
+import com.sunkensplashstudios.vrcroboscout.destinations.WorldSkillsViewDestination
+import com.sunkensplashstudios.vrcroboscout.ui.theme.VRCRoboScoutTheme
+import com.sunkensplashstudios.vrcroboscout.ui.theme.button
+import com.sunkensplashstudios.vrcroboscout.ui.theme.onTopContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -325,7 +325,7 @@ class RootActivity : ComponentActivity() {
             val settingsTab = TabBarItem(title = "Settings", direction = SettingsViewDestination(), selectedIcon = Icons.Filled.Settings, unselectedIcon = Icons.Outlined.Settings)
 
             // creating a list of all the tabs
-            val tabBarItems = listOf(favoritesTab, worldSkillsTab, trueskillTab, lookupTab, settingsTab)
+            val tabBarItems = listOf(favoritesTab, worldSkillsTab, /*trueskillTab,*/ lookupTab, settingsTab) // TrueSkill website is down
 
             // creating our navController
             val navController = rememberNavController()

@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout.ui.theme
+package com.sunkensplashstudios.vrcroboscout.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

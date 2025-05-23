@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout.helperviews
+package com.sunkensplashstudios.vrcroboscout.helperviews
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.navigation.navigate
-import com.sunkensplashstudios.VRCRoboScout.Event
-import com.sunkensplashstudios.VRCRoboScout.RoboScoutAPI
-import com.sunkensplashstudios.VRCRoboScout.Team
+import com.sunkensplashstudios.vrcroboscout.Event
+import com.sunkensplashstudios.vrcroboscout.RoboScoutAPI
+import com.sunkensplashstudios.vrcroboscout.Team
 
 @Composable
 fun EventRow(navController: NavController, event: Event, team: Team? = null, ) {
@@ -36,8 +36,8 @@ fun EventRow(navController: NavController, event: Event, team: Team? = null, ) {
                 .padding(5.dp)
                 .clickable {
                     navController.navigate(
-                        if (team != null) com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination(event, team)
-                        else com.sunkensplashstudios.VRCRoboScout.destinations.EventViewDestination(event)
+                        if (team != null) com.sunkensplashstudios.vrcroboscout.destinations.EventViewDestination(event, team)
+                        else com.sunkensplashstudios.vrcroboscout.destinations.EventViewDestination(event)
                     )
                 }
         ) {

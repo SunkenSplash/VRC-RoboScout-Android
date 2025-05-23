@@ -1,4 +1,4 @@
-package com.sunkensplashstudios.VRCRoboScout
+package com.sunkensplashstudios.vrcroboscout
 
 import android.app.Activity
 import androidx.compose.foundation.clickable
@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CardGiftcard
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -24,7 +22,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -51,11 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
-import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentText
-import com.sunkensplashstudios.VRCRoboScout.helperviews.SegmentedControl
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.button
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.onTopContainer
-import com.sunkensplashstudios.VRCRoboScout.ui.theme.topContainer
+import com.sunkensplashstudios.vrcroboscout.helperviews.SegmentText
+import com.sunkensplashstudios.vrcroboscout.helperviews.SegmentedControl
+import com.sunkensplashstudios.vrcroboscout.ui.theme.button
+import com.sunkensplashstudios.vrcroboscout.ui.theme.onTopContainer
+import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 import io.mhssn.colorpicker.ColorPickerDialog
 import io.mhssn.colorpicker.ColorPickerType
 import kotlinx.coroutines.CoroutineScope
@@ -92,7 +89,7 @@ fun SettingsView(navController: NavController) {
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-                    Spacer(modifier = Modifier.height(10.dp))
+                    /*Spacer(modifier = Modifier.height(10.dp))
                     Card(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
                         colors = CardColors(
@@ -144,7 +141,7 @@ fun SettingsView(navController: NavController) {
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(10.dp))*/
                     Text(
                         "COMPETITION",
                         modifier = Modifier.padding(horizontal = 20.dp),
