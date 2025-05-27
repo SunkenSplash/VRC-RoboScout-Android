@@ -167,6 +167,7 @@ class RoboScoutAPI {
     var importedVDA: Boolean = false
     var seasonsCache: List<MutableList<Season>> = listOf()
     var selectedSeasonId: Int = BuildConfig.DEFAULT_V5_SEASON_ID
+    var latestSeasonIDs: List<Int> = listOf(BuildConfig.DEFAULT_V5_SEASON_ID, BuildConfig.DEFAULT_VU_SEASON_ID)
     var gradeLevel: String = "High School"
 
     companion object {
@@ -341,7 +342,7 @@ class RoboScoutAPI {
         }
     }
 
-    suspend fun generateseasonsCache() {
+    suspend fun generateSeasonsCache() {
         this.seasonsCache = listOf(mutableListOf(), mutableListOf())
         val data = roboteventsRequest("/seasons/")
 
@@ -360,11 +361,7 @@ class RoboScoutAPI {
             println("Failed to generate season ID map, error: $e")
             e.printStackTrace()
         }
-        /*for (gradeLevel in this.seasonsCache) {
-            for (season in gradeLevel) {
-                println("ID: ${season.id}, Name: ${season.name}")
-            }
-        }*/
+        this.latestSeasonIDs = listOf(this.seasonsCache[0][0].id, this.seasonsCache[1][0].id)
     }
 
     fun selectedProgramId(): Int {

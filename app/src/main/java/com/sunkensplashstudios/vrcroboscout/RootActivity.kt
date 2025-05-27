@@ -364,7 +364,7 @@ class RootActivity : ComponentActivity() {
                     LaunchedEffect(Unit) {
                         if (API.seasonsCache.isEmpty()) {
                             CoroutineScope(Dispatchers.Default).launch {
-                                API.generateseasonsCache()
+                                API.generateSeasonsCache()
                             }
                         }
                         if (!API.importedWS) {

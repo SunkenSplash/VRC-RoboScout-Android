@@ -142,6 +142,9 @@ class LookupViewModel : ViewModel() {
         if (season != null) {
             scraperParams["seasonId"] = season
         }
+        else {
+            scraperParams["seasonId"] = UserSettings(applicationContext!!).getSelectedSeasonId()
+        }
         if (noLeagues || name == null || name == "") {
             scraperParams["eventType"] = 1
         }
@@ -157,11 +160,9 @@ class LookupViewModel : ViewModel() {
 
         scraperParams["page"] = page
 
-        scraperParams["seasonId"] = UserSettings(applicationContext!!).getSelectedSeasonId()
-
         val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH)
 
-        scraperParams["from_date"] = if (name.isNullOrEmpty()) formatter.format(Date()) else "01-Jan-1970"
+        scraperParams["from_date"] = if (name.isNullOrEmpty() && API.latestSeasonIDs.contains(UserSettings(applicationContext!!).getSelectedSeasonId())) formatter.format(Date()) else "01-Jan-1970"
 
         CoroutineScope(Dispatchers.Default).launch {
             val skuArray = RoboScoutAPI.roboteventsCompetitionScraper(params = scraperParams)
