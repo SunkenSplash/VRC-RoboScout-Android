@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.automirrored.outlined.TrendingUp
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Search
@@ -54,6 +53,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -88,9 +88,9 @@ class UserSettings(context: Context) {
         context.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE)
 
     private fun saveData(key: String, value: String) {
-        val editor = userSettings.edit()
-        editor.putString(key, value)
-        editor.apply()
+        userSettings.edit {
+            putString(key, value)
+        }
     }
 
     fun getData(key: String, defaultValue: String): String {
@@ -315,12 +315,13 @@ class RootActivity : ComponentActivity() {
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
 
             // setting up the individual tabs
             val favoritesTab = TabBarItem(title = "Favorites", direction = FavoritesViewDestination(), selectedIcon = Icons.Filled.Star, unselectedIcon = Icons.Outlined.StarOutline)
             val worldSkillsTab = TabBarItem(title = "World Skills", direction = WorldSkillsViewDestination(), selectedIcon = Icons.Filled.Language, unselectedIcon = Icons.Outlined.Language)
-            val trueskillTab = TabBarItem(title = "TrueSkill", direction = TrueSkillViewDestination(), selectedIcon = Icons.AutoMirrored.Filled.TrendingUp, unselectedIcon = Icons.AutoMirrored.Outlined.TrendingUp)
+//            val trueskillTab = TabBarItem(title = "TrueSkill", direction = TrueSkillViewDestination(), selectedIcon = Icons.AutoMirrored.Filled.TrendingUp, unselectedIcon = Icons.AutoMirrored.Outlined.TrendingUp)
             val lookupTab = TabBarItem(title = "Lookup", direction = LookupViewDestination(), selectedIcon = Icons.Filled.Search, unselectedIcon = Icons.Outlined.Search)
             val settingsTab = TabBarItem(title = "Settings", direction = SettingsViewDestination(), selectedIcon = Icons.Filled.Settings, unselectedIcon = Icons.Outlined.Settings)
 
@@ -372,11 +373,11 @@ class RootActivity : ComponentActivity() {
                                 API.updateWorldSkillsCache()
                             }
                         }
-                        if (!API.importedVDA) {
-                            CoroutineScope(Dispatchers.Default).launch {
-                                API.updateVDACache()
-                            }
-                        }
+//                        if (!API.importedVDA) {
+//                            CoroutineScope(Dispatchers.Default).launch {
+//                                API.updateVDACache()
+//                            }
+//                        }
                     }
 
                     MaterialTheme.colorScheme.onTopContainer = if (userSettings.getOnTopContainerColor().isSpecified) userSettings.getOnTopContainerColor() else MaterialTheme.colorScheme.onPrimaryContainer

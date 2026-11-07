@@ -53,7 +53,8 @@ fun DivisionTabView(tabBarItems: List<TabBarItem>, navController: NavController,
     val localContext = LocalContext.current
     val userSettings = UserSettings(localContext)
     NavigationBar(
-        containerColor = if (userSettings.getMinimalisticMode()) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow
+        containerColor = if (userSettings.getMinimalisticMode()) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow,
+        windowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0)
     ) {
         // looping over each tab to generate the views and navigation for each item
         tabBarItems.forEachIndexed { index, tabBarItem ->
@@ -135,6 +136,7 @@ fun EventDivisionView(eventId: Int, division: Division, eventDivisionViewModel: 
     )
 
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (routeNameMap[tabState?.destination?.route] != null || true) {
                 DivisionTabView(

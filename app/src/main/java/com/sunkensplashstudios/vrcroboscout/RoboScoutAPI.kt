@@ -172,13 +172,13 @@ class RoboScoutAPI {
 
     companion object {
 
-        fun roboteventsUrl(): String {
-            return "https://www.robotevents.com/api/v2"
+        fun vexEventsUrl(): String {
+            return "https://events.vex.com/api/v2"
         }
 
-        fun roboteventsAccessKey(): String {
+        fun vexEventsAccessKey(): String {
             if (BuildConfig.DEBUG) {
-                return BuildConfig.ROBOTEVENTS_API_KEY
+                return BuildConfig.VEXEVENTS_API_KEY
             }
             else {
                 val key = (0..9).random()
@@ -198,7 +198,7 @@ class RoboScoutAPI {
             }
         }
 
-        fun roboteventsDate(date: String, localize: Boolean): Date? {
+        fun vexEventsDate(date: String, localize: Boolean): Date? {
             try {
                 val formatter = SimpleDateFormat()
                 // Example date: "2023-04-26T11:54:40-04:00"
@@ -231,9 +231,9 @@ class RoboScoutAPI {
             }
         }
 
-        suspend fun roboteventsRequest(requestUrl: String, params: Map<String, Any> = emptyMap<String, Any>()): List<JsonObject> {
+        suspend fun vexEventsRequest(requestUrl: String, params: Map<String, Any> = emptyMap<String, Any>()): List<JsonObject> {
             var data = mutableListOf<JsonObject>()
-            val requestUrl = this.roboteventsUrl() + requestUrl
+            val requestUrl = this.vexEventsUrl() + requestUrl
             var page = 1
             var cont = true
             var params = params.toMutableMap()
@@ -241,7 +241,7 @@ class RoboScoutAPI {
             while (cont) {
                 try {
                     val response = client.get(requestUrl) {
-                        header("Authorization", "Bearer ${RoboScoutAPI.roboteventsAccessKey()}")
+                        header("Authorization", "Bearer ${RoboScoutAPI.vexEventsAccessKey()}")
                         url {
                             params["program"] = listOf(1, 4)
                             params.forEach { param ->
@@ -259,7 +259,7 @@ class RoboScoutAPI {
                                 parameters.append("per_page", "250")
                             }
                         }
-                        println("RobotEvents API request (page ${page}): $url")
+                        println("VEX Events API request (page ${page}): $url")
                     }
 
                     val json = Json.parseToJsonElement(response.bodyAsText())
@@ -283,7 +283,7 @@ class RoboScoutAPI {
             return data
         }
 
-        suspend fun roboteventsCompetitionScraper(params: MutableMap<String, Any> = mutableMapOf()): List<String> {
+        suspend fun vexEventsCompetitionScraper(params: MutableMap<String, Any> = mutableMapOf()): List<String> {
             var params = params
 
             println(params)
@@ -304,7 +304,7 @@ class RoboScoutAPI {
 
             val competition = if (API.seasonsCache[0].find { it.id == params["seasonId"]} != null) "vex-robotics-competition" else "college-competition"
 
-            val requestUrl = "https://www.robotevents.com/robot-competitions/$competition"
+            val requestUrl = "https://events.vex.com/robot-competitions/$competition"
 
             val skuArray = mutableListOf<String>()
 
@@ -326,7 +326,7 @@ class RoboScoutAPI {
                 }
             }
 
-            println("RobotEvents Scraper (page ${params["page"] as? Int ?: 0}): ${response.call.request.url}")
+            println("VEX EVENTS Scraper (page ${params["page"] as? Int ?: 0}): ${response.call.request.url}")
             //println(response.bodyAsText())
 
             val pattern = "$requestUrl/RE-[A-Z0-9]*([+-]?(?=\\.\\d|\\d)(?:\\d+)?\\.?\\d*)(?:[Ee]([+-]?\\d+))?([+-]?(?=\\.\\d|\\d)(?:\\d+)?\\.?\\d*)(?:[Ee]([+-]?\\d+))?\\.html"
@@ -344,7 +344,7 @@ class RoboScoutAPI {
 
     suspend fun generateSeasonsCache() {
         this.seasonsCache = listOf(mutableListOf(), mutableListOf())
-        val data = roboteventsRequest("/seasons/")
+        val data = vexEventsRequest("/seasons/")
 
         try {
             for (seasonData in data) {
@@ -407,7 +407,7 @@ class RoboScoutAPI {
         this.wsCache.clear()
 
         try {
-            val response = client.get("https://www.robotevents.com/api/seasons/${season ?: API.selectedSeasonId()}/skills") {
+            val response = client.get("https://events.vex.com/api/seasons/${season ?: API.selectedSeasonId()}/skills") {
                 url {
                     parameters.append("grade_level", gradeLevel)
                 }
@@ -475,7 +475,7 @@ class RoboScoutAPI {
         }
     }
 
-    suspend fun vdaFor(team: Team, fetchRobotEventsMatchStatistics: Boolean = false): VDAEntry {
+    suspend fun vdaFor(team: Team, fetchVexEventsMatchStatistics: Boolean = false): VDAEntry {
         val vda = try {
             this.vdaCache.first {
                 it.teamNumber == team.number
@@ -483,7 +483,7 @@ class RoboScoutAPI {
         } catch (e: NoSuchElementException) {
             VDAEntry()
         }
-        if (fetchRobotEventsMatchStatistics) {
+        if (fetchVexEventsMatchStatistics) {
             var totalWins = 0
             var totalLosses = 0
             var totalTies = 0
@@ -493,7 +493,7 @@ class RoboScoutAPI {
             val seasonIndex = API.seasonsCache[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
             val season = API.seasonsCache[if (team.grade == "College") 1 else 0][seasonIndex]
 
-            val reRankingsData = roboteventsRequest("/teams/${team.id}/rankings", mapOf("season" to season.id))
+            val reRankingsData = vexEventsRequest("/teams/${team.id}/rankings", mapOf("season" to season.id))
             try {
                 val reRankings =
                     reRankingsData.map { jsonWorker.decodeFromJsonElement<TeamRanking>(it) }
@@ -531,7 +531,7 @@ class RoboScoutAPI {
                 vda.awpPerMatch = (totalWP - 2 * totalWins - totalTies) / vda.totalMatches
             }
             catch (e: Exception) {
-                println("Failed to fetch RobotEvents match statistics for ${team.number}, error: $e")
+                println("Failed to fetch VEX Events match statistics for ${team.number}, error: $e")
                 e.printStackTrace()
             }
         }
@@ -555,8 +555,8 @@ class Season {
     var program: Program = Program()
     var start: String = ""
     var end: String = ""
-    @kotlinx.serialization.Transient var startDate: Date? = RoboScoutAPI.roboteventsDate(start, true)
-    @kotlinx.serialization.Transient var endDate: Date? = RoboScoutAPI.roboteventsDate(end, true)
+    @kotlinx.serialization.Transient var startDate: Date? = RoboScoutAPI.vexEventsDate(start, true)
+    @kotlinx.serialization.Transient var endDate: Date? = RoboScoutAPI.vexEventsDate(end, true)
 }
 
 @Serializable
@@ -608,9 +608,9 @@ data class Match(
     val instance: Int,
     @SerialName("matchnum") val matchNum: Int,
     val scheduled: String?,
-    @kotlinx.serialization.Transient val scheduledDate: Date? = RoboScoutAPI.roboteventsDate(scheduled ?: "", true),
+    @kotlinx.serialization.Transient val scheduledDate: Date? = RoboScoutAPI.vexEventsDate(scheduled ?: "", true),
     val started: String?,
-    @kotlinx.serialization.Transient val startedDate: Date? = RoboScoutAPI.roboteventsDate(started ?: "", true),
+    @kotlinx.serialization.Transient val startedDate: Date? = RoboScoutAPI.vexEventsDate(started ?: "", true),
     val field: String?,
     val scored: Boolean,
     val name: String,
@@ -656,7 +656,7 @@ data class Award(
     val designation: String?,
     val classification: String?,
     val teamWinners: List<TeamWinner>,
-    //val individualWinners: List<String> <-- For some reason this actually isn't always a list of strings from the RobotEvents API...
+    //val individualWinners: List<String> <-- For some reason this actually isn't always a list of strings from the VEX Events API...
 ) {
     init {
         if (!this.title.contains("(WC)")) {
@@ -761,8 +761,8 @@ class Event {
 
     init {
         try {
-            this.startDate = RoboScoutAPI.roboteventsDate(this.start, true)
-            this.endDate = RoboScoutAPI.roboteventsDate(this.end, true)
+            this.startDate = RoboScoutAPI.vexEventsDate(this.start, true)
+            this.endDate = RoboScoutAPI.vexEventsDate(this.end, true)
         }
         catch (_: java.text.ParseException) { }
     }
@@ -790,7 +790,7 @@ class Event {
          var res: List<JsonObject>
 
          runBlocking {
-             res = RoboScoutAPI.roboteventsRequest("/events/", if (id != 0) mapOf("id" to id.toString()) else mapOf("sku" to sku))
+             res = RoboScoutAPI.vexEventsRequest("/events/", if (id != 0) mapOf("id" to id.toString()) else mapOf("sku" to sku))
          }
 
          if (res.isEmpty()) {
@@ -805,9 +805,9 @@ class Event {
              this.name = event.name
              this.name = event.name
              this.start = event.start
-             this.startDate = RoboScoutAPI.roboteventsDate(event.start, true)
+             this.startDate = RoboScoutAPI.vexEventsDate(event.start, true)
              this.end = event.end
-             this.endDate = RoboScoutAPI.roboteventsDate(event.end, true)
+             this.endDate = RoboScoutAPI.vexEventsDate(event.end, true)
              this.season = event.season
              this.location = event.location
              this.teams = event.teams
@@ -824,7 +824,7 @@ class Event {
 
     suspend fun fetchTeams() {
         val teams = mutableListOf<Team>()
-        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/teams")
+        val data = RoboScoutAPI.vexEventsRequest("/events/${this.id}/teams")
         try {
             for (team in data) {
                 val cachedTeam: Team = jsonWorker.decodeFromJsonElement(team)
@@ -845,7 +845,7 @@ class Event {
     }
 
     suspend fun fetchRankings(division: Division) {
-        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/divisions/${division.id}/rankings")
+        val data = RoboScoutAPI.vexEventsRequest("/events/${this.id}/divisions/${division.id}/rankings")
         this.rankings[division] = mutableListOf<TeamRanking>()
         try {
             for (ranking in data) {
@@ -860,7 +860,7 @@ class Event {
     }
 
     suspend fun fetchMatches(division: Division) {
-        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/divisions/${division.id}/matches")
+        val data = RoboScoutAPI.vexEventsRequest("/events/${this.id}/divisions/${division.id}/matches")
         this.matches[division] = mutableListOf<Match>()
         try {
             for (match in data) {
@@ -989,7 +989,7 @@ class Event {
     }
 
     suspend fun fetchSkillsRankings() {
-        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/skills")
+        val data = RoboScoutAPI.vexEventsRequest("/events/${this.id}/skills")
         this.skillsRankings = mutableListOf<TeamSkillsRanking>()
         try {
             var index = 0
@@ -1029,7 +1029,7 @@ class Event {
     }
 
     suspend fun fetchAwards(division: Division) {
-        val data = RoboScoutAPI.roboteventsRequest("/events/${this.id}/awards")
+        val data = RoboScoutAPI.vexEventsRequest("/events/${this.id}/awards")
         this.awards[division] = mutableListOf<Award>()
         try {
             for (award in data) {
@@ -1129,12 +1129,12 @@ class Team : MutableState<Team> {
 
          if (this.id != 0) {
              runBlocking {
-                 res = RoboScoutAPI.roboteventsRequest("/teams/$id")
+                 res = RoboScoutAPI.vexEventsRequest("/teams/$id")
              }
          }
          else if (this.number.isNotEmpty()) {
              runBlocking {
-                 res = RoboScoutAPI.roboteventsRequest("/teams", mapOf("number" to number, "grade" to listOf("Middle School", "High School", "College")))
+                 res = RoboScoutAPI.vexEventsRequest("/teams", mapOf("number" to number, "grade" to listOf("Middle School", "High School", "College")))
              }
          }
          else {
@@ -1164,7 +1164,7 @@ class Team : MutableState<Team> {
     }
 
     suspend fun matchesAt(event: Event): List<Match> {
-        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/matches", mapOf("event" to event.id))
+        val data = RoboScoutAPI.vexEventsRequest("/teams/${this.id}/matches", mapOf("event" to event.id))
         val matches = mutableListOf<Match>()
         try {
             for (match in data) {
@@ -1182,7 +1182,7 @@ class Team : MutableState<Team> {
     }
 
     suspend fun matchesForSeason(season: Int): List<Match> {
-        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/matches", mapOf("season" to season))
+        val data = RoboScoutAPI.vexEventsRequest("/teams/${this.id}/matches", mapOf("season" to season))
         val matches = mutableListOf<Match>()
         try {
             for (match in data) {
@@ -1203,10 +1203,10 @@ class Team : MutableState<Team> {
         val data: List<JsonObject>
         if (season == null) {
             val seasonIndex = API.seasonsCache[if (API.selectedProgramId() == 4) 1 else 0].indexOfFirst { it.id == API.selectedSeasonId() }
-            data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to (API.seasonsCache[if (this.grade == "College") 1 else 0][seasonIndex].id)))
+            data = RoboScoutAPI.vexEventsRequest("/events", mapOf("team" to id, "season" to (API.seasonsCache[if (this.grade == "College") 1 else 0][seasonIndex].id)))
         }
         else {
-            data = RoboScoutAPI.roboteventsRequest("/events", mapOf("team" to id, "season" to season))
+            data = RoboScoutAPI.vexEventsRequest("/events", mapOf("team" to id, "season" to season))
         }
         events.clear()
         try {
@@ -1222,7 +1222,7 @@ class Team : MutableState<Team> {
     }
 
     suspend fun fetchAwards(season: Int? = null) {
-        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/awards", mapOf("season" to (season ?: API.selectedSeasonId())))
+        val data = RoboScoutAPI.vexEventsRequest("/teams/${this.id}/awards", mapOf("season" to (season ?: API.selectedSeasonId())))
         awards.clear()
         try {
             for (award in data) {
@@ -1238,7 +1238,7 @@ class Team : MutableState<Team> {
     }
 
     suspend fun averageQualifiersRanking(season: Int? = null): Double {
-        val data = RoboScoutAPI.roboteventsRequest("/teams/${this.id}/rankings/", mapOf("season" to (season ?: API.selectedSeasonId())))
+        val data = RoboScoutAPI.vexEventsRequest("/teams/${this.id}/rankings/", mapOf("season" to (season ?: API.selectedSeasonId())))
         var total = 0
         for (comp in data) {
             total += comp["rank"]!!.jsonPrimitive.int

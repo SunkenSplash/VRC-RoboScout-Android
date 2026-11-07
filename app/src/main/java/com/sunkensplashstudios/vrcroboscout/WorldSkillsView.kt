@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -117,6 +116,7 @@ fun WorldSkillsView(navController: NavController) {
     var importing by rememberSaveable { mutableStateOf(!API.importedWS) }
 
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -130,7 +130,7 @@ fun WorldSkillsView(navController: NavController) {
                     // link to world skills
                     IconButton(
                         onClick = {
-                            uriHandler.openUri("https://www.robotevents.com/robot-competitions/vex-robotics-competition/standings/skills")
+                            uriHandler.openUri("https://events.vex.com/robot-competitions/vex-robotics-competition/standings/skills")
                         },
                         modifier = Modifier.padding(horizontal = 5.dp)
                     ) {
@@ -343,39 +343,17 @@ fun WorldSkillsView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "World Skills Score",
+                                                lines = listOf(
+                                                "${wsEntry.scores.score} Combined",
+                                                "${wsEntry.scores.programming} Programming",
+                                                "${wsEntry.scores.driver} Driver",
+                                                "${wsEntry.scores.maxProgramming} Highest Programming",
+                                                "${wsEntry.scores.maxDriver} Highest Programming"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -439,39 +417,17 @@ fun WorldSkillsView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "World Skills Score",
+                                                lines = listOf(
+                                                "${wsEntry.scores.score} Combined",
+                                                "${wsEntry.scores.programming} Programming",
+                                                "${wsEntry.scores.driver} Driver",
+                                                "${wsEntry.scores.maxProgramming} Highest Programming",
+                                                "${wsEntry.scores.maxDriver} Highest Programming"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -535,39 +491,17 @@ fun WorldSkillsView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "World Skills Score",
+                                                lines = listOf(
+                                                "${wsEntry.scores.score} Combined",
+                                                "${wsEntry.scores.programming} Programming",
+                                                "${wsEntry.scores.driver} Driver",
+                                                "${wsEntry.scores.maxProgramming} Highest Programming",
+                                                "${wsEntry.scores.maxDriver} Highest Programming"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -623,39 +557,17 @@ fun WorldSkillsView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.score} Combined") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.programming} Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.driver} Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxProgramming} Highest Programming") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("${wsEntry.scores.maxDriver} Highest Driver") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "World Skills Score",
+                                                lines = listOf(
+                                                "${wsEntry.scores.score} Combined",
+                                                "${wsEntry.scores.programming} Programming",
+                                                "${wsEntry.scores.driver} Driver",
+                                                "${wsEntry.scores.maxProgramming} Highest Programming",
+                                                "${wsEntry.scores.maxDriver} Highest Programming"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                         Spacer(modifier = Modifier.padding(horizontal = 5.dp))

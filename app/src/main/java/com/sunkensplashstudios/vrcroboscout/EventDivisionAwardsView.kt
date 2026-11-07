@@ -75,6 +75,7 @@ fun EventDivisionAwardsView(event: Event, division: Division, eventDivisionAward
     }
 
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(

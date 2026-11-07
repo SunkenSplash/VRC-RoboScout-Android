@@ -60,7 +60,7 @@ class FavoritesViewModel : ViewModel() {
 
     fun generateEventSKUMap(favoriteEvents: List<String>) {
         CoroutineScope(Dispatchers.Default).launch {
-            val events = RoboScoutAPI.roboteventsRequest(
+            val events = RoboScoutAPI.vexEventsRequest(
                 "/events/",
                 params = mapOf("sku" to favoriteEvents)
             )
@@ -104,6 +104,7 @@ fun FavoritesView(favoritesViewModel: FavoritesViewModel = viewModels["favorites
     }
 
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(

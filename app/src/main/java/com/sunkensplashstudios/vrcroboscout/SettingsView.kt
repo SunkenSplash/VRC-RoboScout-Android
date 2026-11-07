@@ -64,6 +64,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsView(navController: NavController) {
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -546,7 +547,7 @@ fun SettingsView(navController: NavController) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             Row(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp).clickable {
                     uriHandler.openUri("https://discord.gg/KczJZUfs5f")

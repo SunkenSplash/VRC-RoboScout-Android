@@ -113,6 +113,7 @@ fun TrueSkillView(navController: NavController) {
     var filterDropdownExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -368,33 +369,16 @@ fun TrueSkillView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "TrueSkill Details",
+                                                lines = listOf(
+                                                    "CCWM: ${vdaEntry.ccwm}",
+                                                    "Total Wins: ${vdaEntry.totalWins.toInt()}",
+                                                    "Total Losses: ${vdaEntry.totalLosses.toInt()}",
+                                                    "Total Ties: ${vdaEntry.totalTies.toInt()}"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                     }
@@ -478,33 +462,16 @@ fun TrueSkillView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "TrueSkill Details",
+                                                lines = listOf(
+                                                    "CCWM: ${vdaEntry.ccwm}",
+                                                    "Total Wins: ${vdaEntry.totalWins.toInt()}",
+                                                    "Total Losses: ${vdaEntry.totalLosses.toInt()}",
+                                                    "Total Ties: ${vdaEntry.totalTies.toInt()}"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                     }
@@ -588,33 +555,16 @@ fun TrueSkillView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "TrueSkill Details",
+                                                lines = listOf(
+                                                    "CCWM: ${vdaEntry.ccwm}",
+                                                    "Total Wins: ${vdaEntry.totalWins.toInt()}",
+                                                    "Total Losses: ${vdaEntry.totalLosses.toInt()}",
+                                                    "Total Ties: ${vdaEntry.totalTies.toInt()}"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                     }
@@ -687,33 +637,16 @@ fun TrueSkillView(navController: NavController) {
                                             modifier = Modifier.clickable {
                                                 expanded = !expanded
                                             })
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text("CCWM: ${vdaEntry.ccwm}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Wins: ${vdaEntry.totalWins.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Losses: ${vdaEntry.totalLosses.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text("Total Ties: ${vdaEntry.totalTies.toInt()}") },
-                                                onClick = { },
-                                                enabled = false,
-                                                colors = disabledMenuItemColors(MaterialTheme)
+                                        if (expanded) {
+                                            InfoDialog(
+                                                title = "TrueSkill Details",
+                                                lines = listOf(
+                                                    "CCWM: ${vdaEntry.ccwm}",
+                                                    "Total Wins: ${vdaEntry.totalWins.toInt()}",
+                                                    "Total Losses: ${vdaEntry.totalLosses.toInt()}",
+                                                    "Total Ties: ${vdaEntry.totalTies.toInt()}"
+                                                ),
+                                                onDismiss = { expanded = false }
                                             )
                                         }
                                     }

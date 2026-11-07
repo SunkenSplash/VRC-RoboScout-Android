@@ -1,21 +1,23 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     kotlin("plugin.serialization")
-    id("com.google.devtools.ksp") version "1.9.22-1.0.17"
+    id("com.google.devtools.ksp") version "2.3.6"
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
     namespace = "com.sunkensplashstudios.vrcroboscout"
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.sunkensplashstudios.vrcroboscout"
         minSdk = 30
-        targetSdk = 34
-        versionCode = 11
+        targetSdk = 37
+        versionCode = 12
         versionName = "1.1.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -29,7 +31,7 @@ android {
         properties.load(keystoreFile.inputStream())
 
         //return empty key in case something goes wrong
-        val reAPIKey = properties.getProperty("ROBOTEVENTS_API_KEY") ?: ""
+        val reAPIKey = properties.getProperty("VEXEVENTS_API_KEY") ?: ""
         val key0 = properties.getProperty("key0") ?: ""
         val key1 = properties.getProperty("key1") ?: ""
         val key2 = properties.getProperty("key2") ?: ""
@@ -45,18 +47,18 @@ android {
         buildConfigField(
             type = "int",
             name = "DEFAULT_V5_SEASON_ID",
-            value = "190"
+            value = "204"
         )
         buildConfigField(
             type = "int",
             name = "DEFAULT_VU_SEASON_ID",
-            value = "191"
+            value = "205"
         )
 
         // API keys
         buildConfigField(
             type = "String",
-            name = "ROBOTEVENTS_API_KEY",
+            name = "VEXEVENTS_API_KEY",
             value = reAPIKey
         )
         buildConfigField(
@@ -123,18 +125,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {

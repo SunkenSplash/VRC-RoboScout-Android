@@ -31,8 +31,6 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -165,7 +163,7 @@ class LookupViewModel : ViewModel() {
         scraperParams["from_date"] = if (name.isNullOrEmpty() && API.latestSeasonIDs.contains(UserSettings(applicationContext!!).getSelectedSeasonId())) formatter.format(Date()) else "01-Jan-1970"
 
         CoroutineScope(Dispatchers.Default).launch {
-            val skuArray = RoboScoutAPI.roboteventsCompetitionScraper(params = scraperParams)
+            val skuArray = RoboScoutAPI.vexEventsCompetitionScraper(params = scraperParams)
             if (skuArray.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     events.value = listOf()
@@ -174,7 +172,7 @@ class LookupViewModel : ViewModel() {
                 }
                 return@launch
             }
-            val data = RoboScoutAPI.roboteventsRequest(
+            val data = RoboScoutAPI.vexEventsRequest(
                 requestUrl = "/seasons/${season ?: UserSettings(applicationContext!!).getSelectedSeasonId()}/events",
                 params = mapOf("sku" to skuArray)
             )
@@ -235,6 +233,7 @@ fun LookupView(lookupViewModel: LookupViewModel = viewModels["lookup_view"] as L
     ) {
         lookupViewModel.applicationContext = LocalContext.current.applicationContext
         Scaffold(
+            contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
             topBar = {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -618,33 +617,16 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             },
                             color = if (lookupViewModel.fetchedTeams.value) MaterialTheme.colorScheme.button else MaterialTheme.colorScheme.onSurface
                         )
-                        DropdownMenu(
-                            expanded = wsExpanded,
-                            onDismissRequest = { wsExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("${lookupViewModel.wsEntry.value.scores.programming} Programming") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("${lookupViewModel.wsEntry.value.scores.driver} Driver") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("${lookupViewModel.wsEntry.value.scores.maxProgramming} Highest Programming") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("${lookupViewModel.wsEntry.value.scores.maxDriver} Highest Driver") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
+                        if (wsExpanded) {
+                            InfoDialog(
+                                title = "World Skills Score",
+                                lines = listOf(
+                                    "${lookupViewModel.wsEntry.value.scores.programming} Programming",
+                                    "${lookupViewModel.wsEntry.value.scores.driver} Driver",
+                                    "${lookupViewModel.wsEntry.value.scores.maxProgramming} Highest Programming",
+                                    "${lookupViewModel.wsEntry.value.scores.maxDriver} Highest Driver"
+                                ),
+                                onDismiss = { wsExpanded = false }
                             )
                         }
                         Spacer(modifier = Modifier.weight(1.0f))
@@ -671,51 +653,19 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                             },
                             color = if (lookupViewModel.fetchedTeams.value) MaterialTheme.colorScheme.button else MaterialTheme.colorScheme.onSurface
                         )
-                        DropdownMenu(
-                            expanded = msExpanded,
-                            onDismissRequest = { msExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Average Qualifiers Ranking: ${lookupViewModel.avgRanking.doubleValue.round(1)}") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("CCWM: ${lookupViewModel.vdaEntry.value.ccwm}") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent.round(1)}%") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Total Matches: ${lookupViewModel.vdaEntry.value.totalMatches.toInt()}") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Total Wins: ${lookupViewModel.vdaEntry.value.totalWins.toInt()}") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Total Losses: ${lookupViewModel.vdaEntry.value.totalLosses.toInt()}") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Total Ties: ${lookupViewModel.vdaEntry.value.totalTies.toInt()}") },
-                                onClick = { },
-                                enabled = false,
-                                colors = disabledMenuItemColors(MaterialTheme)
+                        if (msExpanded) {
+                            InfoDialog(
+                                title = "Match Statistics",
+                                lines = listOf(
+                                    "Average Qualifiers Ranking: ${lookupViewModel.avgRanking.doubleValue.round(1)}",
+                                    "CCWM: ${lookupViewModel.vdaEntry.value.ccwm}",
+                                    "Winrate: ${lookupViewModel.vdaEntry.value.totalWinningPercent.round(1)}%",
+                                    "Total Matches: ${lookupViewModel.vdaEntry.value.totalMatches.toInt()}",
+                                    "Total Wins: ${lookupViewModel.vdaEntry.value.totalWins.toInt()}",
+                                    "Total Losses: ${lookupViewModel.vdaEntry.value.totalLosses.toInt()}",
+                                    "Total Ties: ${lookupViewModel.vdaEntry.value.totalTies.toInt()}"
+                                ),
+                                onDismiss = { msExpanded = false }
                             )
                         }
                         Spacer(modifier = Modifier.weight(1.0f))
@@ -733,27 +683,21 @@ fun TeamLookup(lookupViewModel: LookupViewModel, navController: NavController) {
                     Row {
                         Text(
                             "Awards",
-                            modifier =  if (lookupViewModel.fetchedTeams.value) {
+                            modifier =  if (lookupViewModel.fetchedTeams.value && lookupViewModel.awardCounts.isNotEmpty()) {
                                 Modifier.clickable {
                                     awardsExpanded = !awardsExpanded
                                 }
                             } else {
                                 Modifier
                             },
-                            color = if (lookupViewModel.fetchedTeams.value) MaterialTheme.colorScheme.button else MaterialTheme.colorScheme.onSurface
+                            color = if (lookupViewModel.fetchedTeams.value && lookupViewModel.awardCounts.isNotEmpty()) MaterialTheme.colorScheme.button else MaterialTheme.colorScheme.onSurface
                         )
-                        DropdownMenu(
-                            expanded = awardsExpanded,
-                            onDismissRequest = { awardsExpanded = false }
-                        ) {
-                            lookupViewModel.awardCounts.forEach { award ->
-                                DropdownMenuItem(
-                                    text = { Text("${award.value}x ${award.key}") },
-                                    onClick = { },
-                                    enabled = false,
-                                    colors = disabledMenuItemColors(MaterialTheme)
-                                )
-                            }
+                        if (awardsExpanded) {
+                            InfoDialog(
+                                title = "Awards",
+                                lines = lookupViewModel.awardCounts.map { "${it.value}x ${it.key}" },
+                                onDismiss = { awardsExpanded = false }
+                            )
                         }
                         Spacer(modifier = Modifier.weight(1.0f))
                         Text(

@@ -17,8 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,6 +48,7 @@ import com.sunkensplashstudios.vrcroboscout.ui.theme.topContainer
 @Composable
 fun EventInformationView(event: Event, navController: NavController) {
     Scaffold(
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -146,22 +145,12 @@ fun EventInformationView(event: Event, navController: NavController) {
                                         event.divisions.size.toString(),
                                     )
                                 }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    event.divisions.forEach { division ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    division.name
-                                                )
-                                            },
-                                            onClick = { },
-                                            enabled = false,
-                                            colors = disabledMenuItemColors(MaterialTheme)
-                                        )
-                                    }
+                                if (expanded) {
+                                    InfoDialog(
+                                        title = "Divisions",
+                                        lines = event.divisions.map { it.name },
+                                        onDismiss = { expanded = false }
+                                    )
                                 }
                             }
                             HorizontalDivider(
@@ -256,7 +245,8 @@ fun EventInformationView(event: Event, navController: NavController) {
                                 )
                                 Spacer(modifier = Modifier.size(10.dp))
                                 Text(
-                                    event.season.name
+                                    text = event.season.name,
+                                    textAlign = TextAlign.End
                                 )
                             }
                             HorizontalDivider(
